@@ -1,27 +1,22 @@
 #include "kdtree.h"
 
-double square(double value) {
-  return value * value;
-}
-
-KDNode::KDNode(KDNode *par, int term, int bs) {
-  cleft = nullptr;
-  cright = nullptr;
-  units = nullptr;
-  nunits = 0;
-
+// KDNode::KDNode(KDNode *par, int term, int bs) {
+KDNode::KDNode(KDNode *par, const int term) {
   parent = par;
   setTerminal(term);
-  if (terminal == 1) {
-    reserveUnits(bs);
-  }
 
   // min = new double[p];
   // max = new double[p];
 }
 
-void KDNode::setTerminal(int term) {
-  // terminal = term > 0 ? 1 : 0;
+KDNode::~KDNode() {
+  delete[] units;
+  delete cleft;
+  delete cright;
+  // delete this;
+}
+
+void KDNode::setTerminal(const int term) {
   terminal = term > 0;
 }
 
@@ -36,18 +31,21 @@ KDNode* KDNode::getSibling() {
   return this == parent->cleft ? parent->cright : parent->cleft;
 }
 
-void KDNode::reserveUnits(int len) {
+int KDNode::getNUnits() {
+  return nunits;
+}
+
+void KDNode::addUnits(const int *aunits, const int n) {
   delete[] units;
-  units = new int[len];
-  nunits = 0;
+  units = new int[n];
+
+  for (int i = 0; i < n; i++)
+    units[i] = aunits[i];
+
+  nunits = n;
 }
 
-void KDNode::addUnit(int idx) {
-  units[nunits] = idx;
-  nunits += 1;
-}
-
-void KDNode::removeUnit(int idx) {
+void KDNode::removeUnit(const int idx) {
   if (nunits == 0)
     return;
 
@@ -64,6 +62,7 @@ void KDNode::removeUnit(int idx) {
     return;
   }
 
+  // ======== IF WE REMOVE TREES
   // KDNode *sibling = getSibling();
 
   // if (parent == nullptr || sibling == nullptr)
@@ -89,7 +88,7 @@ void KDNode::removeUnit(int idx) {
 
 // ############################# K-D-TREE ######################################
 
-KDTree::KDTree(double *dt, int NN, int pp, int bs) {
+KDTree::KDTree(double *dt, const int NN, const int pp, const int bs) {
   data = dt;
   N = NN;
   p = pp;
@@ -97,35 +96,103 @@ KDTree::KDTree(double *dt, int NN, int pp, int bs) {
   top = nullptr;
 }
 
+KDTree::~KDTree() {
+  delete top;
+  // delete this;
+}
+
 void KDTree::init() {
   if (bucketSize < 1 || N < 1 || p < 1)
     return;
 
-  top = new KDNode(nullptr, bucketSize - N + 1, bucketSize);
-
-  if (top->isTerminal() == 1) {
-    for (int i = 0; i < N; i++)
-      top->addUnit(i);
-    return;
-  }
+  top = new KDNode(nullptr, bucketSize - N + 1);
 
   int *units = new int[N];
   for (int i = 0; i < N; i++)
     units[i] = i;
 
-  splitSpread(top, units, 0, N);
+  if (top->isTerminal() == 1) {
+    top->addUnits(units, N);
+    delete[] units;
+    return;
+  }
+
+  split(top, units, N);
 
   delete[] units;
 }
 
-void KDTree::splitSpread(KDNode *parent, int *units, int l, int r) {
+void KDTree::split(KDNode *parent, int *units, const int n) {
+  // int m = splitMod(parent, units, n);
+  int m = splitSpread(parent, units, n);
+
+  parent->cleft = new KDNode(parent, bucketSize - m + 1);
+  parent->cright = new KDNode(parent, bucketSize - (n - m) + 1);
+
+  if (parent->cleft->isTerminal()) {
+    parent->cleft->addUnits(units, m);
+  } else {
+    split(parent->cleft, units, m);
+  }
+
+  if (parent->cright->isTerminal()) {
+    parent->cright->addUnits(units + m, n - m);
+  } else {
+    split(parent->cright, units + m, n - m);
+  }
+}
+
+int KDTree::splitM(int *units, const int n, const int m0, const int k) {
+  int *tunits = new int[n];
+  double *dt = data + k;
+  int l = 0;
+  int r = n;
+  double value = *(dt + units[m0] * p);
+
+  for (int i = 0; i < n; i++) {
+    double temp = *(dt + units[i] * p);
+    if (temp < value) {
+      tunits[l] = units[i];
+      l += 1;
+    } else if (temp > value) {
+      r -= 1;
+      tunits[r] = units[i];
+    }
+  }
+
+  int m = l;
+
+  for (int i = 0; i < n; i++) {
+    double temp = *(dt + units[i] * p);
+    if (temp == value) {
+      tunits[m] = units[i];
+      m += 1;
+    }
+  }
+
+  for (int i = 0; i < n; i++) {
+    units[i] = tunits[i];
+  }
+
+  delete[] tunits;
+
+  if (m0 < l) {
+    return splitM(units, l, m0, k);
+  } else if (m0 >= r) {
+    return r + splitM(units + r, n - r, m0 - r, k);
+  }
+
+  return m;
+}
+
+int KDTree::splitSpread(KDNode *parent, int *units, const int n) {
   double *mins = new double[p];
   double *maxs = new double[p];
 
-  std::copy_n(data + units[l] * p, p, mins);
-  std::copy_n(data + units[l] * p, p, maxs);
+  std::copy_n(data + units[0] * p, p, mins);
+  std::copy_n(data + units[0] * p, p, maxs);
 
-  for (int i = l + 1; i < r; i++) {
+  for (int i = 0; i < n; i++) {
     for (int k = 0; k < p; k++) {
       double *temp = data + units[i] * p + k;
       if (*temp < mins[k]) {
@@ -146,90 +213,38 @@ void KDTree::splitSpread(KDNode *parent, int *units, int l, int r) {
     }
   }
 
-  double minval = mins[parent->split];
-  double maxval = maxs[parent->split];
-  delete [] mins;
+  delete[] mins;
   delete[] maxs;
 
-  // We must handle if there is not information left, even though
-  // the bucketSize is too small
-  if (spread == 0.0) {
-    parent->setTerminal(1);
-    parent->reserveUnits(r - l);
-    for (int *i = units + l; i != units + r; i++)
-      parent->addUnit(*i);
-    return;
-  }
+  int m = splitM(units, n, n >> 1, parent->split);
 
-  double *dt = data + parent->split;
+  parent->value = *(data + units[m - 1] * p + parent->split);
 
-  std::sort(
-    units + l,
-    units + r,
-    [&, parent, dt](const int &a, const int &b) {
-      return *(dt + a * p) < *(dt + b * p);
-      // return data[a * p + parent->split] < data[b * p + parent->split];
-    }
-  );
-
-  int m = ((r - l) >> 1) + l;
-  parent->value = *(dt + units[m - 1] * p);
-
-  // If we chose a bad midpoint, we need to look further
-  if (parent->value == *(dt + units[m] * p)) {
-    int searchAbove = parent->value != maxval;
-    int searchBelow = parent->value != minval;
-
-    for (int i = 1; i < m - l; i++) {
-      // Check above
-      if (searchAbove && parent->value != *(dt + units[m + i] * p)) {
-        m += i;
-        break;
-      }
-
-      // Check below
-      // May cause oob, but should not as spread > 0.0 and above is checked first
-      // if l = 0, r = 5, m = 2: 0 1 2 3 4
-      // we check 3, 0, 4 (1, 2 is checked at if)
-      // and one must be different as spread > 0.0
-      // Also, if 0 == value, then we don't check below
-      //
-      // if l = 0, r = 6, m = 3: 0 1 2 3 4 5
-      // we check 4, 1, 5, 0 (2, 3 is checked at if)
-      // and one must be different as spread > 0.0
-      if (searchBelow && parent->value != *(dt + units[m - 1 - i] * p)) {
-        m -= i;
-        break;
-      }
-    }
-
-    parent->value = *(dt + units[m - 1] * p);
-  }
-
-  // parent->value = *(dt + units[m - 1] * p);
-  parent->cleft = new KDNode(parent, bucketSize - (m - l) + 1, bucketSize);
-  parent->cright = new KDNode(parent, bucketSize - (r - m) + 1, bucketSize);
-
-  if (parent->cleft->isTerminal()) {
-    for (int *i = units + l; i != units + m; i++)
-      parent->cleft->addUnit(*i);
-  } else {
-    splitSpread(parent->cleft, units, l, m);
-  }
-
-  if (parent->cright->isTerminal()) {
-    for (int *i = units + m; i != units + r; i++)
-      parent->cright->addUnit(*i);
-  } else {
-    splitSpread(parent->cright, units, m, r);
-  }
+  return m;
 }
 
-// void KDTree::splitMidpointSlide(KDNode *parent, int *units, int l, int r) {
+int KDTree::splitMod(KDNode *parent, int *units, const int n) {
+  int lvl = 0;
+  KDNode *par = parent;
+  while (par->parent != nullptr) {
+    par = par->parent;
+    lvl++;
+  }
+
+  parent->split = lvl % p;
+
+  int m = splitM(units, n, n >> 1, parent->split);
+
+  parent->value = *(data + units[m - 1] * p + parent->split);
+
+  return m;
+}
+
+// int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
 //   return;
 // }
 
-KDNode* KDTree::findNode(int idx) {
+KDNode* KDTree::findNode(const int idx) {
   double *obs = data + idx * p;
   KDNode *node = top;
 
@@ -248,43 +263,50 @@ int KDTree::findNeighbour(int *neighbours, const int maxsize, const int idx) {
   if (top == nullptr)
     return 0;
 
+  double *unit = data + idx * p;
   int size = 0;
   double mindist = DBL_MAX;
 
-  findNeighbourSearch(neighbours, maxsize, &size, top, &mindist, idx);
+  findNeighbourSearch(neighbours, maxsize, &size, top, &mindist, idx, unit);
 
   return size;
 }
 
 void KDTree::findNeighbourSearch(
-    int *neighbours, const int maxsize, int *size, KDNode *node, double *mindist, int idx
+  int *neighbours, const int maxsize, int *size, KDNode *node, double *mindist, const int idx, const double *unit
 ) {
   if (node->isTerminal()) {
-    findNeighbourInNode(neighbours, maxsize, size, node, mindist, idx);
+    findNeighbourInNode(neighbours, maxsize, size, node, mindist, idx, unit);
     return;
   }
 
-  KDNode *nextnode = data[idx * p + node->split] <= node->value
-    ? node->cleft
-    : node->cright;
+  // KDNode *nextnode = data[idx * p + node->split] <= node->value
+  //   ? node->cleft
+  //   : node->cright;
+  double dist = *(unit + node->split) - node->value;
+  KDNode *nextnode = dist <= 0.0 ? node->cleft : node->cright;
 
-  findNeighbourSearch(neighbours, maxsize, size, nextnode, mindist, idx);
+  findNeighbourSearch(neighbours, maxsize, size, nextnode, mindist, idx, unit);
 
   // <= to be precise, but maybe we can ignore this...
-  if (square(data[idx * p + node->split] - node->value) < *mindist) {
-    findNeighbourSearch(neighbours, maxsize, size, nextnode->getSibling(), mindist, idx);
+  // if (square(data[idx * p + node->split] - node->value) < *mindist) {
+  if (dist * dist < *mindist) {
+    findNeighbourSearch(neighbours, maxsize, size, nextnode->getSibling(), mindist, idx, unit);
   }
 }
 
 
 void KDTree::findNeighbourInNode(
-  int *neighbours, const int maxsize, int *size, KDNode *node, double *mindist, int idx
+  int *neighbours, const int maxsize, int *size, KDNode *node, double *mindist, const int idx, const double *unit
 ) {
-  for (int i = 0; i < node->nunits; i++) {
+  int nunits = node->getNUnits();
+
+  for (int i = 0; i < nunits; i++) {
     if (node->units[i] == idx) // Same unit
       continue;
 
-    double dist = distanceIdx(idx, node->units[i]);
+    // double dist = distanceIdx(idx, node->units[i]);
+    double dist = distance(unit, data + node->units[i] * p);
 
     if (dist < *mindist) {
       neighbours[0] = node->units[i];
@@ -297,13 +319,13 @@ void KDTree::findNeighbourInNode(
   }
 }
 
-void KDTree::removeUnit(int idx) {
+void KDTree::removeUnit(const int idx) {
   KDNode *node = findNode(idx);
   node->removeUnit(idx);
   return;
 }
 
-double KDTree::distance(double *u1, double *u2) {
+double KDTree::distance(const double *u1, const double *u2) {
   double dist = 0.0;
 
   for (int k = 0; k < p; k++) {
@@ -314,7 +336,7 @@ double KDTree::distance(double *u1, double *u2) {
   return dist;
 }
 
-double KDTree::distanceIdx(int id1, int id2) {
+double KDTree::distanceIdx(const int id1, const int id2) {
   double *u1 = data + id1 * p;
   double *u2 = data + id2 * p;
   return distance(u1, u2);

@@ -8,31 +8,31 @@
 class KDNode {
   // REGULAR NODE
 public:
-  KDNode *parent;
-  KDNode *cleft; // <=
-  KDNode *cright; // >
-  int split;
-  double value;
+  KDNode *parent = nullptr;
+  KDNode *cleft = nullptr; // <=
+  KDNode *cright = nullptr; // >
+  int split = -1;
+  double value = 0.0;
   // double *min;
   // double *max;
 
 private:
   // TERMINAL NODE
-  int terminal; // 1 if terminal node, 0 if regular node
+  int terminal = 0; // 1 if terminal node, 0 if regular node
+  int nunits = 0;
 public:
-  int *units;
-  int nunits;
+  int *units = nullptr;
 
 public:
-  KDNode(KDNode*, int, int);
-  void setTerminal(int);
+  KDNode(KDNode*, const int);
+  ~KDNode();
+  void setTerminal(const int);
   int isTerminal();
   KDNode* getSibling();
-  void reserveUnits(int);
-  void addUnit(int);
-  void removeUnit(int);
-  int* getUnits() {return units;};
-  int getNUnits() {return nunits;};
+  void addUnits(const int*, const int);
+  void removeUnit(const int);
+  int getNUnits();
+  /* int* getUnits() {return units;}; */
 };
 
 class KDTree {
@@ -42,22 +42,26 @@ private:
   int bucketSize;
 
 public:
-  KDNode *top;
+  KDNode *top = nullptr;
 
 private:
-  void splitSpread(KDNode*, int*, int, int);
-  void splitMidpointSlide(KDNode*, int*, int, int);
-  void findNeighbourInNode(int*, const int, int*, KDNode*, double*, int);
-  void findNeighbourSearch(int*, const int, int*, KDNode*, double*, int);
+  void split(KDNode*, int*, const int);
+  int splitM(int*, const int, const int, const int);
+  int splitSpread(KDNode*, int*, const int);
+  int splitMod(KDNode*, int*, const int);
+  /* int splitMidpointSlide(KDNode*, int*, const int); */
+  void findNeighbourInNode(int*, const int, int*, KDNode*, double*, const int, const double*);
+  void findNeighbourSearch(int*, const int, int*, KDNode*, double*, const int, const double*);
+  double distance(const double*, const double*);
 
 public:
-  KDTree(double*, int, int, int);
+  KDTree(double*, const int, const int, const int);
+  ~KDTree();
   void init();
-  KDNode* findNode(int);
+  KDNode* findNode(const int);
   int findNeighbour(int*, const int, const int);
-  void removeUnit(int);
-  double distance(double*, double*);
-  double distanceIdx(int, int);
+  void removeUnit(const int);
+  double distanceIdx(const int, const int);
 };
 
 #endif

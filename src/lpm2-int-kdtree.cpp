@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <unordered_set>
 #include "kdtree.h"
 
 //**********************************************
@@ -24,7 +25,8 @@ Rcpp::IntegerVector lpm2inttree(int n, Rcpp::NumericMatrix &x) {
   double *xx = REAL(x);
 
   int *probability = new int[N];
-  int *idx = new int[N];
+  // int *idx = new int[N];
+  std::unordered_set<int> idx(N);
   int *neighbours = new int[N];
 
   KDTree *tree = new KDTree(xx, N, x.nrow(), 40);
@@ -32,15 +34,30 @@ Rcpp::IntegerVector lpm2inttree(int n, Rcpp::NumericMatrix &x) {
 
   for (int i = 0; i < N; i++) {
     probability[i] = n;
-    idx[i] = i;
+    // idx[i] = i;
+    idx.insert(i);
   }
 
   Rcpp::NumericVector rand1 = Rcpp::runif(N, 0.0, 1.0);
   Rcpp::NumericVector rand2 = Rcpp::runif(N, 0.0, 1.0);
 
   while (unresolvedObjects > 1) {
-    int u1 = randn(rand2[unresolvedObjects-1], unresolvedObjects);
-    int idx1 = idx[u1];
+    // int u1 = randn(rand2[unresolvedObjects-1], unresolvedObjects);
+    // int idx1 = idx[u1];
+    int u1 = rand2[unresolvedObjects-1] * (double)N;
+    std::unordered_set<int>::iterator it1 = idx.find(u1);
+    bool exists = it1 != idx.end();
+    int idx1;
+    if (exists) {
+      idx1 = u1;
+    } else {
+      idx.insert(u1);
+      it1 = idx.find(u1);
+      it1++;
+      idx1 = it1 == idx.end() ? *idx.begin() : *it1;
+      idx.erase(u1);
+    }
+
     int len = tree->findNeighbour(neighbours, N, idx1);
     int idx2 = len == 1 ? neighbours[0] : randn(R::runif(0.0, 1.0), len);
 
@@ -68,38 +85,41 @@ Rcpp::IntegerVector lpm2inttree(int n, Rcpp::NumericMatrix &x) {
     }
 
     if (probability[idx2] == 0 || probability[idx2] == N) {
-      int u2;
-      for (int i = 0; i < unresolvedObjects; i++) {
-        if (idx[i] == idx2) {
-          u2 = i;
-          break;
-        }
-      }
+      // int u2;
+      // for (int i = 0; i < unresolvedObjects; i++) {
+      //   if (idx[i] == idx2) {
+      //     u2 = i;
+      //     break;
+      //   }
+      // }
 
+      // unresolvedObjects -= 1;
+
+      // int temp = idx[unresolvedObjects];
+      // idx[unresolvedObjects] = idx2;
+      // idx[u2] = temp;
+      // tree->removeUnit(idx2);
+
+      // if (unresolvedObjects == u1)
+      //   u1 = u2;
       unresolvedObjects -= 1;
-
-      int temp = idx[unresolvedObjects];
-      idx[unresolvedObjects] = idx2;
-      idx[u2] = temp;
+      idx.erase(idx2);
       tree->removeUnit(idx2);
-
-      if (unresolvedObjects == u1)
-        u1 = u2;
     }
 
     if (probability[idx1] == 0 || probability[idx1] == N) {
+      // unresolvedObjects -= 1;
+      // int temp = idx[unresolvedObjects];
+      // idx[unresolvedObjects] = idx1;
+      // idx[u1] = temp;
+      // tree->removeUnit(idx1);
       unresolvedObjects -= 1;
-      int temp = idx[unresolvedObjects];
-      idx[unresolvedObjects] = idx1;
-      idx[u1] = temp;
+      idx.erase(idx1);
       tree->removeUnit(idx1);
     }
   }
 
-  delete[] idx;
   delete[] neighbours;
-  delete[] tree->top->units;
-  delete tree->top;
   delete tree;
   Rcpp::IntegerVector s(n);
 
