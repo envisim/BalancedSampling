@@ -17,6 +17,22 @@ KDNode::~KDNode() {
   // delete this;
 }
 
+void KDNode::copy(KDNode *original) {
+  if (terminal) {
+    addUnits(original->units, original->nunits);
+    return;
+  }
+
+  split = original->split;
+  value = original->value;
+
+  cleft = new KDNode(this, original->cleft->isTerminal());
+  cleft->copy(original->cleft);
+
+  cright = new KDNode(this, original->cright->isTerminal());
+  cright->copy(original->cright);
+}
+
 void KDNode::setTerminal(const int term) {
   terminal = term > 0;
 }
@@ -89,7 +105,7 @@ void KDNode::removeUnit(const int idx) {
 
 // ############################# K-D-TREE ######################################
 
-KDTree::KDTree(double *dt, const int NN, const int pp, const int bs, const int method) {
+KDTree::KDTree(double *dt, const int NN, const int pp, const int bs, const int sm) {
   data = dt;
   N = NN;
   p = pp;
@@ -103,11 +119,14 @@ KDTree::KDTree(double *dt, const int NN, const int pp, const int bs, const int m
     limr[i] = -DBL_MAX;
   }
 
-  if (method == 0) {
+  if (sm == 0) {
+    method = 0;
     splitMethod = &KDTree::splitMod;
-  } else if (method == 1) {
+  } else if (sm == 1) {
+    method = 1;
     splitMethod = &KDTree::splitSpread;
   } else {
+    method = 2;
     splitMethod = &KDTree::splitMidpointSlide;
   }
 }
@@ -117,6 +136,13 @@ KDTree::~KDTree() {
   delete[] liml;
   delete[] limr;
   // delete this;
+}
+
+KDTree* KDTree::copy() {
+  KDTree* nt = new KDTree(data, N, p, bucketSize, method);
+  nt->top = new KDNode(nullptr, top->isTerminal());
+  nt->top->copy(top);
+  return nt;
 }
 
 void KDTree::init() {

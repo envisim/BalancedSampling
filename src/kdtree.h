@@ -26,6 +26,7 @@ public:
 public:
   KDNode(KDNode*, const int);
   ~KDNode();
+  void copy(KDNode *original);
   void setTerminal(const int);
   int isTerminal();
   KDNode* getSibling();
@@ -42,6 +43,7 @@ private:
   int bucketSize;
   double *liml = nullptr;
   double *limr = nullptr;
+  int method = 2;
   int (KDTree::*splitMethod)(KDNode*, int*, const int) = nullptr;
 
 public:
@@ -60,6 +62,7 @@ private:
 public:
   KDTree(double*, const int, const int, const int, const int);
   ~KDTree();
+  KDTree* copy();
   void init();
   KDNode* findNode(const int);
   int findNeighbour(int*, const int, const int);
