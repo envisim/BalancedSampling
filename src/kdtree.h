@@ -40,6 +40,9 @@ private:
   double *data; // data array of length Np
   int N, p; // Data dimensions
   int bucketSize;
+  double *liml = nullptr;
+  double *limr = nullptr;
+  int (KDTree::*splitMethod)(KDNode*, int*, const int) = nullptr;
 
 public:
   KDNode *top = nullptr;
@@ -49,13 +52,13 @@ private:
   int splitM(int*, const int, const int, const int);
   int splitSpread(KDNode*, int*, const int);
   int splitMod(KDNode*, int*, const int);
-  /* int splitMidpointSlide(KDNode*, int*, const int); */
+  int splitMidpointSlide(KDNode*, int*, const int);
   void findNeighbourInNode(int*, const int, int*, KDNode*, double*, const int, const double*);
   void findNeighbourSearch(int*, const int, int*, KDNode*, double*, const int, const double*);
   double distance(const double*, const double*);
 
 public:
-  KDTree(double*, const int, const int, const int);
+  KDTree(double*, const int, const int, const int, const int);
   ~KDTree();
   void init();
   KDNode* findNode(const int);
