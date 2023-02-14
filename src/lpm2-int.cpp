@@ -53,7 +53,7 @@ Rcpp::IntegerVector lpm2_int_cpp(
     }
 
     int len = tree->findNeighbour(neighbours, N, idx1);
-    int idx2 = len == 1 ? neighbours[0] : randn(R::runif(0.0, 1.0), len);
+    int idx2 = len == 1 ? neighbours[0] : neighbours[(int)((double)len * R::runif(0.0, 1.0))];
 
     int p1 = probability[idx1];
     int p2 = probability[idx2];

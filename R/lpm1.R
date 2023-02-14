@@ -7,7 +7,7 @@ lpm1 = function(
   prob,
   x,
   type = "kdtree2",
-  bucketSize = 40
+  bucketSize = 50
 ) {
   if (!is.matrix(x)) {
     x = t(as.matrix(x));

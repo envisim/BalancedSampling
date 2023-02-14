@@ -21,7 +21,7 @@ Rcpp::IntegerVector lpm1_cpp(
   double nprob = 0.0;
   double *probability = new double[N];
   std::unordered_set<int> idx(N);
-  int *neighbours = new int[N];
+  int *neighbours1 = new int[N];
   int *neighbours2 = new int[N];
 
   KDTree *tree = new KDTree(xx, N, x.nrow(), bucketSize, method);
@@ -50,10 +50,10 @@ Rcpp::IntegerVector lpm1_cpp(
       idx.erase(u1);
     }
 
-    int len = tree->findNeighbour(neighbours, N, idx1);
+    int len1 = tree->findNeighbour(neighbours1, N, idx1);
 
-    for (int i = 0; i < len;) {
-      int len2 = tree->findNeighbour(neighbours2, N, neighbours[i]);
+    for (int i = 0; i < len1;) {
+      int len2 = tree->findNeighbour(neighbours2, N, neighbours1[i]);
       int found = 0;
       for (int j = 0; j < len2; j++) {
         if (neighbours2[j] == idx1) {
@@ -63,17 +63,17 @@ Rcpp::IntegerVector lpm1_cpp(
       }
 
       if (found == 0) {
-        neighbours[i] = neighbours[len-1];
-        len -= 1;
+        len1 -= 1;
+        neighbours1[i] = neighbours1[len1];
       } else {
         i += 1;
       }
     }
 
-    if (len < 1)
+    if (len1 < 1)
       continue;
 
-    int idx2 = len == 1 ? neighbours[0] : (int)(R::runif(0.0, 1.0) * (double)len);
+    int idx2 = len1 == 1 ? neighbours1[0] : neighbours1[(int)((double)len1 * R::runif(0.0, 1.0))];
 
     double p1 = probability[idx1];
     double p2 = probability[idx2];
@@ -117,7 +117,8 @@ Rcpp::IntegerVector lpm1_cpp(
       probability[idx1] = 1.0;
   }
 
-  delete[] neighbours;
+  delete[] neighbours1;
+  delete[] neighbours2;
   delete tree;
   int n = (int)nprob + 1;
   int j = 0;
@@ -130,9 +131,8 @@ Rcpp::IntegerVector lpm1_cpp(
     }
   }
 
-  delete[] probability;
-
   Rcpp::IntegerVector s2(s, s + j);
+  delete[] probability;
   delete[] s;
 
   return s2;
