@@ -3,6 +3,34 @@
 # Licence: GPL (>=2)
 # **********************************************
 
+#' Local Pivotal Method 1: Search
+#'
+#' @inherit lpm1 description details params return references
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(12345);
+#' N = 1000;
+#' n = 100;
+#' prob = rep(n/N, N);
+#' x = matrix(runif(N * 2), ncol = 2);
+#' s = lpm1search(prob, x);
+#' plot(x[, 1], x[, 2]);
+#' points(x[s, 1], x[s, 2], pch = 19);
+#'
+#' set.seed(12345);
+#' prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
+#' N = length(prob);
+#' x = matrix(runif(N * 2), ncol = 2);
+#' ep = rep(0L, N);
+#' r = 10000L;
+#' for (i in seq_len(r)) {
+#'   s = lpm1search(prob, x);
+#'   ep[s] = ep[s] + 1L;
+#' }
+#' print(ep / r);
+#' }
+#'
 lpm1search = function(
   prob,
   x,
@@ -37,7 +65,7 @@ lpm1search = function(
     if (prob %% 1 != 0 || prob < 1)
       stop("'prob' must be a vector of probabilities or a single integer > 0");
 
-    result = .lpm1_int_cpp(prob, x, bucketSize, method);
+    ## result = .lpm1_search_int_cpp(prob, x, bucketSize, method);
   } else {
     if (length(prob) != dim(x)[2L])
       stop("the size of 'prob' and 'x' does not match");
