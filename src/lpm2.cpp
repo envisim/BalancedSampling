@@ -1,95 +1,117 @@
+#include <unordered_set>
 #include <Rcpp.h>
-using namespace Rcpp;
+#include "kdtree.h"
 
 //**********************************************
-// Author: Anton Grafström
-// Last edit: 2014-03-18 
+// Author: Wilmer Prentius
 // Licence: GPL (>=2)
 //**********************************************
 
-// [[Rcpp::export]]
-NumericVector lpm2(NumericVector prob, NumericMatrix x){
-	int N = prob.size();
-	int ncol = x.ncol();
-	NumericVector index(N), p(N), nearest(N);
-	
-	double wp,lp,mindist,d,dp=0.0;
-	int ri,rj,count;
-	
-	for(int i=0;i<N;i++){index[i]=i; p[i]=prob[i];}
-		
-	NumericVector r1 = runif(N);
-	NumericVector r2 = runif(N);
-	int move;
-	int temp;
-	double a;
-	
-	for(int i=0;i<N-1;i++){	
-		ri = i+floor((r1[i]*(N-i)));
-		count = 0;
-		mindist = 1e+200;
-		for(int j=i;j<N;j++){
-			if(j!=ri){
-				d = 0.0;
-				for(int k=0;k<ncol;k++){
-					dp = x(index[ri],k)-x(index[j],k);
-					d += dp*dp;
-				}
-				if(d==mindist){
-					nearest[count] = j;
-					count = count + 1;
-						
-				}
-				if(d < mindist){
-					nearest[0] = j;
-					count = 1;
-					mindist = d;
-				}
-			}
-		}
-		rj = nearest[floor(count*runif(1)[0])];
-		a = p[index[ri]]+p[index[rj]];
-		if(a > 1){
-			wp = 1;
-		}else{
-			wp = a;
-		}
-		lp = p[index[ri]]+p[index[rj]]-wp;
-		if( r2[i] < (wp-p[index[rj]])/(wp-lp) ){
-			p[index[ri]] = wp;
-			p[index[rj]] = lp;
-		}else{
-			p[index[ri]] = lp;
-			p[index[rj]] = wp;
-		}
-		if(i==N-2){
-			if(runif(1)[0]<p[index[ri]]){
-				p[index[ri]]=1;
-			}else{
-				p[index[ri]]=0;
-			}
-			if(runif(1)[0]<p[index[rj]]){
-				p[index[rj]]=1;
-			}else{
-				p[index[rj]]=0;
-			}
-		}	
-		move = rj;
-		if( p[index[ri]]==0 || p[index[ri]]==1 ){
-			move = ri;
-		}
-		temp = index[i];
-		index[i] = index[move];
-		index[move] = temp;
-	}
-	int n = round(sum(p));
-	NumericVector s(n);
-	count = 0;
-	for(int i=0;i<N;i++){
-		if(p[i]==1){
-			s[count]=i+1;
-			count++;
-		}
-	}
-	return s;
+// [[Rcpp::export(.lpm2_cpp)]]
+Rcpp::IntegerVector lpm2_cpp(
+  Rcpp::NumericVector &prob,
+  Rcpp::NumericMatrix &x,
+  int bucketSize,
+  int method
+) {
+  int N = x.ncol();
+  int unresolvedObjects = N;
+  double *xx = REAL(x);
+
+  double nprob = 0.0;
+  double *probability = new double[N];
+  std::unordered_set<int> idx(N);
+  int *neighbours = new int[N];
+
+  KDTree *tree = new KDTree(xx, N, x.nrow(), bucketSize, method);
+  tree->init();
+
+  for (int i = 0; i < N; i++) {
+    probability[i] = prob[i];
+    nprob += probability[i];
+    idx.insert(i);
+  }
+
+  Rcpp::NumericVector rand1 = Rcpp::runif(N, 0.0, 1.0);
+  Rcpp::NumericVector rand2 = Rcpp::runif(N, 0.0, 1.0);
+
+  while (unresolvedObjects > 1) {
+    int u1 = rand2[unresolvedObjects-1] * (double)N;
+    std::unordered_set<int>::iterator it1 = idx.find(u1);
+    bool exists = it1 != idx.end();
+    int idx1;
+    if (exists) {
+      idx1 = u1;
+    } else {
+      idx.insert(u1);
+      it1 = idx.find(u1);
+      it1++;
+      idx1 = it1 == idx.end() ? *idx.begin() : *it1;
+      idx.erase(u1);
+    }
+
+    int len = tree->findNeighbour(neighbours, N, idx1);
+    int idx2 = len == 1 ? neighbours[0] : (int)((double)len * R::runif(0.0, 1.0));
+
+    double p1 = probability[idx1];
+    double p2 = probability[idx2];
+    double psum = p1 + p2;
+    double u = rand1[unresolvedObjects-1];
+
+    if (psum > 1.0) {
+      if (1.0 - p2 > u * (2.0 - psum)) {
+        probability[idx1] = 1.0;
+        probability[idx2] = psum - 1.0;
+      } else {
+        probability[idx1] = psum - 1.0;
+        probability[idx2] = 1.0;
+      }
+    } else {
+      if (p2 > u * psum) {
+        probability[idx1] = 0.0;
+        probability[idx2] = psum;
+      } else {
+        probability[idx1] = psum;
+        probability[idx2] = 0.0;
+      }
+    }
+
+    if (probability[idx2] == 0.0 || probability[idx2] == 1.0) {
+      unresolvedObjects -= 1;
+      idx.erase(idx2);
+      tree->removeUnit(idx2);
+    }
+
+    if (probability[idx1] == 0.0 || probability[idx1] == 1.0) {
+      unresolvedObjects -= 1;
+      idx.erase(idx1);
+      tree->removeUnit(idx1);
+    }
+  }
+
+  if (unresolvedObjects == 1) {
+    int idx1 = *idx.begin();
+    if (rand1[0] < probability[idx1])
+      probability[idx1] = 1.0;
+  }
+
+  delete[] neighbours;
+  delete tree;
+  int n = (int)nprob + 1;
+  int j = 0;
+  int *s = new int[n];
+
+  for (int i = 0; i < N && j < n; i++) {
+    if (probability[i] == 1.0) {
+      s[j] = i + 1;
+      j += 1;
+    }
+  }
+
+  delete[] probability;
+
+  Rcpp::IntegerVector s2(s, s + j);
+  delete[] s;
+
+  return s2;
 }

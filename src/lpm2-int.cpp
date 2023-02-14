@@ -1,87 +1,64 @@
+#include <unordered_set>
 #include <Rcpp.h>
+#include "kdtree.h"
 
 //**********************************************
 // Author: Wilmer Prentius
-// Last edit: 2023-02-08
 // Licence: GPL (>=2)
 //**********************************************
-
-// struct Object {
-//   int probability;
-//   unsigned int index;
-//   Object() : probability(0), index(0) {}
-// };
-
-double euclideanDistance(double *x, int id1, int id2, int cols) {
-  double dist = 0.0;
-  double *u1 = x + id1 * cols;
-  double *u2 = x + id2 * cols;
-
-  for (int k = 0; k < cols; k++) {
-    double temp = *(u1 + k) - *(u2 + k);
-    dist += temp * temp;
-  }
-
-  return dist;
-}
 
 int randn(double u, int n) {
   return (int)((double)n * u);
 }
 
-// [[Rcpp::export]]
-Rcpp::IntegerVector lpm2int(int n, Rcpp::NumericMatrix &x) {
+// [[Rcpp::export(.lpm2_int_cpp)]]
+Rcpp::IntegerVector lpm2_int_cpp(
+  int n,
+  Rcpp::NumericMatrix &x,
+  int bucketSize,
+  int method
+) {
   int N = x.ncol();
-  int P = x.nrow();
   int unresolvedObjects = N;
   double *xx = REAL(x);
 
   int *probability = new int[N];
-  int *idx = new int[N];
+  std::unordered_set<int> idx(N);
   int *neighbours = new int[N];
+
+  KDTree *tree = new KDTree(xx, N, x.nrow(), bucketSize, method);
+  tree->init();
 
   for (int i = 0; i < N; i++) {
     probability[i] = n;
-    idx[i] = i;
+    idx.insert(i);
   }
 
   Rcpp::NumericVector rand1 = Rcpp::runif(N, 0.0, 1.0);
   Rcpp::NumericVector rand2 = Rcpp::runif(N, 0.0, 1.0);
-  // Rcpp::NumericVector rand3 = R::runif(N);
 
   while (unresolvedObjects > 1) {
-    int u1 = randn(rand2[unresolvedObjects-1], unresolvedObjects);
-    // int u1 = randn(R::runif(0.0, 1.0), unresolvedObjects);
-    int idx1 = idx[u1];
-
-    double mindist = DBL_MAX;
-    int len = 0;
-
-    for (int i = 0; i < unresolvedObjects; i++) {
-      if (u1 == i)
-        continue;
-
-      double dist = euclideanDistance(xx, idx1, idx[i], P);
-
-      if (dist < mindist) {
-        mindist = dist;
-        neighbours[0] = i;
-        len = 1;
-      } else if (dist == mindist) {
-        neighbours[len] = i;
-        len += 1;
-      }
+    int u1 = rand2[unresolvedObjects-1] * (double)N;
+    std::unordered_set<int>::iterator it1 = idx.find(u1);
+    bool exists = it1 != idx.end();
+    int idx1;
+    if (exists) {
+      idx1 = u1;
+    } else {
+      idx.insert(u1);
+      it1 = idx.find(u1);
+      it1++;
+      idx1 = it1 == idx.end() ? *idx.begin() : *it1;
+      idx.erase(u1);
     }
 
-    // int u2 = len == 1 ? neighbours[0] : randn(rand3[unresolvedObjects], len);
-    int u2 = len == 1 ? neighbours[0] : randn(R::runif(0.0, 1.0), len);
-    int idx2 = idx[u2];
+    int len = tree->findNeighbour(neighbours, N, idx1);
+    int idx2 = len == 1 ? neighbours[0] : randn(R::runif(0.0, 1.0), len);
 
     int p1 = probability[idx1];
     int p2 = probability[idx2];
     int psum = p1 + p2;
     double u = rand1[unresolvedObjects-1];
-    // double u = R::runif(0.0, 1.0);
 
     if (psum > N) {
       if (N - p2 > randn(u, (N << 1) - psum)) {
@@ -101,24 +78,21 @@ Rcpp::IntegerVector lpm2int(int n, Rcpp::NumericMatrix &x) {
       }
     }
 
-    if (probability[idx1] == 0 || probability[idx1] == N) {
-      unresolvedObjects -= 1;
-      int temp = idx[unresolvedObjects];
-      idx[unresolvedObjects] = idx1;
-      idx[u1] = temp;
-
-      if (unresolvedObjects == u2)
-        u2 = u1;
-    }
-
     if (probability[idx2] == 0 || probability[idx2] == N) {
       unresolvedObjects -= 1;
-      int temp = idx[unresolvedObjects];
-      idx[unresolvedObjects] = idx2;
-      idx[u2] = temp;
+      idx.erase(idx2);
+      tree->removeUnit(idx2);
+    }
+
+    if (probability[idx1] == 0 || probability[idx1] == N) {
+      unresolvedObjects -= 1;
+      idx.erase(idx1);
+      tree->removeUnit(idx1);
     }
   }
 
+  delete[] neighbours;
+  delete tree;
   Rcpp::IntegerVector s(n);
 
   for (int i = 0, j = 0; i < N && j < n; i++) {
@@ -129,9 +103,6 @@ Rcpp::IntegerVector lpm2int(int n, Rcpp::NumericMatrix &x) {
   }
 
   delete[] probability;
-  delete[] idx;
-  delete[] neighbours;
 
   return s;
 }
-
