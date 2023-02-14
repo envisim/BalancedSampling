@@ -1,18 +1,11 @@
-#include <Rcpp.h>
 #include <unordered_set>
+#include <Rcpp.h>
 #include "kdtree.h"
 
 //**********************************************
 // Author: Wilmer Prentius
-// Last edit: 2023-02-10
 // Licence: GPL (>=2)
 //**********************************************
-
-// struct Object {
-//   int probability;
-//   unsigned int index;
-//   Object() : probability(0), index(0) {}
-// };
 
 int randn(double u, int n) {
   return (int)((double)n * u);
@@ -25,16 +18,14 @@ Rcpp::IntegerVector lpm2inttree(int n, Rcpp::NumericMatrix &x) {
   double *xx = REAL(x);
 
   int *probability = new int[N];
-  // int *idx = new int[N];
   std::unordered_set<int> idx(N);
   int *neighbours = new int[N];
 
-  KDTree *tree = new KDTree(xx, N, x.nrow(), 40);
+  KDTree *tree = new KDTree(xx, N, x.nrow(), 40, 2);
   tree->init();
 
   for (int i = 0; i < N; i++) {
     probability[i] = n;
-    // idx[i] = i;
     idx.insert(i);
   }
 
@@ -85,34 +76,12 @@ Rcpp::IntegerVector lpm2inttree(int n, Rcpp::NumericMatrix &x) {
     }
 
     if (probability[idx2] == 0 || probability[idx2] == N) {
-      // int u2;
-      // for (int i = 0; i < unresolvedObjects; i++) {
-      //   if (idx[i] == idx2) {
-      //     u2 = i;
-      //     break;
-      //   }
-      // }
-
-      // unresolvedObjects -= 1;
-
-      // int temp = idx[unresolvedObjects];
-      // idx[unresolvedObjects] = idx2;
-      // idx[u2] = temp;
-      // tree->removeUnit(idx2);
-
-      // if (unresolvedObjects == u1)
-      //   u1 = u2;
       unresolvedObjects -= 1;
       idx.erase(idx2);
       tree->removeUnit(idx2);
     }
 
     if (probability[idx1] == 0 || probability[idx1] == N) {
-      // unresolvedObjects -= 1;
-      // int temp = idx[unresolvedObjects];
-      // idx[unresolvedObjects] = idx1;
-      // idx[u1] = temp;
-      // tree->removeUnit(idx1);
       unresolvedObjects -= 1;
       idx.erase(idx1);
       tree->removeUnit(idx1);

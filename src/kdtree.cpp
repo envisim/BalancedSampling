@@ -5,16 +5,12 @@
 KDNode::KDNode(KDNode *par, const int term) {
   parent = par;
   setTerminal(term);
-
-  // min = new double[p];
-  // max = new double[p];
 }
 
 KDNode::~KDNode() {
   delete[] units;
   delete cleft;
   delete cright;
-  // delete this;
 }
 
 void KDNode::copy(KDNode *original) {
@@ -78,29 +74,6 @@ void KDNode::removeUnit(const int idx) {
       *it = units[nunits];
     return;
   }
-
-  // ======== IF WE REMOVE TREES
-  // KDNode *sibling = getSibling();
-
-  // if (parent == nullptr || sibling == nullptr)
-  //   return;
-
-  // if (sibling->isTerminal()) {
-  //   parent->setTerminal(1);
-  //   parent->units = sibling->units;
-  //   parent->nunits = sibling->nunits;
-  // } else {
-  //   parent->cleft = sibling->cleft;
-  //   parent->cright = sibling->cright;
-  //   parent->split = sibling->split;
-  //   parent->value = sibling->value;
-  //   parent->cleft->parent = parent;
-  //   parent->cright->parent = parent;
-  // }
-
-  // delete sibling;
-  // delete[] units;
-  // delete this;
 }
 
 // ############################# K-D-TREE ######################################
