@@ -29,6 +29,8 @@
 #' Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
 #' \code{"notree"}.
 #' @param bucketSize The maximum size of the terminal nodes in the k-d-trees.
+#' @param eps A small value used to determine when an updated probability is
+#' close enough to 0.0 or 1.0.
 #'
 #' @return A vector of selected indices in 1,2,...,N.
 #'
@@ -77,7 +79,8 @@ lpm1 = function(
   prob,
   x,
   type = "kdtree2",
-  bucketSize = 50
+  bucketSize = 50,
+  eps = 1e-12
 ) {
   if (!is.matrix(x)) {
     x = t(as.matrix(x));
@@ -112,7 +115,10 @@ lpm1 = function(
     if (length(prob) != dim(x)[2L])
       stop("the size of 'prob' and 'x' does not match");
 
-    result = .lpm1_cpp(prob, x, bucketSize, method);
+    if (eps < 0.0 || 1e-4 < eps)
+      stop("'eps' must be in [0.0, 1e-4]");
+
+    result = .lpm1_cpp(prob, x, bucketSize, method, eps);
   }
 
   return(result);

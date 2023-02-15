@@ -38,7 +38,8 @@ lpm2 = function(
   prob,
   x,
   type = "kdtree2",
-  bucketSize = 50
+  bucketSize = 50,
+  eps = 1e-12
 ) {
   if (!is.matrix(x)) {
     x = t(as.matrix(x));
@@ -71,7 +72,10 @@ lpm2 = function(
     if (length(prob) != dim(x)[2L])
       stop("the size of 'prob' and 'x' does not match");
 
-    result = .lpm2_cpp(prob, x, bucketSize, method);
+    if (eps < 0.0 || 1e-4 < eps)
+      stop("'eps' must be in [0.0, 1e-4]");
+
+    result = .lpm2_cpp(prob, x, bucketSize, method, eps);
   }
 
   return(result);
