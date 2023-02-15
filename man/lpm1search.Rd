@@ -4,7 +4,7 @@
 \alias{lpm1search}
 \title{Local Pivotal Method 1: Search}
 \usage{
-lpm1search(prob, x, type = "kdtree2", bucketSize = 50)
+lpm1search(prob, x, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
@@ -16,6 +16,9 @@ Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
 \code{"notree"}.}
 
 \item{bucketSize}{The maximum size of the terminal nodes in the k-d-trees.}
+
+\item{eps}{A small value used to determine when an updated probability is
+close enough to 0.0 or 1.0.}
 }
 \value{
 A vector of selected indices in 1,2,...,N.
