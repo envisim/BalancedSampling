@@ -209,16 +209,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sb
-double sb(NumericVector p, NumericMatrix x, NumericVector s);
-RcppExport SEXP _BalancedSampling_sb(SEXP pSEXP, SEXP xSEXP, SEXP sSEXP) {
+// sb_voronoi_cpp
+double sb_voronoi_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sample, int bucketSize, int method);
+RcppExport SEXP _BalancedSampling_sb_voronoi_cpp(SEXP probSEXP, SEXP xSEXP, SEXP sampleSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type p(pSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type s(sSEXP);
-    rcpp_result_gen = Rcpp::wrap(sb(p, x, s));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type sample(sampleSEXP);
+    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(sb_voronoi_cpp(prob, x, sample, bucketSize, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -301,7 +303,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_lpm2_int_cpp", (DL_FUNC) &_BalancedSampling_lpm2_int_cpp, 4},
     {"_BalancedSampling_lpm2_cpp", (DL_FUNC) &_BalancedSampling_lpm2_cpp, 5},
     {"_BalancedSampling_rpm", (DL_FUNC) &_BalancedSampling_rpm, 1},
-    {"_BalancedSampling_sb", (DL_FUNC) &_BalancedSampling_sb, 3},
+    {"_BalancedSampling_sb_voronoi_cpp", (DL_FUNC) &_BalancedSampling_sb_voronoi_cpp, 5},
     {"_BalancedSampling_scps", (DL_FUNC) &_BalancedSampling_scps, 2},
     {"_BalancedSampling_scps_coord", (DL_FUNC) &_BalancedSampling_scps_coord, 3},
     {"_BalancedSampling_scps_getrand", (DL_FUNC) &_BalancedSampling_scps_getrand, 3},

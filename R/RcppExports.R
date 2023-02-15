@@ -61,8 +61,8 @@ rpm <- function(prob) {
     .Call('_BalancedSampling_rpm', PACKAGE = 'BalancedSampling', prob)
 }
 
-sb <- function(p, x, s) {
-    .Call('_BalancedSampling_sb', PACKAGE = 'BalancedSampling', p, x, s)
+.sb_voronoi_cpp <- function(prob, x, sample, bucketSize, method) {
+    .Call('_BalancedSampling_sb_voronoi_cpp', PACKAGE = 'BalancedSampling', prob, x, sample, bucketSize, method)
 }
 
 scps <- function(prob, x) {

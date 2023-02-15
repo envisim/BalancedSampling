@@ -429,9 +429,6 @@ void KDTree::findNeighbourSearch(
     return;
   }
 
-  // KDNode *nextnode = data[idx * p + node->split] <= node->value
-  //   ? node->cleft
-  //   : node->cright;
   double dist = *(unit + node->split) - node->value;
   KDNode *nextnode = dist <= 0.0 ? node->cleft : node->cright;
 
@@ -467,6 +464,19 @@ void KDTree::findNeighbourInNode(
     }
   }
 }
+
+int KDTree::findClosest(int *neighbours, const int maxsize, const double *unit) {
+  if (top == nullptr)
+    return 0;
+
+  int size = 0;
+  double mindist = DBL_MAX;
+
+  findNeighbourSearch(neighbours, maxsize, &size, top, &mindist, -1, unit);
+
+  return size;
+}
+
 
 void KDTree::removeUnit(const int idx) {
   KDNode *node = findNode(idx);

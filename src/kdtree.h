@@ -66,6 +66,7 @@ public:
   void init();
   KDNode* findNode(const int);
   int findNeighbour(int*, const int, const int);
+  int findClosest(int*, const int, const double*);
   void removeUnit(const int);
   double distanceIdx(const int, const int);
 };
