@@ -77,7 +77,7 @@ Rcpp::IntegerVector lpm2_int_cpp(
   if (unresolvedObjects == 1) {
     int idx1 = *idx.begin();
     if (intuniform(N) < probability[idx1])
-      probability[idx1] = 1.0;
+      probability[idx1] = N;
   }
 
   Rcpp::IntegerVector sample(n);
