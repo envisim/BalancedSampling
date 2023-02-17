@@ -65,16 +65,8 @@ rpm <- function(prob) {
     .Call('_BalancedSampling_sb_voronoi_cpp', PACKAGE = 'BalancedSampling', prob, x, sample, bucketSize, method)
 }
 
-scps <- function(prob, x) {
-    .Call('_BalancedSampling_scps', PACKAGE = 'BalancedSampling', prob, x)
-}
-
-scps_coord <- function(prob, x, rand) {
-    .Call('_BalancedSampling_scps_coord', PACKAGE = 'BalancedSampling', prob, x, rand)
-}
-
-scps_getrand <- function(prob, x, s) {
-    .Call('_BalancedSampling_scps_getrand', PACKAGE = 'BalancedSampling', prob, x, s)
+.scps_cpp <- function(prob, x, bucketSize, method, eps) {
+    .Call('_BalancedSampling_scps_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
 }
 
 spm <- function(prob) {

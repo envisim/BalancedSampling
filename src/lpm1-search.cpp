@@ -2,6 +2,7 @@
 #include <Rcpp.h>
 #include "kdtree.h"
 #include "uniform.h"
+#include "unorderedset-draw.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -82,19 +83,7 @@ void search(
   }
 
   if (*histn == 0) {
-    int u1 = intuniform(N);
-    std::unordered_set<int>::iterator it1 = idx.find(u1);
-    bool exists = it1 != idx.end();
-    if (exists) {
-      history[0] = u1;
-    } else {
-      idx.insert(u1);
-      it1 = idx.find(u1);
-      it1++;
-      history[0] = it1 == idx.end() ? *idx.begin() : *it1;
-      idx.erase(u1);
-    }
-
+    history[0] = unorderedsetDraw(idx, N);
     *histn = 1;
   }
 
@@ -189,7 +178,7 @@ Rcpp::IntegerVector lpm1_search_cpp(
 
   int j = 0;
   for (int i = 0; i < N; i++) {
-    if (probability[i] == 1.0) {
+    if (probability[i] >= 1.0 - eps) {
       neighbours1[j] = i + 1;
       j += 1;
     }

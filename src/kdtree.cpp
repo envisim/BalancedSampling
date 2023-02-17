@@ -441,7 +441,6 @@ void KDTree::findNeighbourSearch(
   }
 }
 
-
 void KDTree::findNeighbourInNode(
   int *neighbours, const int maxsize, int *size, KDNode *node, double *mindist, const int idx, const double *unit
 ) {
@@ -476,7 +475,6 @@ int KDTree::findClosest(int *neighbours, const int maxsize, const double *unit) 
 
   return size;
 }
-
 
 void KDTree::removeUnit(const int idx) {
   KDNode *node = findNode(idx);

@@ -1,267 +1,140 @@
+#include <algorithm>
+#include <unordered_set>
 #include <Rcpp.h>
-using namespace Rcpp;
+#include "kdtree-cps.h"
+#include "uniform.h"
+#include "unorderedset-draw.h"
 
 //**********************************************
-// Author: Anton Grafström
-// Last edit: 2018-10-07 
+// Author: Wilmer Prentius
 // Licence: GPL (>=2)
 //**********************************************
 
-void swap(IntegerVector& ord, int a, int b) {
-  int t = ord[a];
-  ord[a] = ord[b];
-  ord[b] = t;
-  return;
+#define intuniform(N) ((int)((double)N * stduniform()))
+// #define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
+
+void decide(std::unordered_set<int> &idx, KDTreeCps *tree, double *probs, int *sample, int *nsample, int *unresolved, int uid, double eps) {
+  if (probs[uid] <= eps) {
+    idx.erase(uid);
+    tree->removeUnit(uid);
+    *unresolved -= 1;
+  } else if (probs[uid] >= 1.0 - eps) {
+    idx.erase(uid);
+    tree->removeUnit(uid);
+    *unresolved -= 1;
+    sample[*nsample] = uid + 1;
+    *nsample += 1;
+  }
 }
 
-int partition(IntegerVector& ord, NumericVector& dists, NumericVector& weights, int low, int high) {
-  int ord_high = ord[high];
-  double pivot_dists = dists[ord_high];
-  double pivot_weights = weights[ord_high];
-  int i = (low-1);
-  
-  for (int j = low; j <= high-1; j++) {
-    int ord_j = ord[j];
-    if (
-        dists[ord_j] < pivot_dists ||
-          (
-              dists[ord_j] == pivot_dists && weights[ord_j] <= pivot_weights
-          )
-    ) {
-      swap(ord, ++i, j);
+// [[Rcpp::export(.scps_cpp)]]
+Rcpp::IntegerVector scps_cpp(
+  Rcpp::NumericVector &prob,
+  Rcpp::NumericMatrix &x,
+  int bucketSize,
+  int method,
+  double eps
+) {
+  int N = x.ncol();
+  int unresolvedObjects = N;
+  double *xx = REAL(x);
+
+  std::unordered_set<int> idx(N);
+  int *neighbours = new int[N];
+  double *probabilities = new double[N];
+  double *weights = new double[N];
+  double *dists = new double[N];
+  int *sample = new int[N];
+  int nsample = 0;
+
+  KDTreeCps *tree = new KDTreeCps(xx, N, x.nrow(), bucketSize, method);
+  tree->init();
+
+  for (int i = 0; i < N; i++) {
+    probabilities[i] = prob[i];
+    idx.insert(i);
+  }
+
+  while (unresolvedObjects > 0) {
+    int idx1 = unorderedsetDraw(idx, N);
+
+    double slag = probabilities[idx1];
+    int included = 0;
+
+    if (stduniform() < probabilities[idx1]) {
+      included = 1;
+      sample[nsample] = idx1 + 1;
+      nsample += 1;
+      slag -= 1.0;
     }
-  }
-  
-  swap(ord, ++i, high);
-  return (i);
-}
 
-void quicksort(IntegerVector& ord, NumericVector& dists, NumericVector& weights, int low, int high) {
-  if (low < high) {
-    int pi = partition(ord, dists, weights, low, high);
-    quicksort(ord, dists, weights, low, pi-1);
-    quicksort(ord, dists, weights, pi+1, high);
-  }
-  return;
-}
+    idx.erase(idx1);
+    tree->removeUnit(idx1);
+    unresolvedObjects -= 1;
 
-// [[Rcpp::export]]
-IntegerVector scps(NumericVector prob, NumericMatrix x){
-  int N = prob.size();
-  int ncol = x.ncol();
-  NumericVector dists(N), weights(N), p(N);
-  IntegerVector index(N), s(N);
-  NumericVector rand = runif(N);
-  
-  double d,dp=0.0,weight,uw,eps=1e-9;
-  
-  for(int i=0;i<N;i++){p[i]=prob[i];}
-  
-  int nr, nr_others, i,j,k, m;
-  
-  
-  for(i=0;i<N;i++){
-    // make decision for unit i
-    if(rand[i] < p[i]){s[i]=1;}else{s[i]=0;}	
-    
-    // if not last unit, update others
-    if(i<N-1){	
-      // find distances and max weights
-      for(k = i+1; k < N; k++){
-        d = 0.0;
-        for(m=0;m<ncol;m++){
-          dp = x(i,m)-x(k,m);
-          d += dp*dp;
-        }
-        
-        dists[k-i-1] = d;
-        weights[k-i-1] = std::min(p[k]/(1-p[i]),(1-p[k])/p[i]);
-        index[k-i-1] = k-i-1;
+    if (unresolvedObjects == 0)
+      break;
+
+    int len = tree->findNeighbours(probabilities, weights, dists, neighbours, idx1);
+    double weight = 1.0;
+
+    for (int i = 0; i < len && weight > eps;) {
+      int j = i + 1;
+      double totweight = weights[neighbours[i]];
+      for (; j < len; j++) {
+        if (dists[neighbours[i]] < dists[neighbours[j]])
+          break;
+
+        totweight += weights[neighbours[j]];
       }
-      
-      // Sort index w.r.t. dists, weights
-      quicksort(index, dists, weights, 0, N-i-2);
-      
-      // Weight to distribute
-      weight = 1.0;
-      
-      // Check if i can distribute weight
-      if(p[i] < 1 && p[i]>0){
-        
-        // Nr of potential recievers (at least 1)
-        nr_others = N-i-1;
-        
-        for(k = 0; k < nr_others; k++){
-          // Nr at equal distance 
-          nr = 1;
-          for(j=k+1;j<nr_others;j++){
-            if(dists[index[k]]==dists[index[j]]){
-              nr = nr + 1;
-            }else{break;}
-          }	
-          uw = std::min(weight/nr,weights[index[k]]);
-          // Update
-          p[i+index[k]+1] = p[i+index[k]+1]-(s[i]-p[i])*uw;
-          // Remove used weight
-          weight = weight-uw;
-          if(weight<eps){break;}
-        }
-      }	
-    }
-  }
-  // make sample instead of indicator
-  int n = sum(s), count=0;  
-  IntegerVector sa(n);
-  for(i=0;i<N;i++){
-    if(s[i]==1){
-      sa[count]=i+1;
-      count++;
-    }
-  }
-  return sa;
-}
 
-// [[Rcpp::export]]
-IntegerVector scps_coord(NumericVector prob, NumericMatrix x, NumericVector rand){
-  int N = prob.size();
-  int ncol = x.ncol();
-  NumericVector dists(N), weights(N), p(N);
-  IntegerVector index(N), s(N);
-  
-  double d,dp=0.0,weight,uw,eps=1e-9;
-  
-  for(int i=0;i<N;i++){p[i]=prob[i];}
-  
-  int nr, nr_others, i,j,k, m;
-  
-  
-  for(i=0;i<N;i++){
-    // make decision for unit i
-    if(rand[i] < p[i]){s[i]=1;}else{s[i]=0;}	
-    
-    // if not last unit, update others
-    if(i<N-1){	
-      // find distances and max weights
-      for(k = i+1; k < N; k++){
-        d = 0.0;
-        for(m=0;m<ncol;m++){
-          dp = x(i,m)-x(k,m);
-          d += dp*dp;
-        }
-        
-        dists[k-i-1] = d;
-        weights[k-i-1] = std::min(p[k]/(1-p[i]),(1-p[k])/p[i]);
-        index[k-i-1] = k-i-1;
+      if (j - i == 1) {
+        int idx2 = neighbours[i];
+        double temp = weight >= totweight ? totweight : weight;
+        probabilities[idx2] += temp * slag;
+        decide(idx, tree, probabilities, sample, &nsample, &unresolvedObjects, idx2, eps);
+        i += 1;
+        weight -= temp;
+        continue;
       }
-      
-      // Sort index w.r.t. dists, weights
-      quicksort(index, dists, weights, 0, N-i-2);
-      
-      // Weight to distribute
-      weight = 1.0;
-      
-      // Check if i can distribute weight
-      if(p[i] < 1 && p[i]>0){
-        
-        // Nr of potential recievers (at least 1)
-        nr_others = N-i-1;
-        
-        for(k = 0; k < nr_others; k++){
-          // Nr at equal distance 
-          nr = 1;
-          for(j=k+1;j<nr_others;j++){
-            if(dists[index[k]]==dists[index[j]]){
-              nr = nr + 1;
-            }else{break;}
-          }	
-          uw = std::min(weight/nr,weights[index[k]]);
-          // Update
-          p[i+index[k]+1] = p[i+index[k]+1]-(s[i]-p[i])*uw;
-          // Remove used weight
-          weight = weight-uw;
-          if(weight<eps){break;}
-        }
-      }	
-    }
-  }
-  // make sample instead of indicator
-  int n = sum(s), count=0;  
-  IntegerVector sa(n);
-  for(i=0;i<N;i++){
-    if(s[i]==1){
-      sa[count]=i+1;
-      count++;
-    }
-  }
-  return sa;
-}
 
-// [[Rcpp::export]]
-NumericVector scps_getrand(NumericVector prob, NumericMatrix x, NumericVector s){
-  int N = prob.size();
-  int ncol = x.ncol();
-  NumericVector dists(N), weights(N), p(N);
-  IntegerVector index(N);
-  NumericVector rand = runif(N);
-  
-  double d,dp=0.0,weight,uw,eps=1e-9,rmin=0.0,rmax=1.0;
-  
-  for(int i=0;i<N;i++){p[i]=prob[i];}
-  
-  int nr, nr_others, i,j,k, m;
-  
-  
-  for(i=0;i<N;i++){
-    // make decision for unit i
-    if(s[i]==1){rmin = 0.0; rmax=p[i]; rand[i]=rmin+(rmax-rmin)*rand[i]; }
-    if(s[i]==0){rmin = p[i]; rmax=1.0; rand[i]=rmin+(rmax-rmin)*rand[i]; }
-    
-    // if(rand[i] < p[i]){s[i]=1;}else{s[i]=0;}	
-    
-    // if not last unit, update others
-    if(i<N-1){	
-      // find distances and max weights
-      for(k = i+1; k < N; k++){
-        d = 0.0;
-        for(m=0;m<ncol;m++){
-          dp = x(i,m)-x(k,m);
-          d += dp*dp;
+      if (weight >= totweight) {
+        for (; i < j; i++) {
+          int idx2 = neighbours[i];
+          probabilities[idx2] += weights[idx2] * slag;
+          decide(idx, tree, probabilities, sample, &nsample, &unresolvedObjects, idx2, eps);
         }
-        
-        dists[k-i-1] = d;
-        weights[k-i-1] = std::min(p[k]/(1-p[i]),(1-p[k])/p[i]);
-        index[k-i-1] = k-i-1;
+
+        weight -= totweight;
+      } else {
+        std::sort(
+          neighbours + i,
+          neighbours + j,
+          [weights](int a, int b) { return weights[a] < weights[b]; }
+        );
+
+        for (; i < j; i++) {
+          int idx2 = neighbours[i];
+          double temp = weight / (double)(j - i);
+          if (weights[idx2] < temp) {
+            temp = weights[idx2];
+          }
+
+          probabilities[idx2] += temp * slag;
+          decide(idx, tree, probabilities, sample, &nsample, &unresolvedObjects, idx2, eps);
+          weight -= temp;
+        }
       }
-      
-      // Sort index w.r.t. dists, weights
-      quicksort(index, dists, weights, 0, N-i-2);
-      
-      // Weight to distribute
-      weight = 1.0;
-      
-      // Check if i can distribute weight
-      if(p[i] < 1 && p[i]>0){
-        
-        // Nr of potential recievers (at least 1)
-        nr_others = N-i-1;
-        
-        for(k = 0; k < nr_others; k++){
-          // Nr at equal distance 
-          nr = 1;
-          for(j=k+1;j<nr_others;j++){
-            if(dists[index[k]]==dists[index[j]]){
-              nr = nr + 1;
-            }else{break;}
-          }	
-          uw = std::min(weight/nr,weights[index[k]]);
-          // Update
-          p[i+index[k]+1] = p[i+index[k]+1]-(s[i]-p[i])*uw;
-          // Remove used weight
-          weight = weight-uw;
-          if(weight<eps){break;}
-        }
-      }	
     }
   }
-  return rand;
+
+  std::sort(sample, sample + nsample);
+  Rcpp::IntegerVector sret(sample, sample + nsample);
+  delete[] neighbours;
+  delete[] probabilities;
+  delete[] weights;
+  delete[] dists;
+  delete tree;
+
+  return sret;
 }

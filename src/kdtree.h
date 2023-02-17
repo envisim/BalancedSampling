@@ -3,7 +3,7 @@
 
 #include <float.h>
 #include <algorithm>
-#include <iostream>
+// #include <iostream>
 
 class KDNode {
   // REGULAR NODE
@@ -37,7 +37,7 @@ public:
 };
 
 class KDTree {
-private:
+protected:
   double *data; // data array of length Np
   int N, p; // Data dimensions
   int bucketSize;
@@ -49,7 +49,7 @@ private:
 public:
   KDNode *top = nullptr;
 
-private:
+protected:
   void split(KDNode*, int*, const int);
   int splitM(int*, const int, const int, const int);
   int splitSpread(KDNode*, int*, const int);

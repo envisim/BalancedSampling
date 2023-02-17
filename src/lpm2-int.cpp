@@ -2,6 +2,7 @@
 #include <Rcpp.h>
 #include "kdtree.h"
 #include "uniform.h"
+#include "unorderedset-draw.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -34,22 +35,8 @@ Rcpp::IntegerVector lpm2_int_cpp(
   }
 
   while (unresolvedObjects > 1) {
-    int u1 = intuniform(N);
-    std::unordered_set<int>::iterator it1 = idx.find(u1);
-    bool exists = it1 != idx.end();
-    int idx1;
-    if (exists) {
-      idx1 = u1;
-    } else {
-      idx.insert(u1);
-      it1 = idx.find(u1);
-      it1++;
-      idx1 = it1 == idx.end() ? *idx.begin() : *it1;
-      idx.erase(u1);
-    }
-
+    int idx1 = unorderedsetDraw(idx, N);
     int len = tree->findNeighbour(neighbours, N, idx1);
-    // int idx2 = len == 1 ? neighbours[0] : neighbours[(int)((double)len * R::runif(0.0, 1.0))];
     int idx2 = len == 1 ? neighbours[0] : neighbours[intuniform(len)];
 
     int p1 = probability[idx1];

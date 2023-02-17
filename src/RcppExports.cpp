@@ -224,41 +224,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// scps
-IntegerVector scps(NumericVector prob, NumericMatrix x);
-RcppExport SEXP _BalancedSampling_scps(SEXP probSEXP, SEXP xSEXP) {
+// scps_cpp
+Rcpp::IntegerVector scps_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, int bucketSize, int method, double eps);
+RcppExport SEXP _BalancedSampling_scps_cpp(SEXP probSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(scps(prob, x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// scps_coord
-IntegerVector scps_coord(NumericVector prob, NumericMatrix x, NumericVector rand);
-RcppExport SEXP _BalancedSampling_scps_coord(SEXP probSEXP, SEXP xSEXP, SEXP randSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type rand(randSEXP);
-    rcpp_result_gen = Rcpp::wrap(scps_coord(prob, x, rand));
-    return rcpp_result_gen;
-END_RCPP
-}
-// scps_getrand
-NumericVector scps_getrand(NumericVector prob, NumericMatrix x, NumericVector s);
-RcppExport SEXP _BalancedSampling_scps_getrand(SEXP probSEXP, SEXP xSEXP, SEXP sSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type s(sSEXP);
-    rcpp_result_gen = Rcpp::wrap(scps_getrand(prob, x, s));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(scps_cpp(prob, x, bucketSize, method, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -304,9 +281,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_lpm2_cpp", (DL_FUNC) &_BalancedSampling_lpm2_cpp, 5},
     {"_BalancedSampling_rpm", (DL_FUNC) &_BalancedSampling_rpm, 1},
     {"_BalancedSampling_sb_voronoi_cpp", (DL_FUNC) &_BalancedSampling_sb_voronoi_cpp, 5},
-    {"_BalancedSampling_scps", (DL_FUNC) &_BalancedSampling_scps, 2},
-    {"_BalancedSampling_scps_coord", (DL_FUNC) &_BalancedSampling_scps_coord, 3},
-    {"_BalancedSampling_scps_getrand", (DL_FUNC) &_BalancedSampling_scps_getrand, 3},
+    {"_BalancedSampling_scps_cpp", (DL_FUNC) &_BalancedSampling_scps_cpp, 5},
     {"_BalancedSampling_spm", (DL_FUNC) &_BalancedSampling_spm, 1},
     {"_BalancedSampling_vsb", (DL_FUNC) &_BalancedSampling_vsb, 3},
     {NULL, NULL, 0}
