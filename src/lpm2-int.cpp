@@ -1,8 +1,7 @@
-#include <unordered_set>
 #include <Rcpp.h>
 #include "kdtree.h"
 #include "uniform.h"
-#include "unorderedset-draw.h"
+#include "index-list.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -19,11 +18,10 @@ Rcpp::IntegerVector lpm2_int_cpp(
   int method
 ) {
   int N = x.ncol();
-  int unresolvedObjects = N;
   double *xx = REAL(x);
 
   int *probability = new int[N];
-  std::unordered_set<int> idx(N);
+  IndexList *idx = new IndexList(N);
   int *neighbours = new int[N];
 
   KDTree *tree = new KDTree(xx, N, x.nrow(), bucketSize, method);
@@ -31,53 +29,51 @@ Rcpp::IntegerVector lpm2_int_cpp(
 
   for (int i = 0; i < N; i++) {
     probability[i] = n;
-    idx.insert(i);
+    idx->set(i);
   }
 
-  while (unresolvedObjects > 1) {
-    int idx1 = unorderedsetDraw(idx, N);
-    int len = tree->findNeighbour(neighbours, N, idx1);
-    int idx2 = len == 1 ? neighbours[0] : neighbours[intuniform(len)];
+  while (idx->length() > 1) {
+    int id1 = idx->draw();
+    int len = tree->findNeighbour(neighbours, N, id1);
+    int id2 = len == 1 ? neighbours[0] : neighbours[intuniform(len)];
 
-    int p1 = probability[idx1];
-    int p2 = probability[idx2];
+    int p1 = probability[id1];
+    int p2 = probability[id2];
     int psum = p1 + p2;
 
     if (psum > N) {
       if (N - p2 > intuniform((N << 1) - psum)) {
-        probability[idx1] = N;
-        probability[idx2] = psum - N;
+        probability[id1] = N;
+        probability[id2] = psum - N;
       } else {
-        probability[idx1] = psum - N;
-        probability[idx2] = N;
+        probability[id1] = psum - N;
+        probability[id2] = N;
       }
     } else {
       if (p2 > intuniform(psum)) {
-        probability[idx1] = 0;
-        probability[idx2] = psum;
+        probability[id1] = 0;
+        probability[id2] = psum;
       } else {
-        probability[idx1] = psum;
-        probability[idx2] = 0;
+        probability[id1] = psum;
+        probability[id2] = 0;
       }
     }
 
-    if (probability[idx2] == 0 || probability[idx2] == N) {
-      unresolvedObjects -= 1;
-      idx.erase(idx2);
-      tree->removeUnit(idx2);
+    if (probability[id1] == 0 || probability[id1] == N) {
+      idx->erase(id1);
+      tree->removeUnit(id1);
     }
 
-    if (probability[idx1] == 0 || probability[idx1] == N) {
-      unresolvedObjects -= 1;
-      idx.erase(idx1);
-      tree->removeUnit(idx1);
+    if (probability[id2] == 0 || probability[id2] == N) {
+      idx->erase(id2);
+      tree->removeUnit(id2);
     }
   }
 
-  if (unresolvedObjects == 1) {
-    int idx1 = *idx.begin();
-    if (intuniform(N) < probability[idx1])
-      probability[idx1] = N;
+  if (idx->length() == 1) {
+    int id1 = idx->get(0);
+    if (intuniform(N) < probability[id1])
+      probability[id1] = N;
   }
 
   Rcpp::IntegerVector sample(n);
@@ -90,6 +86,7 @@ Rcpp::IntegerVector lpm2_int_cpp(
 
   delete[] probability;
   delete[] neighbours;
+  delete idx;
   delete tree;
 
   return sample;

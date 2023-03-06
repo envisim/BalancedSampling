@@ -1,9 +1,8 @@
 #include <algorithm>
-#include <unordered_set>
 #include <Rcpp.h>
 #include "kdtree-cps.h"
 #include "uniform.h"
-#include "unorderedset-draw.h"
+#include "index-list.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -13,15 +12,21 @@
 #define intuniform(N) ((int)((double)N * stduniform()))
 // #define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
 
-void decide(std::unordered_set<int> &idx, KDTreeCps *tree, double *probs, int *sample, int *nsample, int *unresolved, int uid, double eps) {
+void decide(
+  IndexList *idx,
+  KDTreeCps *tree,
+  double *probs,
+  int *sample,
+  int *nsample,
+  int uid,
+  double eps
+) {
   if (probs[uid] <= eps) {
-    idx.erase(uid);
+    idx->erase(uid);
     tree->removeUnit(uid);
-    *unresolved -= 1;
   } else if (probs[uid] >= 1.0 - eps) {
-    idx.erase(uid);
+    idx->erase(uid);
     tree->removeUnit(uid);
-    *unresolved -= 1;
     sample[*nsample] = uid + 1;
     *nsample += 1;
   }
@@ -36,10 +41,9 @@ Rcpp::IntegerVector scps_cpp(
   double eps
 ) {
   int N = x.ncol();
-  int unresolvedObjects = N;
   double *xx = REAL(x);
 
-  std::unordered_set<int> idx(N);
+  IndexList *idx = new IndexList(N);
   int *neighbours = new int[N];
   double *probabilities = new double[N];
   double *weights = new double[N];
@@ -52,30 +56,29 @@ Rcpp::IntegerVector scps_cpp(
 
   for (int i = 0; i < N; i++) {
     probabilities[i] = prob[i];
-    idx.insert(i);
+    idx->set(i);
   }
 
-  while (unresolvedObjects > 0) {
-    int idx1 = unorderedsetDraw(idx, N);
+  while (idx->length() > 0) {
+    int id1 = idx->draw();
 
-    double slag = probabilities[idx1];
+    double slag = probabilities[id1];
     int included = 0;
 
-    if (stduniform() < probabilities[idx1]) {
+    if (stduniform() < probabilities[id1]) {
       included = 1;
-      sample[nsample] = idx1 + 1;
+      sample[nsample] = id1 + 1;
       nsample += 1;
       slag -= 1.0;
     }
 
-    idx.erase(idx1);
-    tree->removeUnit(idx1);
-    unresolvedObjects -= 1;
+    idx->erase(id1);
+    tree->removeUnit(id1);
 
-    if (unresolvedObjects == 0)
+    if (idx->length() == 0)
       break;
 
-    int len = tree->findNeighbours(probabilities, weights, dists, neighbours, idx1);
+    int len = tree->findNeighbours(probabilities, weights, dists, neighbours, id1);
     double weight = 1.0;
 
     for (int i = 0; i < len && weight > eps;) {
@@ -89,10 +92,10 @@ Rcpp::IntegerVector scps_cpp(
       }
 
       if (j - i == 1) {
-        int idx2 = neighbours[i];
+        int id2 = neighbours[i];
         double temp = weight >= totweight ? totweight : weight;
-        probabilities[idx2] += temp * slag;
-        decide(idx, tree, probabilities, sample, &nsample, &unresolvedObjects, idx2, eps);
+        probabilities[id2] += temp * slag;
+        decide(idx, tree, probabilities, sample, &nsample, id2, eps);
         i += 1;
         weight -= temp;
         continue;
@@ -100,9 +103,9 @@ Rcpp::IntegerVector scps_cpp(
 
       if (weight >= totweight) {
         for (; i < j; i++) {
-          int idx2 = neighbours[i];
-          probabilities[idx2] += weights[idx2] * slag;
-          decide(idx, tree, probabilities, sample, &nsample, &unresolvedObjects, idx2, eps);
+          int id2 = neighbours[i];
+          probabilities[id2] += weights[id2] * slag;
+          decide(idx, tree, probabilities, sample, &nsample, id2, eps);
         }
 
         weight -= totweight;
@@ -114,14 +117,14 @@ Rcpp::IntegerVector scps_cpp(
         );
 
         for (; i < j; i++) {
-          int idx2 = neighbours[i];
+          int id2 = neighbours[i];
           double temp = weight / (double)(j - i);
-          if (weights[idx2] < temp) {
-            temp = weights[idx2];
+          if (weights[id2] < temp) {
+            temp = weights[id2];
           }
 
-          probabilities[idx2] += temp * slag;
-          decide(idx, tree, probabilities, sample, &nsample, &unresolvedObjects, idx2, eps);
+          probabilities[id2] += temp * slag;
+          decide(idx, tree, probabilities, sample, &nsample, id2, eps);
           weight -= temp;
         }
       }
@@ -134,6 +137,7 @@ Rcpp::IntegerVector scps_cpp(
   delete[] probabilities;
   delete[] weights;
   delete[] dists;
+  delete idx;
   delete tree;
 
   return sret;
