@@ -198,14 +198,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rpm
-NumericVector rpm(NumericVector prob);
-RcppExport SEXP _BalancedSampling_rpm(SEXP probSEXP) {
+// rpm_cpp
+Rcpp::IntegerVector rpm_cpp(Rcpp::NumericVector& prob, double eps);
+RcppExport SEXP _BalancedSampling_rpm_cpp(SEXP probSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    rcpp_result_gen = Rcpp::wrap(rpm(prob));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rpm_cpp(prob, eps));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sb_sumofsquares_cpp
+double sb_sumofsquares_cpp(Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sample, int bucketSize, int method);
+RcppExport SEXP _BalancedSampling_sb_sumofsquares_cpp(SEXP xSEXP, SEXP sampleSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type sample(sampleSEXP);
+    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    rcpp_result_gen = Rcpp::wrap(sb_sumofsquares_cpp(x, sample, bucketSize, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -279,7 +294,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_lpm1_cpp", (DL_FUNC) &_BalancedSampling_lpm1_cpp, 5},
     {"_BalancedSampling_lpm2_int_cpp", (DL_FUNC) &_BalancedSampling_lpm2_int_cpp, 4},
     {"_BalancedSampling_lpm2_cpp", (DL_FUNC) &_BalancedSampling_lpm2_cpp, 5},
-    {"_BalancedSampling_rpm", (DL_FUNC) &_BalancedSampling_rpm, 1},
+    {"_BalancedSampling_rpm_cpp", (DL_FUNC) &_BalancedSampling_rpm_cpp, 2},
+    {"_BalancedSampling_sb_sumofsquares_cpp", (DL_FUNC) &_BalancedSampling_sb_sumofsquares_cpp, 4},
     {"_BalancedSampling_sb_voronoi_cpp", (DL_FUNC) &_BalancedSampling_sb_voronoi_cpp, 5},
     {"_BalancedSampling_scps_cpp", (DL_FUNC) &_BalancedSampling_scps_cpp, 5},
     {"_BalancedSampling_spm", (DL_FUNC) &_BalancedSampling_spm, 1},

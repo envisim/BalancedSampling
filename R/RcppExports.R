@@ -57,8 +57,12 @@ lpm <- function(prob, x, h) {
     .Call('_BalancedSampling_lpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
 }
 
-rpm <- function(prob) {
-    .Call('_BalancedSampling_rpm', PACKAGE = 'BalancedSampling', prob)
+.rpm_cpp <- function(prob, eps) {
+    .Call('_BalancedSampling_rpm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
+}
+
+.sb_sumofsquares_cpp <- function(x, sample, bucketSize, method) {
+    .Call('_BalancedSampling_sb_sumofsquares_cpp', PACKAGE = 'BalancedSampling', x, sample, bucketSize, method)
 }
 
 .sb_voronoi_cpp <- function(prob, x, sample, bucketSize, method) {

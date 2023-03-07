@@ -1,76 +1,85 @@
 #include <Rcpp.h>
-using namespace Rcpp;
+#include "uniform.h"
+#include "index-list.h"
 
 //**********************************************
-// Author: Anton Grafström
-// Last edit: 2014-03-18 
+// Author: Wilmer Prentius
 // Licence: GPL (>=2)
 //**********************************************
 
-// [[Rcpp::export]]
-NumericVector rpm(NumericVector prob){
-	int N = prob.size();
-	NumericVector index(N), p(N);
-	
-	double wp,lp;
-	int ri,rj;
-	
-	for(int i=0;i<N;i++){index[i]=i; p[i]=prob[i];}
-		
-	NumericVector r1 = runif(N);
-	NumericVector r2 = runif(N);
-  NumericVector r3 = runif(N);
-	int move;
-	int temp;
-	double a;
+#define intuniform(N) ((int)((double)N * stduniform()))
+#define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
 
+// [[Rcpp::export(.rpm_cpp)]]
+Rcpp::IntegerVector rpm_cpp(
+  Rcpp::NumericVector &prob,
+  double eps
+) {
+  int N = prob.length();
+  double *probability = new double[N];
+  IndexList *idx = new IndexList(N);
 
-	for(int i=0;i<N-1;i++){	
-		ri = i+floor((r1[i]*(N-i)));
-		rj = i+floor((r2[i]*(N-i-1)));
-    if(rj>=ri){rj=rj+1;}
-		a = p[index[ri]]+p[index[rj]];
-		if(a > 1){
-			wp = 1;
-		}else{
-			wp = a;
-		}
-		lp = p[index[ri]]+p[index[rj]]-wp;
-		if( r3[i] < (wp-p[index[rj]])/(wp-lp) ){
-			p[index[ri]] = wp;
-			p[index[rj]] = lp;
-		}else{
-			p[index[ri]] = lp;
-			p[index[rj]] = wp;
-		}
-		if(i==N-2){
-			if(runif(1)[0]<p[index[ri]]){
-				p[index[ri]]=1;
-			}else{
-				p[index[ri]]=0;
-			}
-			if(runif(1)[0]<p[index[rj]]){
-				p[index[rj]]=1;
-			}else{
-				p[index[rj]]=0;
-			}
-		}	
-		move = rj;
-		if( p[index[ri]]==0 || p[index[ri]]==1 ){
-			move = ri;
-		}
-		temp = index[i];
-		index[i] = index[move];
-		index[move] = temp;
-	}
-	int n = round(sum(p));
-	NumericVector s(n);
-	int count = 0;
-	for(int i=0;i<N;i++){
-		if(p[i]==1){
-			s[count]=i+1;
-			count++;
-		}
-	}
-	return s;
+  for (int i = 0; i < N; i++) {
+    probability[i] = prob[i];
+    idx->set(i);
+  }
+
+  while(idx->length() > 1) {
+    int id1 = idx->draw();
+    int id2;
+    do {id2 = idx->draw();} while (id1 == id2);
+
+    double p1 = probability[id1];
+    double p2 = probability[id2];
+    double psum = p1 + p2;
+
+    if (psum > 1.0) {
+      if (1.0 - p2 > stduniform() * (2.0 - psum)) {
+        probability[id1] = 1.0;
+        probability[id2] = psum - 1.0;
+      } else {
+        probability[id1] = psum - 1.0;
+        probability[id2] = 1.0;
+      }
+    } else {
+      if (p2 > stduniform() * psum) {
+        probability[id1] = 0.0;
+        probability[id2] = psum;
+      } else {
+        probability[id1] = psum;
+        probability[id2] = 0.0;
+      }
+    }
+
+    if (pclose(probability[id1], eps)) {
+      idx->erase(id1);
+    }
+
+    if (pclose(probability[id2], eps)) {
+      idx->erase(id2);
+    }
+  }
+
+  if (idx->length() == 1) {
+    int id1 = idx->get(0);
+    if (stduniform() < probability[id1])
+      probability[id1] = 1.0;
+  }
+
+  int *svec = new int[N];
+  int j = 0;
+  for (int i = 0; i < N; i++) {
+    if (probability[i] >= 1.0 - eps) {
+      svec[j] = i + 1;
+      j += 1;
+    }
+  }
+
+  Rcpp::IntegerVector sample(svec, svec + j);
+
+  delete[] svec;
+  delete[] probability;
+  delete idx;
+
+  return sample;
 }

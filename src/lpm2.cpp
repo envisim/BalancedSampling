@@ -11,8 +11,8 @@
 #define intuniform(N) ((int)((double)N * stduniform()))
 #define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
 
-// [[Rcpp::export(.lpm22_cpp)]]
-Rcpp::IntegerVector lpm22_cpp(
+// [[Rcpp::export(.lpm2_cpp)]]
+Rcpp::IntegerVector lpm2_cpp(
   Rcpp::NumericVector &prob,
   Rcpp::NumericMatrix &x,
   int bucketSize,

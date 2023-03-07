@@ -15,7 +15,7 @@ If an integer n, then the probabilities will be assumed to be equal n / N.}
 \item{sample}{A vector of sample indices.}
 
 \item{measure}{The type of balance measure to use.
-Must be one of \code{"voronoi"}.}
+Must be one of \code{"voronoi"}, \code{"sumofsquares"}.}
 
 \item{type}{The method used in finding nearest neighbours.
 Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
