@@ -88,7 +88,7 @@ void KDTreeCps::findNeighboursInNode(
     tempsize += 1;
 
     dists[idx2] = distance(unit, data + idx2 * p);
-    weights[idx2] = probabilities[idx] <= 1.0
+    weights[idx2] = probabilities[idx] + probabilities[idx2] <= 1.0
       ? probabilities[idx2] / (1.0 - probabilities[idx])
       : (1.0 - probabilities[idx2]) / probabilities[idx];
 
@@ -126,23 +126,21 @@ void KDTreeCps::findNeighboursInNode(
     // (A) and (B), reset weightsum, we need to sort [0, tempsize)
     i = 0;
     *weightsum = 0.0;
-  } else if (dists[neighbours[*size - 1]] < distmin) {
+  } else if (dists[neighbours[*size - 1]] <= distmin) {
     // (C), keep all old, sort [size, tempsize)
     i = *size;
     // *weightsum = *weightsum;
   } else {
     // (D), go backwards in [0, size), and remove weights for all units that
     //      need sorting
-    i = *size - 2;
-    *weightsum -= weights[neighbours[*size - 1]];
-    for (; i >= 0; i--) {
-      if (dists[neighbours[i]] < distmin) {
-        i += 1;
+    for (i = *size - 1; i >= 0; i--) {
+      if (dists[neighbours[i]] < distmin)
         break;
-      }
 
       *weightsum -= weights[neighbours[i]];
     }
+
+    i += 1;
   }
 
   // Sort the range [i, tempsize)
@@ -154,18 +152,18 @@ void KDTreeCps::findNeighboursInNode(
 
   // Add unit i to the list
   *weightsum += weights[neighbours[i]];
-  i += 1;
+  // i += 1;
 
   // Add any following unit, stopping when
   // - weightsum >= 1.0, and
   // - the previous distance is smaller than the current distance
-  for (; i < tempsize; i++) {
+  for (i = i + 1; i < tempsize; i++) {
     if (*weightsum >= 1.0 && dists[neighbours[i - 1]] < dists[neighbours[i]])
       break;
 
     *weightsum += weights[neighbours[i]];
   }
 
-  *size = i - 1;
+  *size = i;
   return;
 }
