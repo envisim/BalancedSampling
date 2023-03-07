@@ -13,7 +13,7 @@
 #' If an integer n, then the probabilities will be assumed to be equal n / N.
 #' @param sample A vector of sample indices.
 #' @param measure The type of balance measure to use.
-#' Must be one of \code{"voronoi"}.
+#' Must be one of \code{"voronoi"}, \code{"sumofsquares"}.
 #'
 #' @examples
 #' \dontrun{
@@ -71,8 +71,10 @@ sb = function(
 
   if (measure == "voronoi") {
     result = .sb_voronoi_cpp(prob, x, sample, bucketSize, method);
+  } else if (measure == "sumofsquares") {
+    result = .sb_sumofsquares_cpp(x, sample, bucketSize, method);
   } else {
-    stop("'balance' must be 'voronoi'");
+    stop("'balance' must be 'voronoi', or 'sumofsquares'");
   }
 
   return(result);

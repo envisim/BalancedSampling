@@ -476,6 +476,20 @@ int KDTree::findClosest(int *neighbours, const int maxsize, const double *unit) 
   return size;
 }
 
+double KDTree::findSmallestDistanceToPoint(const double *point) {
+  if (top == nullptr)
+    return DBL_MAX;
+
+  int *neighbours = new int[1];
+  int size = 0;
+  double mindist = DBL_MAX;
+
+  findNeighbourSearch(neighbours, 1, &size, top, &mindist, -1, point);
+
+  delete[] neighbours;
+  return mindist;
+}
+
 void KDTree::removeUnit(const int idx) {
   KDNode *node = findNode(idx);
   node->removeUnit(idx);
