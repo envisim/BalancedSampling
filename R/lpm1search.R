@@ -5,7 +5,7 @@
 
 #' Local Pivotal Method 1: Search
 #'
-#' @inherit lpm1 description details params return references
+#' @inherit lpm1 description details sections params return references
 #'
 #' @examples
 #' \dontrun{

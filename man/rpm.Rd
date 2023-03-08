@@ -17,14 +17,18 @@ A vector of selected indices in 1,2,...,N.
 }
 \description{
 Selects samples with prescribed inclusion probabilities from a finite population.
+}
+\details{
 This design has high entropy.
 In each of the (at most) N steps, two undecided units are selected at random
 to compete.
 }
-\details{
+\section{Inclusion probabilities}{
+
 If the inclusion probabilities \code{prob} sum to an integer n, the sample
 size is fixed (n).
 }
+
 \examples{
 \dontrun{
 set.seed(12345);

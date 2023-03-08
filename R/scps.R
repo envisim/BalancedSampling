@@ -5,7 +5,16 @@
 
 #' Spatially Correlated Poisson Sampling
 #'
-#' @inherit lpm1 description details params return
+#' @inherit lpm1 description sections params return
+#'
+#' @details
+#' Euclidean distance is used in the \code{x} space.
+#' The implementation uses the maximal weight strategy, as specified in
+#' Grafström (2012).
+#'
+#' @param rand A vector of length N with random numbers.
+#' If this is supplied, the decision of each unit is taken with the corresponding
+#' random number. This makes it possible to coordinate the samples.
 #'
 #' @references
 #' Grafström, A. (2012).
@@ -47,6 +56,7 @@
 scps = function(
   prob,
   x,
+  rand,
   type = "kdtree2",
   bucketSize = 50,
   eps = 1e-12
@@ -87,7 +97,14 @@ scps = function(
     if (eps < 0.0 || 1e-4 < eps)
       stop("'eps' must be in [0.0, 1e-4]");
 
-    result = .scps_cpp(prob, x, bucketSize, method, eps);
+    if (is.vector(rand)) {
+      if (length(rand) != dim(x)[2L])
+        stop("the size of 'rand' and 'x' does not match");
+
+      result = .scps_coord_cpp(prob, x, rand, bucketSize, method, eps);
+    } else {
+      result = .scps_cpp(prob, x, bucketSize, method, eps);
+    }
   }
 
   return(result);

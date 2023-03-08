@@ -4,12 +4,16 @@
 \alias{scps}
 \title{Spatially Correlated Poisson Sampling}
 \usage{
-scps(prob, x, type = "kdtree2", bucketSize = 50, eps = 1e-12)
+scps(prob, x, rand, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
 
 \item{x}{An N by p matrix of (standardized) auxiliary variables.}
+
+\item{rand}{A vector of length N with random numbers.
+If this is supplied, the decision of each unit is taken with the corresponding
+random number. This makes it possible to coordinate the samples.}
 
 \item{type}{The method used in finding nearest neighbours.
 Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
@@ -29,9 +33,16 @@ from a finite population.
 }
 \details{
 Euclidean distance is used in the \code{x} space.
+The implementation uses the maximal weight strategy, as specified in
+Grafström (2012).
+}
+\section{Inclusion probabilities}{
 
 If the inclusion probabilities \code{prob} sum to an integer n, the sample
 size is fixed (n).
+}
+
+\section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
 according to \code{bucketSize}.
@@ -43,6 +54,7 @@ according to \code{bucketSize}.
   \item{"notree"} does a naive search for the nearest neighbour.
 }
 }
+
 \examples{
 \dontrun{
 set.seed(12345);

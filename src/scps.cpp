@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <functional>
 #include <Rcpp.h>
 #include "kdtree-cps.h"
 #include "uniform.h"
@@ -9,7 +10,7 @@
 // Licence: GPL (>=2)
 //**********************************************
 
-#define intuniform(N) ((int)((double)N * stduniform()))
+// #define intuniform(N) ((int)((double)N * stduniform()))
 // #define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
 
 void decide(
@@ -30,31 +31,23 @@ void decide(
   }
 }
 
-// [[Rcpp::export(.scps_cpp)]]
-Rcpp::IntegerVector scps_cpp(
-  Rcpp::NumericVector &prob,
-  Rcpp::NumericMatrix &x,
-  int bucketSize,
-  int method,
-  double eps
+void scps_internal(
+  const double *xx,
+  const int N,
+  double *probabilities,
+  KDTreeCps *tree,
+  double eps,
+  // double (*randfun)(int),
+  std::function<double (const int)> randfun,
+  int *sample,
+  int *sampleSize
 ) {
-  int N = x.ncol();
-  double *xx = REAL(x);
-
   IndexList *idx = new IndexList(N);
   int *neighbours = new int[N];
-  double *probabilities = new double[N];
   double *weights = new double[N];
   double *dists = new double[N];
-  int sampleSize = 0;
 
-  KDTreeCps *tree = new KDTreeCps(xx, N, x.nrow(), bucketSize, method);
-  tree->init();
-
-  for (int i = 0; i < N; i++) {
-    probabilities[i] = prob[i];
-    idx->set(i);
-  }
+  idx->fill();
 
   while (idx->length() > 1) {
     int id1 = idx->draw();
@@ -67,14 +60,14 @@ Rcpp::IntegerVector scps_cpp(
     // Find all neighbours
     int len = tree->findNeighbours(probabilities, weights, dists, neighbours, id1);
 
-    bool included = stduniform() < probabilities[id1];
+    bool included = randfun(id1) < probabilities[id1];
     double slag;
 
     if (included) {
       slag = probabilities[id1] - 1.0;
       probabilities[id1] = 1.0;
 
-      sampleSize += 1;
+      *sampleSize += 1;
     } else {
       slag = probabilities[id1];
       // probabilities[id1] = 0.0;
@@ -105,7 +98,7 @@ Rcpp::IntegerVector scps_cpp(
         double temp = remweight >= totweight ? totweight : remweight;
 
         probabilities[id2] += temp * slag;
-        decide(idx, tree, probabilities, &sampleSize, id2, eps);
+        decide(idx, tree, probabilities, sampleSize, id2, eps);
 
         i += 1;
         remweight -= temp;
@@ -119,7 +112,7 @@ Rcpp::IntegerVector scps_cpp(
         for (; i < j; i++) {
           int id2 = neighbours[i];
           probabilities[id2] += weights[id2] * slag;
-          decide(idx, tree, probabilities, &sampleSize, id2, eps);
+          decide(idx, tree, probabilities, sampleSize, id2, eps);
         }
 
         remweight -= totweight;
@@ -143,7 +136,7 @@ Rcpp::IntegerVector scps_cpp(
             temp = weights[id2];
 
           probabilities[id2] += temp * slag;
-          decide(idx, tree, probabilities, &sampleSize, id2, eps);
+          decide(idx, tree, probabilities, sampleSize, id2, eps);
           remweight -= temp;
         }
       }
@@ -154,13 +147,11 @@ Rcpp::IntegerVector scps_cpp(
     int id1 = idx->get(0);
     if (stduniform() < probabilities[id1]) {
       probabilities[id1] = 1.0;
-      sampleSize += 1;
+      *sampleSize += 1;
     }
   }
 
-  Rcpp::IntegerVector sample(sampleSize);
-
-  for (int i = 0, j = 0; i < N && j < sampleSize; i++) {
+  for (int i = 0, j = 0; i < N && j < *sampleSize; i++) {
     if (probabilities[i] >= 1.0 - eps) {
       sample[j] = i + 1;
       j += 1;
@@ -168,11 +159,102 @@ Rcpp::IntegerVector scps_cpp(
   }
 
   delete[] neighbours;
-  delete[] probabilities;
   delete[] weights;
   delete[] dists;
   delete idx;
+
+  return;
+}
+
+// [[Rcpp::export(.scps_cpp)]]
+Rcpp::IntegerVector scps_cpp(
+  Rcpp::NumericVector &prob,
+  Rcpp::NumericMatrix &x,
+  int bucketSize,
+  int method,
+  double eps
+) {
+  int N = x.ncol();
+  double *xx = REAL(x);
+
+  double *probabilities = new double[N];
+  int *sample = new int[N];
+  int sampleSize = 0;
+
+  KDTreeCps *tree = new KDTreeCps(xx, N, x.nrow(), bucketSize, method);
+  tree->init();
+
+  for (int i = 0; i < N; i++) {
+    probabilities[i] = prob[i];
+  }
+
+  std::function<double (const int)> randfun = [](int i) {
+    return stduniform();
+  };
+
+  scps_internal(
+    xx,
+    N,
+    probabilities,
+    tree,
+    eps,
+    randfun,
+    sample,
+    &sampleSize
+  );
+
+  Rcpp::IntegerVector svec(sample, sample + sampleSize);
+
+  delete[] probabilities;
+  delete[] sample;
   delete tree;
 
-  return sample;
+  return svec;
+}
+
+// [[Rcpp::export(.scps_coord_cpp)]]
+Rcpp::IntegerVector scps_coord_cpp(
+  Rcpp::NumericVector &prob,
+  Rcpp::NumericMatrix &x,
+  Rcpp::NumericVector &random,
+  int bucketSize,
+  int method,
+  double eps
+) {
+  int N = x.ncol();
+  double *xx = REAL(x);
+
+  double *probabilities = new double[N];
+  int *sample = new int[N];
+  int sampleSize = 0;
+
+  KDTreeCps *tree = new KDTreeCps(xx, N, x.nrow(), bucketSize, method);
+  tree->init();
+
+  for (int i = 0; i < N; i++) {
+    probabilities[i] = prob[i];
+  }
+
+  std::function<double (const int)> randfun = [&random](int i) {
+    return random[i];
+  };
+
+  scps_internal(
+    xx,
+    N,
+    probabilities,
+    tree,
+    eps,
+    randfun,
+    sample,
+    &sampleSize
+  );
+
+  Rcpp::IntegerVector svec(sample, sample + sampleSize);
+
+  delete[] probabilities;
+  delete[] sample;
+  delete tree;
+
+  return svec;
 }

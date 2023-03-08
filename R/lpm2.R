@@ -5,7 +5,7 @@
 
 #' Local Pivotal Method 2
 #'
-#' @inherit lpm1 description details params return references
+#' @inherit lpm1 description details sections params return references
 #'
 #' @param prob A vector of length N with inclusion probabilities, or an integer > 1.
 #' If an integer n, then the sample will be drawn with equal probabilities n / N.

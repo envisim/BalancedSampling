@@ -5,14 +5,15 @@
 
 #' Random Pivotal Method
 #'
+#' @description
 #' Selects samples with prescribed inclusion probabilities from a finite population.
+#'
+#' @details
 #' This design has high entropy.
 #' In each of the (at most) N steps, two undecided units are selected at random
 #' to compete.
 #'
-#' If the inclusion probabilities \code{prob} sum to an integer n, the sample
-#' size is fixed (n).
-#'
+#' @inheritSection lpm1 Inclusion probabilities
 #'
 #' @param prob A vector of length N with inclusion probabilities.
 #' @param eps A small value used to determine when an updated probability is

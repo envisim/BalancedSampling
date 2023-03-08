@@ -73,6 +73,10 @@ lpm <- function(prob, x, h) {
     .Call('_BalancedSampling_scps_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
 }
 
+.scps_coord_cpp <- function(prob, x, random, bucketSize, method, eps) {
+    .Call('_BalancedSampling_scps_coord_cpp', PACKAGE = 'BalancedSampling', prob, x, random, bucketSize, method, eps)
+}
+
 spm <- function(prob) {
     .Call('_BalancedSampling_spm', PACKAGE = 'BalancedSampling', prob)
 }

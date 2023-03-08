@@ -29,9 +29,14 @@ from a finite population.
 }
 \details{
 Euclidean distance is used in the \code{x} space.
+}
+\section{Inclusion probabilities}{
 
 If the inclusion probabilities \code{prob} sum to an integer n, the sample
 size is fixed (n).
+}
+
+\section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
 according to \code{bucketSize}.
@@ -43,6 +48,7 @@ according to \code{bucketSize}.
   \item{"notree"} does a naive search for the nearest neighbour.
 }
 }
+
 \examples{
 \dontrun{
 set.seed(12345);
