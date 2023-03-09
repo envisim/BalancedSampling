@@ -1,72 +1,105 @@
 #include <Rcpp.h>
-using namespace Rcpp;
+#include "uniform.h"
 
 //**********************************************
-// Author: Anton Grafström
-// Last edit: 2014-03-18 
+// Author: Wilmer Prentius
 // Licence: GPL (>=2)
 //**********************************************
 
-// [[Rcpp::export]]
-NumericVector spm(NumericVector prob){
-	int N = prob.size();
-	NumericVector index(N), p(N);
-	
-	double wp,lp;
-	int ri,rj;
-	
-	for(int i=0;i<N;i++){index[i]=i; p[i]=prob[i];}
-		
-	NumericVector r1 = runif(N);
-	int move;
-	int temp;
-	double a;
+#define pbig(p, eps) (p >= 1.0 - eps)
+#define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
 
-	for(int i=0;i<N-1;i++){	
-		ri = i;
-		rj = i+1;
-		a = p[index[ri]]+p[index[rj]];
-		if(a > 1){
-			wp = 1;
-		}else{
-			wp = a;
-		}
-		lp = p[index[ri]]+p[index[rj]]-wp;
-		if( r1[i] < (wp-p[index[rj]])/(wp-lp) ){
-			p[index[ri]] = wp;
-			p[index[rj]] = lp;
-		}else{
-			p[index[ri]] = lp;
-			p[index[rj]] = wp;
-		}
-		if(i==N-2){
-			if(runif(1)[0]<p[index[ri]]){
-				p[index[ri]]=1;
-			}else{
-				p[index[ri]]=0;
-			}
-			if(runif(1)[0]<p[index[rj]]){
-				p[index[rj]]=1;
-			}else{
-				p[index[rj]]=0;
-			}
-		}	
-		move = rj;
-		if( p[index[ri]]==0 || p[index[ri]]==1 ){
-			move = ri;
-		}
-		temp = index[i];
-		index[i] = index[move];
-		index[move] = temp;
-	}
-	int n = round(sum(p));
-	NumericVector s(n);
-	int count = 0;
-	for(int i=0;i<N;i++){
-		if(p[i]==1){
-			s[count]=i+1;
-			count++;
-		}
-	}
-	return s;
+// [[Rcpp::export(.spm_cpp)]]
+Rcpp::IntegerVector spm_cpp(
+  Rcpp::NumericVector &prob,
+  double eps
+) {
+  int N = prob.length();
+  int sampleSize = 0;
+  int *sample = new int[N];
+  int *idx = new int[N];
+  double *probabilities = new double[N];
+
+  for (int i = 0; i < N; i++) {
+    idx[i] = i;
+    probabilities[i] = prob[i];
+  }
+
+  int i = 0;
+  while (i < N - 1) {
+    int id1 = idx[i];
+    int id2 = idx[i + 1];
+
+    double p1 = probabilities[id1];
+    double p2 = probabilities[id2];
+    double psum = p1 + p2;
+
+    if (psum > 1.0) {
+      if (1.0 - p2 > stduniform() * (2.0 - psum)) {
+        probabilities[id1] = 1.0;
+        probabilities[id2] = psum - 1.0;
+      } else {
+        probabilities[id1] = psum - 1.0;
+        probabilities[id2] = 1.0;
+      }
+    } else {
+      if (p2 > stduniform() * psum) {
+        probabilities[id1] = 0.0;
+        probabilities[id2] = psum;
+      } else {
+        probabilities[id1] = psum;
+        probabilities[id2] = 0.0;
+      }
+    }
+
+    int decide = 0;
+
+    if (pclose(probabilities[id1], eps)) {
+      decide += 1;
+
+      if (pbig(probabilities[id1], eps)) {
+        sample[sampleSize] = id1 + 1;
+        sampleSize += 1;
+      }
+    }
+
+    if (pclose(probabilities[id2], eps)) {
+      decide += 2;
+
+      if (pbig(probabilities[id2], eps)) {
+        sample[sampleSize] = id2 + 1;
+        sampleSize += 1;
+      }
+    }
+
+    switch(decide) {
+    case 3: // Both were decide, we can just move up 2
+      i += 2;
+      break;
+    case 2: // Only second was decided, we switch and move up 1
+      idx[i + 1] = idx[i];
+      i += 1;
+      break;
+    case 1: // Only first was decided, we move up 1
+      i += 1;
+      break;
+    }
+  }
+
+  if (i == N - 1) {
+    int id1 = idx[i];
+    if (stduniform() < probabilities[id1]) {
+      sample[sampleSize] = id1 + 1;
+      sampleSize += 1;
+    }
+  }
+
+  std::sort(sample, sample + sampleSize);
+  Rcpp::IntegerVector svec(sample, sample + sampleSize);
+
+  delete[] sample;
+  delete[] idx;
+  delete[] probabilities;
+
+  return svec;
 }

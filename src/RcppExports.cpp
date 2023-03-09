@@ -286,14 +286,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// spm
-NumericVector spm(NumericVector prob);
-RcppExport SEXP _BalancedSampling_spm(SEXP probSEXP) {
+// spm_cpp
+Rcpp::IntegerVector spm_cpp(Rcpp::NumericVector& prob, double eps);
+RcppExport SEXP _BalancedSampling_spm_cpp(SEXP probSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    rcpp_result_gen = Rcpp::wrap(spm(prob));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(spm_cpp(prob, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -332,7 +333,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_sb_voronoi_cpp", (DL_FUNC) &_BalancedSampling_sb_voronoi_cpp, 5},
     {"_BalancedSampling_scps_cpp", (DL_FUNC) &_BalancedSampling_scps_cpp, 5},
     {"_BalancedSampling_scps_coord_cpp", (DL_FUNC) &_BalancedSampling_scps_coord_cpp, 6},
-    {"_BalancedSampling_spm", (DL_FUNC) &_BalancedSampling_spm, 1},
+    {"_BalancedSampling_spm_cpp", (DL_FUNC) &_BalancedSampling_spm_cpp, 2},
     {"_BalancedSampling_vsb", (DL_FUNC) &_BalancedSampling_vsb, 3},
     {NULL, NULL, 0}
 };

@@ -70,11 +70,9 @@ void lpm2_internal(
 
   if (idx->length() == 1) {
     int id1 = idx->get(0);
-    // if (stduniform() < probabilities[id1])
-    //   probabilities[id1] = 1.0;
     if (stduniform() < probabilities[id1]) {
       sample[*sampleSize] = id1 + 1;
-      sampleSize += 1;
+      *sampleSize += 1;
     }
   }
 

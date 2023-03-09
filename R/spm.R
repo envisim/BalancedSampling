@@ -3,7 +3,7 @@
 # Licence: GPL (>=2)
 # **********************************************
 
-#' Random Pivotal Method
+#' Sequential Pivotal Method
 #'
 #' @inherit lpm1 params return
 #'
@@ -11,11 +11,20 @@
 #' Selects samples with prescribed inclusion probabilities from a finite population.
 #'
 #' @details
-#' This design has high entropy.
-#' In each of the (at most) N steps, two undecided units are selected at random
-#' to compete.
+#' The resulting samples are well spread in the list, similar to systematic sampling.
+#' In each of the, at most, N steps, the two undecided units with the smallest
+#' indices are selected to compete against each other.
 #'
 #' @inheritSection lpm1 Inclusion probabilities
+#'
+#' @references
+#' Deville, J.-C. and  Tillé, Y. (1998).
+#' Unequal probability sampling without replacement through a splitting method.
+#' Biometrika 85, 89-101.
+#'
+#' Chauvet, G. (2012).
+#' On a characterization of ordered pivotal sampling.
+#' Bernoulli, 18(4), 1320-1340.
 #'
 #' @examples
 #' \dontrun{
@@ -24,7 +33,7 @@
 #' n = 100;
 #' prob = rep(n/N, N);
 #' x = matrix(runif(N * 2), ncol = 2);
-#' s = rpm(prob);
+#' s = spm(prob);
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
@@ -34,13 +43,13 @@
 #' ep = rep(0L, N);
 #' r = 10000L;
 #' for (i in seq_len(r)) {
-#'   s = rpm(prob);
+#'   s = spm(prob);
 #'   ep[s] = ep[s] + 1L;
 #' }
 #' print(ep / r);
 #' }
 #'
-rpm = function(
+spm = function(
   prob,
   eps = 1e-12
 ) {
@@ -50,7 +59,7 @@ rpm = function(
     if (eps < 0.0 || 1e-4 < eps)
       stop("'eps' must be in [0.0, 1e-4]");
 
-    result = .rpm_cpp(prob, eps);
+    result = .spm_cpp(prob, eps);
   }
 
   return(result);

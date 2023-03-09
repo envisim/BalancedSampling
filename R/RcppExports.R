@@ -81,8 +81,8 @@ lpm <- function(prob, x, h) {
     .Call('_BalancedSampling_scps_coord_cpp', PACKAGE = 'BalancedSampling', prob, x, random, bucketSize, method, eps)
 }
 
-spm <- function(prob) {
-    .Call('_BalancedSampling_spm', PACKAGE = 'BalancedSampling', prob)
+.spm_cpp <- function(prob, eps) {
+    .Call('_BalancedSampling_spm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
 }
 
 vsb <- function(probs, ys, xs) {
