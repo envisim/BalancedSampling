@@ -33,6 +33,10 @@ lcubestratified <- function(prob, Xspread, Xbal, integerStrata) {
     .Call('_BalancedSampling_lcubestratified', PACKAGE = 'BalancedSampling', prob, Xspread, Xbal, integerStrata)
 }
 
+.hlpm2_cpp <- function(prob, x, sizes, bucketSize, method, eps) {
+    .Call('_BalancedSampling_hlpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, sizes, bucketSize, method, eps)
+}
+
 lcps <- function(prob, x) {
     .Call('_BalancedSampling_lcps', PACKAGE = 'BalancedSampling', prob, x)
 }

@@ -76,6 +76,13 @@ void KDTree::init() {
   delete[] units;
 }
 
+void KDTree::prune() {
+  if (top == nullptr)
+    return;
+  top->prune(bucketSize);
+  return;
+}
+
 void KDTree::split(KDNode *parent, int *units, const int n) {
   // int m = splitMod(parent, units, n);
   // int m = splitSpread(parent, units, n);

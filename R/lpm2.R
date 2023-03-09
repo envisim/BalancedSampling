@@ -55,7 +55,7 @@ lpm2 = function(
     method = 2;
   } else if (type == "notree") {
     method = 0;
-    bucketSize = dim(x)[1L];
+    bucketSize = dim(x)[2L];
   } else {
     stop("'type' must be 'kdtree0', 'kdtree1', 'kdtree2', or 'notree'");
   }
@@ -64,8 +64,8 @@ lpm2 = function(
     stop("'bucketSize' must be integer > 0");
 
   if (length(prob) == 1) {
-    if (prob %% 1 != 0 || prob < 1)
-      stop("'prob' must be a vector of probabilities or a single integer > 0");
+    if (prob %% 1 != 0 || prob < 1 || prob > dim(x)[2L])
+      stop("'prob' must be a vector of probabilities or a single integer in [0, N]");
 
     result = .lpm2_int_cpp(prob, x, bucketSize, method);
   } else {

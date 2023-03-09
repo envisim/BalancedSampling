@@ -68,7 +68,7 @@ void KDTreeCps::findNeighboursInNode(
   const int idx,
   double *unit
 ) {
-  int nunits = node->getNUnits();
+  int nunits = node->getSize();
 
   // If there are no units within this node, we need not to bother
   if (nunits == 0)

@@ -114,6 +114,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// hlpm2_cpp
+Rcpp::IntegerMatrix hlpm2_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sizes, int bucketSize, int method, double eps);
+RcppExport SEXP _BalancedSampling_hlpm2_cpp(SEXP probSEXP, SEXP xSEXP, SEXP sizesSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type sizes(sizesSEXP);
+    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(hlpm2_cpp(prob, x, sizes, bucketSize, method, eps));
+    return rcpp_result_gen;
+END_RCPP
+}
 // lcps
 Rcpp::NumericVector lcps(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x);
 RcppExport SEXP _BalancedSampling_lcps(SEXP probSEXP, SEXP xSEXP) {
@@ -304,6 +320,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_lcubelandingphase", (DL_FUNC) &_BalancedSampling_lcubelandingphase, 4},
     {"_BalancedSampling_cubestratified", (DL_FUNC) &_BalancedSampling_cubestratified, 3},
     {"_BalancedSampling_lcubestratified", (DL_FUNC) &_BalancedSampling_lcubestratified, 4},
+    {"_BalancedSampling_hlpm2_cpp", (DL_FUNC) &_BalancedSampling_hlpm2_cpp, 6},
     {"_BalancedSampling_lcps", (DL_FUNC) &_BalancedSampling_lcps, 2},
     {"_BalancedSampling_lpm", (DL_FUNC) &_BalancedSampling_lpm, 3},
     {"_BalancedSampling_lpm1_search_cpp", (DL_FUNC) &_BalancedSampling_lpm1_search_cpp, 5},

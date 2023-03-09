@@ -28,6 +28,52 @@ void KDNode::copy(KDNode *original) {
   cright->copy(original->cright);
 }
 
+void KDNode::prune(const int bucketSize) {
+  // We can't prune a terminal node
+  if (terminal)
+    return;
+
+  // If a node is not terminal, but is missing a child, something went wrong
+  if (cleft == nullptr || cright == nullptr)
+    return;
+
+  if (!cleft->terminal)
+    cleft->prune(bucketSize);
+
+  if (!cright->terminal)
+    cleft->prune(bucketSize);
+
+  if (!cleft->terminal || !cright->terminal)
+    return;
+
+  // Both nodes are terminal
+  int cnunits = cleft->nunits + cright->nunits;
+  if (cnunits > bucketSize)
+    return;
+
+  // The nodes are too small, prune
+  delete[] units;
+  units = new int[cnunits];
+  nunits = 0;
+
+  for (int i = 0; i < cleft->nunits && nunits < cnunits; i++) {
+    units[nunits] = cleft->units[i];
+    nunits += 1;
+  }
+
+  for (int i = 0; i < cright->nunits && nunits < cnunits; i++) {
+    units[nunits] = cright->units[i];
+    nunits += 1;
+  }
+
+  terminal = 1;
+  delete cleft;
+  delete cright;
+  cleft = nullptr;
+  cright = nullptr;
+  return;
+}
+
 void KDNode::setTerminal(const int term) {
   terminal = term > 0;
 }

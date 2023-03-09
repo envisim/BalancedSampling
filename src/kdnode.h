@@ -23,7 +23,9 @@ public:
 public:
   KDNode(KDNode*, const int);
   ~KDNode();
-  void copy(KDNode *original);
+  void copy(KDNode*);
+  void prune(const int);
+
   void setTerminal(const int);
   int isTerminal();
   KDNode* getSibling();

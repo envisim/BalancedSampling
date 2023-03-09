@@ -1,15 +1,5 @@
+#include "lpm2-internal.h"
 #include <Rcpp.h>
-#include "kdtree.h"
-#include "uniform.h"
-#include "index-list.h"
-
-//**********************************************
-// Author: Wilmer Prentius
-// Licence: GPL (>=2)
-//**********************************************
-
-#define intuniform(N) ((int)((double)N * stduniform()))
-#define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
 
 // [[Rcpp::export(.lpm2_cpp)]]
 Rcpp::IntegerVector lpm2_cpp(
@@ -22,76 +12,37 @@ Rcpp::IntegerVector lpm2_cpp(
   int N = x.ncol();
   double *xx = REAL(x);
 
-  double *probability = new double[N];
-  IndexList *idx = new IndexList(N);
+  double *probabilities = new double[N];
   int *neighbours = new int[N];
+  int *sample = new int[N];
+  int sampleSize = 0;
 
+  IndexList *idx = new IndexList(N);
   KDTree *tree = new KDTree(xx, N, x.nrow(), bucketSize, method);
   tree->init();
 
   for (int i = 0; i < N; i++) {
-    probability[i] = prob[i];
+    probabilities[i] = prob[i];
     idx->set(i);
   }
 
-  while (idx->length() > 1) {
-    int id1 = idx->draw();
+  lpm2_internal(
+    tree,
+    idx,
+    probabilities,
+    neighbours,
+    N,
+    eps,
+    sample,
+    &sampleSize
+  );
 
-    int len = tree->findNeighbour(neighbours, N, id1);
-    int id2 = len == 1 ? neighbours[0] : neighbours[intuniform(len)];
-
-    double p1 = probability[id1];
-    double p2 = probability[id2];
-    double psum = p1 + p2;
-
-    if (psum > 1.0) {
-      if (1.0 - p2 > stduniform() * (2.0 - psum)) {
-        probability[id1] = 1.0;
-        probability[id2] = psum - 1.0;
-      } else {
-        probability[id1] = psum - 1.0;
-        probability[id2] = 1.0;
-      }
-    } else {
-      if (p2 > stduniform() * psum) {
-        probability[id1] = 0.0;
-        probability[id2] = psum;
-      } else {
-        probability[id1] = psum;
-        probability[id2] = 0.0;
-      }
-    }
-
-    if (pclose(probability[id1], eps)) {
-      idx->erase(id1);
-      tree->removeUnit(id1);
-    }
-
-    if (pclose(probability[id2], eps)) {
-      idx->erase(id2);
-      tree->removeUnit(id2);
-    }
-  }
-
-  if (idx->length() == 1) {
-    int id1 = idx->get(0);
-    if (stduniform() < probability[id1])
-      probability[id1] = 1.0;
-  }
-
-  int j = 0;
-  for (int i = 0; i < N; i++) {
-    if (probability[i] >= 1.0 - eps) {
-      neighbours[j] = i + 1;
-      j += 1;
-    }
-  }
-
-  Rcpp::IntegerVector sample(neighbours, neighbours + j);
-  delete[] probability;
+  Rcpp::IntegerVector svec(sample, sample + sampleSize);
+  delete[] probabilities;
   delete[] neighbours;
+  delete[] sample;
   delete idx;
   delete tree;
 
-  return sample;
+  return svec;
 }

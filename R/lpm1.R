@@ -100,7 +100,7 @@ lpm1 = function(
     method = 2;
   } else if (type == "notree") {
     method = 0;
-    bucketSize = dim(x)[1L];
+    bucketSize = dim(x)[2L];
   } else {
     stop("'type' must be 'kdtree0', 'kdtree1', 'kdtree2', or 'notree'");
   }
