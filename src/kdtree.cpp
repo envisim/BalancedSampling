@@ -1,96 +1,6 @@
 // #include <Rcpp.h>
 #include "kdtree.h"
 
-// KDNode::KDNode(KDNode *par, int term, int bs) {
-KDNode::KDNode(KDNode *par, const int term) {
-  parent = par;
-  setTerminal(term);
-}
-
-KDNode::~KDNode() {
-  delete[] units;
-  delete cleft;
-  delete cright;
-}
-
-void KDNode::copy(KDNode *original) {
-  if (terminal) {
-    addUnits(original->units, original->nunits);
-    return;
-  }
-
-  split = original->split;
-  value = original->value;
-
-  cleft = new KDNode(this, original->cleft->isTerminal());
-  cleft->copy(original->cleft);
-
-  cright = new KDNode(this, original->cright->isTerminal());
-  cright->copy(original->cright);
-}
-
-void KDNode::setTerminal(const int term) {
-  terminal = term > 0;
-}
-
-int KDNode::isTerminal() {
-  return terminal;
-}
-
-KDNode* KDNode::getSibling() {
-  if (parent == nullptr)
-    return nullptr;
-
-  return this == parent->cleft ? parent->cright : parent->cleft;
-}
-
-int KDNode::getNUnits() {
-  return nunits;
-}
-
-void KDNode::addUnits(const int *aunits, const int n) {
-  delete[] units;
-  units = new int[n];
-
-  for (int i = 0; i < n; i++)
-    units[i] = aunits[i];
-
-  nunits = n;
-}
-
-void KDNode::removeUnit(const int idx) {
-  // If there are no units here, nothing to remove
-  if (nunits == 0)
-    return;
-
-  // Find the pointer to idx in units
-  int *it = std::find(units, units + nunits, idx);
-
-  // If nothing found, return
-  if (it == units + nunits)
-    return;
-
-  // Something found, thus we have one less unit
-  nunits -= 1;
-
-  // If the iterator is pointing to the pos at nunits, we are done
-  if (it == units + nunits)
-    return;
-
-  *it = units[nunits];
-  return;
-}
-
-bool KDNode::exists(const int idx) {
-  if (nunits == 0)
-    return false;
-
-  int *it = std::find(units, units + nunits, idx);
-  return it != units + nunits;
-}
-
-// ############################# K-D-TREE ######################################
-
 KDTree::KDTree(double *dt, const int NN, const int pp, const int bs, const int sm) {
   data = dt;
   N = NN;
@@ -488,7 +398,7 @@ void KDTree::findNeighbourSearch(
 void KDTree::findNeighbourInNode(
   int *neighbours, const int maxsize, int *size, KDNode *node, double *mindist, const int idx, const double *unit
 ) {
-  int nunits = node->getNUnits();
+  int nunits = node->getSize();
 
   for (int i = 0; i < nunits; i++) {
     if (node->units[i] == idx) // Same unit
@@ -570,7 +480,7 @@ void printKDNode(KDNode *node, int par) {
       std::cout << "-";
     std::cout << " ";
 
-    int nunits = node->getNUnits();
+    int nunits = node->getSize();
     int *units = node->getUnits();
     for (int i = 0; i < nunits; i++)
       std::cout << units[i] << " ";
