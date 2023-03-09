@@ -3,6 +3,7 @@
 
 #include <float.h>
 #include <algorithm>
+#include <stdexcept>
 // #include <iostream>
 
 class KDNode {
@@ -32,6 +33,7 @@ public:
   KDNode* getSibling();
   void addUnits(const int*, const int);
   void removeUnit(const int);
+  bool exists(const int);
   int getNUnits();
   /* int* getUnits() {return units;}; */
 };
@@ -69,6 +71,7 @@ public:
   int findClosest(int*, const int, const double*);
   double findSmallestDistanceToPoint(const double*);
   void removeUnit(const int);
+  bool unitExists(const int);
   double distanceIdx(const int, const int);
 };
 

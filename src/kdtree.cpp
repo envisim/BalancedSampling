@@ -59,21 +59,34 @@ void KDNode::addUnits(const int *aunits, const int n) {
 }
 
 void KDNode::removeUnit(const int idx) {
+  // If there are no units here, nothing to remove
   if (nunits == 0)
     return;
 
+  // Find the pointer to idx in units
   int *it = std::find(units, units + nunits, idx);
 
+  // If nothing found, return
   if (it == units + nunits)
     return;
 
+  // Something found, thus we have one less unit
   nunits -= 1;
 
-  if (nunits > 0) {
-    if (it != units + nunits)
-      *it = units[nunits];
+  // If the iterator is pointing to the pos at nunits, we are done
+  if (it == units + nunits)
     return;
-  }
+
+  *it = units[nunits];
+  return;
+}
+
+bool KDNode::exists(const int idx) {
+  if (nunits == 0)
+    return false;
+
+  int *it = std::find(units, units + nunits, idx);
+  return it != units + nunits;
 }
 
 // ############################# K-D-TREE ######################################
@@ -119,8 +132,12 @@ KDTree* KDTree::copy() {
 }
 
 void KDTree::init() {
-  if (bucketSize < 1 || N < 1 || p < 1)
-    return;
+  if (bucketSize < 1)
+    std::range_error("(init) bucketSize to small");
+  if (N < 1)
+    std::range_error("(init) N to small");
+  if (p < 1)
+    std::range_error("(init) p to small");
 
   top = new KDNode(nullptr, bucketSize - N + 1);
 
@@ -281,6 +298,7 @@ int KDTree::splitMod(KDNode *parent, int *units, const int n) {
 }
 
 int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
+  // Get current window's limits by traversing up the tree
   double *mins = new double[p];
   double *maxs = new double[p];
 
@@ -300,6 +318,7 @@ int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
     par = par->parent;
   }
 
+  // Find the biggets interval, and choose this to be the splitting variable
   parent->split = 0;
   double spread = maxs[0] - mins[0];
   for (int k = 1; k < p; k++) {
@@ -310,9 +329,11 @@ int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
     }
   }
 
+  // If no intervals exists, we need to handle this separately
   if (spread == 0.0)
     return -1;
 
+  // Decide the splitting value to be the midpoint of the window
   parent->value = (maxs[parent->split] + mins[parent->split]) * 0.5;
 
   delete[] mins;
@@ -321,11 +342,13 @@ int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
   double *dt = data + parent->split;
   int l = 0;
   int r = n;
-  double small = DBL_MAX;
-  double big = -DBL_MAX;
+  double small = DBL_MAX; // The smallest value larger than splitting value
+  double big = -DBL_MAX;  // The largest value smaller than splitting value
 
   int *tunits = new int[n];
 
+  // Sort all units to the left, if they are <= than the splitting value
+  // And sort to the right, if they are > than the splitting value
   for (int i = 0; i < n; i++) {
     double temp = *(dt + units[i] * p);
     if (temp <= parent->value) {
@@ -343,6 +366,8 @@ int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
     }
   }
 
+  // If there exists units both bigger and smaller than the splitting value,
+  // we can be happy with the split
   if (l > 0 && r < n) {
     for (int i = 0; i < n; i++)
       units[i] = tunits[i];
@@ -354,8 +379,8 @@ int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
   delete[] tunits;
 
   if (l == 0) {
-    // If there are no units lesseq than value, we
-    // FIND ALL SMALLEST
+    // If there are no units <= than splitting value, we need to find all the
+    // smallest units
     for (int i = 0; i < n; i++) {
       double temp = *(dt + units[i] * p);
       if (temp == small) {
@@ -368,12 +393,21 @@ int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
       }
     }
 
+    // Handle special case if there is no spread
+    if (l == n)
+      return -1;
+
+    // Update value
+    parent->value = small;
+
     return l;
   }
 
   if (r == n) {
-    // If there are no units bigger than value, we
-    // FIND ALL BIGGEST
+    // If there are no units > than splitting value, we need to find all the
+    // largest units
+    small = -DBL_MAX;
+
     for (int i = n - 1; i >= 0; i--) {
       double temp = *(dt + units[i] * p);
       if (temp == big) {
@@ -383,8 +417,18 @@ int KDTree::splitMidpointSlide(KDNode *parent, int *units, const int n) {
           units[r] = units[i];
           units[i] = t;
         }
+      } else {
+        if (temp > small)
+          small = temp;
       }
     }
+
+    // Handle special case if there is no spread
+    if (r == 0)
+      return -1;
+
+    // Update value
+    parent->value = small;
 
     return r;
   }
@@ -494,6 +538,11 @@ void KDTree::removeUnit(const int idx) {
   KDNode *node = findNode(idx);
   node->removeUnit(idx);
   return;
+}
+
+bool KDTree::unitExists(const int idx) {
+  KDNode *node = findNode(idx);
+  return node->exists(idx);
 }
 
 double KDTree::distance(const double *u1, const double *u2) {
