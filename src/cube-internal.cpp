@@ -114,7 +114,7 @@ void cubeFlightPhase(
           if (i == j)
             continue;
           int temp = index[i];
-          index[i] == index[j];
+          index[i] = index[j];
           index[j] = temp;
         }
       }

@@ -57,12 +57,12 @@ lcps <- function(prob, x) {
     .Call('_BalancedSampling_sb_voronoi_cpp', PACKAGE = 'BalancedSampling', prob, x, sample, bucketSize, method)
 }
 
-.scps_cpp <- function(prob, x, bucketSize, method, eps) {
-    .Call('_BalancedSampling_scps_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
-}
-
 .scps_coord_cpp <- function(prob, x, random, bucketSize, method, eps) {
     .Call('_BalancedSampling_scps_coord_cpp', PACKAGE = 'BalancedSampling', prob, x, random, bucketSize, method, eps)
+}
+
+.scps_cpp <- function(prob, x, bucketSize, method, eps) {
+    .Call('_BalancedSampling_scps_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
 }
 
 .spm_cpp <- function(prob, eps) {

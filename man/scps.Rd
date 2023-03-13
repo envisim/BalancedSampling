@@ -4,7 +4,7 @@
 \alias{scps}
 \title{Spatially Correlated Poisson Sampling}
 \usage{
-scps(prob, x, rand, type = "kdtree2", bucketSize = 50, eps = 1e-12)
+scps(prob, x, rand = NULL, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
@@ -36,6 +36,14 @@ If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 The implementation uses the maximal weight strategy, as specified in
 Grafström (2012).
 }
+\section{Coordinated SCPS}{
+If \code{rand} is supplied, coordinated SCPS will be performed.
+The algorithm for coordinated SCPS differs from the SCPS algorithm, as
+uncoordinated SCPS chooses a unit to update randomly, whereas coordinated SCPS
+traverses the units in the supplied order.
+This has a small impact on the efficiency of the algorithm for coordinated SCPS.
+}
+
 \section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes

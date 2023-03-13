@@ -10,9 +10,16 @@
 #' from a finite population using Spatially Correlated Poisson Sampling (SCPS).
 #'
 #' @details
-#' If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
+#' If `prob` sum to an integer n, a fixed sized sample (n) will be produced.
 #' The implementation uses the maximal weight strategy, as specified in
 #' Grafström (2012).
+#'
+#' # Coordinated SCPS
+#' If `rand` is supplied, coordinated SCPS will be performed.
+#' The algorithm for coordinated SCPS differs from the SCPS algorithm, as
+#' uncoordinated SCPS chooses a unit to update randomly, whereas coordinated SCPS
+#' traverses the units in the supplied order.
+#' This has a small impact on the efficiency of the algorithm for coordinated SCPS.
 #'
 #' @templateVar xspread x
 #' @templateVar integerprob TRUE
@@ -65,7 +72,7 @@
 scps = function(
   prob,
   x,
-  rand,
+  rand = NULL,
   type = "kdtree2",
   bucketSize = 50,
   eps = 1e-12
@@ -82,7 +89,7 @@ scps = function(
   .eps_check(eps);
   prob = .prob_expand(prob, N);
 
-  if (is.vector(rand)) {
+  if (rand != FALSE && is.vector(rand)) {
     if (length(rand) != N)
       stop("the size of 'rand' and 'x' does not match");
 
