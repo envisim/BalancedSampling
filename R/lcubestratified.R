@@ -3,7 +3,7 @@
 # Licence: GPL (>=2)
 # **********************************************
 
-#' Stratified doubly balanced sampling with pooling of landing phases
+#' Stratified Local Cube method
 #'
 #' @description
 #' Selects balanced samples with prescribed inclusion probabilities from a finite

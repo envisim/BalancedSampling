@@ -111,19 +111,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// lpm
-NumericVector lpm(NumericVector prob, NumericMatrix x, int h);
-RcppExport SEXP _BalancedSampling_lpm(SEXP probSEXP, SEXP xSEXP, SEXP hSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type h(hSEXP);
-    rcpp_result_gen = Rcpp::wrap(lpm(prob, x, h));
-    return rcpp_result_gen;
-END_RCPP
-}
 // lpm1_search_cpp
 Rcpp::IntegerVector lpm1_search_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, int bucketSize, int method, double eps);
 RcppExport SEXP _BalancedSampling_lpm1_search_cpp(SEXP probSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
@@ -289,7 +276,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_lcps", (DL_FUNC) &_BalancedSampling_lcps, 2},
     {"_BalancedSampling_lcube_stratified_cpp", (DL_FUNC) &_BalancedSampling_lcube_stratified_cpp, 7},
     {"_BalancedSampling_lcube_cpp", (DL_FUNC) &_BalancedSampling_lcube_cpp, 6},
-    {"_BalancedSampling_lpm", (DL_FUNC) &_BalancedSampling_lpm, 3},
     {"_BalancedSampling_lpm1_search_cpp", (DL_FUNC) &_BalancedSampling_lpm1_search_cpp, 5},
     {"_BalancedSampling_lpm1_cpp", (DL_FUNC) &_BalancedSampling_lpm1_cpp, 5},
     {"_BalancedSampling_lpm2_int_cpp", (DL_FUNC) &_BalancedSampling_lpm2_int_cpp, 4},

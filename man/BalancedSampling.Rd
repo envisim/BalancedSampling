@@ -16,7 +16,8 @@ You can access the project website at
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://www.antongrafstrom.se/balancedsampling/}
+  \item \url{https://www.envisim.se/balancedsampling/}
+  \item \url{https://github.com/envisim/BalancedSampling/}
 }
 
 }

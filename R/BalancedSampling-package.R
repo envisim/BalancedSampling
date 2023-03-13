@@ -1,6 +1,9 @@
 #' @keywords internal
 #' @docType package
 #' @name BalancedSampling
+#' @importFrom Rcpp evalCpp
+#' @useDynLib BalancedSampling
+#' @exportPattern "^[[:alpha:]]+"
 #'
 #' @description
 #' Select balanced and spatially balanced probability samples in multi-dimensional
@@ -11,7 +14,6 @@
 #' <https://envisim.se/balancedsampling>.
 #'
 #' @author Anton Grafström \email{anton.grafstrom@gmail.com}, Jonathan Lisic, Wilmer Prentius.
-#'
 #'
 "_PACKAGE"
 NULL

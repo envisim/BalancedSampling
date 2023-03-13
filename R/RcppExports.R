@@ -29,10 +29,6 @@ lcps <- function(prob, x) {
     .Call('_BalancedSampling_lcube_cpp', PACKAGE = 'BalancedSampling', prob, xbal, xspread, bucketSize, method, eps)
 }
 
-lpm <- function(prob, x, h) {
-    .Call('_BalancedSampling_lpm', PACKAGE = 'BalancedSampling', prob, x, h)
-}
-
 .lpm1_search_cpp <- function(prob, x, bucketSize, method, eps) {
     .Call('_BalancedSampling_lpm1_search_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
 }

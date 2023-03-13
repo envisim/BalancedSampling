@@ -2,7 +2,7 @@
 % Please edit documentation in R/lcubestratified.R
 \name{lcubestratified}
 \alias{lcubestratified}
-\title{Stratified doubly balanced sampling with pooling of landing phases}
+\title{Stratified Local Cube method}
 \usage{
 lcubestratified(
   prob,
