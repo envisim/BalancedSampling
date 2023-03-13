@@ -9,7 +9,7 @@ hlpm2(prob, x, sizes, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
 
-\item{x}{An N by p matrix of (standardized) auxiliary variables.}
+\item{x}{An N by p matrix of (standardized) auxiliary variables. Squared euclidean distance is used in the \code{x} space.}
 
 \item{sizes}{A vector of integers containing the sizes of the subsamples.
 \code{sum(sizes) = sum(prob)} must hold.}
@@ -24,35 +24,32 @@ Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
 close enough to 0.0 or 1.0.}
 }
 \value{
+A vector of selected indices in 1,2,...,N.
+
 A matrix with the population indices of the combined sample in the
 first column, and the associated subsample in the second column.
 }
 \description{
-Selects an initial sample using the [lpm2()], and then splits this sample into
+Selects an initial sample using the \code{\link[=lpm2]{lpm2()}}, and then splits this sample into
 subsamples of given \code{sizes} using successive, hierarchical selection with
-the [lpm2()].
+the \code{\link[=lpm2]{lpm2()}}.
 The method is used to select several subsamples, such that each subsample, and
 the combination (i.e. the union of all subsamples), is spatially balanced.
 }
 \details{
-Euclidean distance is used in the \code{x} space.
+The inclusion probabilities \code{prob} \emph{must} sum to an integer n.
+The sizes of the subsamples \code{sum(sizes)} \emph{must} sum to the same integer n.
 }
-\section{Inclusion probabilities}{
-
-The inclusion probabilities \code{prob} _must_ sum to an integer n.
-The sizes of the subsamples \code{sum(sizes)} _must_ sum to the same integer n.
-}
-
 \section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
 according to \code{bucketSize}.
 
 \itemize{
-  \item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-  \item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-  \item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-  \item{"notree"} does a naive search for the nearest neighbour.
+\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
+\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
+\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
+\item{"notree"} does a naive search for the nearest neighbour.
 }
 }
 
@@ -87,3 +84,17 @@ Lisic, J. J., & Cruze, N. B. (2016, June).
 Local pivotal methods for large surveys.
 In Proceedings of the Fifth International Conference on Establishment Surveys.
 }
+\seealso{
+Other sampling: 
+\code{\link{cubestratified}()},
+\code{\link{cube}()},
+\code{\link{lcubestratified}()},
+\code{\link{lcube}()},
+\code{\link{lpm1search}()},
+\code{\link{lpm1}()},
+\code{\link{lpm2}()},
+\code{\link{rpm}()},
+\code{\link{scps}()},
+\code{\link{spm}()}
+}
+\concept{sampling}

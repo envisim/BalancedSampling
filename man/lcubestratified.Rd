@@ -17,7 +17,7 @@ lcubestratified(
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
 
-\item{Xspread}{An N by p matrix of (standardized) auxiliary variables.}
+\item{Xspread}{An N by p matrix of (standardized) auxiliary variables. Squared euclidean distance is used in the \code{Xspread} space.}
 
 \item{Xbal}{An N by q matrix of balancing auxiliary variables.}
 
@@ -36,29 +36,23 @@ close enough to 0.0 or 1.0.}
 A vector of selected indices in 1,2,...,N.
 }
 \description{
-Stratified doubly balanced sampling with pooling of landing phases
+Selects balanced samples with prescribed inclusion probabilities from a finite
+population using the fast flight Local Cube method and pooling of landing phases.
 }
 \details{
-Euclidean distance is used in the \code{Xspread} space.
+\code{prob} is automatically inserted as a balancing variable.
+If the inclusion probabilities sum to an integer in each stratum, a fixed sized sample will be produced.
 }
-\section{Inclusion probabilities}{
-
-If the inclusion probabilities \code{prob} sum to an integer n, and the
-inclusion probabilities are included as the first balancing variable,
-the sample size is fixed (n).
-prob, x eps, .cube_cpp, .cube_fast_cpp
-}
-
 \section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
 according to \code{bucketSize}.
 
 \itemize{
-  \item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-  \item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-  \item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-  \item{"notree"} does a naive search for the nearest neighbour.
+\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
+\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
+\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
+\item{"notree"} does a naive search for the nearest neighbour.
 }
 }
 
@@ -106,3 +100,17 @@ Grafström, A. and Tillé, Y. (2013).
 Doubly balanced spatial sampling with spreading and restitution of auxiliary totals.
 Environmetrics, 24(2), 120-131
 }
+\seealso{
+Other sampling: 
+\code{\link{cubestratified}()},
+\code{\link{cube}()},
+\code{\link{hlpm2}()},
+\code{\link{lcube}()},
+\code{\link{lpm1search}()},
+\code{\link{lpm1}()},
+\code{\link{lpm2}()},
+\code{\link{rpm}()},
+\code{\link{scps}()},
+\code{\link{spm}()}
+}
+\concept{sampling}

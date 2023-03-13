@@ -5,10 +5,36 @@
 
 #' Local Pivotal Method 2
 #'
-#' @inherit lpm1 description details sections params return references
+#' @description
+#' Selects spatially balanced samples with prescribed inclusion probabilities
+#' from a finite population using the Local Pivotal Method 2 (LPM2).
 #'
-#' @param prob A vector of length N with inclusion probabilities, or an integer > 1.
-#' If an integer n, then the sample will be drawn with equal probabilities n / N.
+#' @details
+#' If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
+#'
+#' @templateVar xspread x
+#' @templateVar integerprob TRUE
+#' @template sampling_template
+#' @template kdtrees_template
+#' @template x_template
+#' @template probs_template
+#'
+#' @references
+#' Grafström, A., Lundström, N.L.P. & Schelin, L. (2012).
+#' Spatially balanced sampling through the Pivotal method.
+#' Biometrics 68(2), 514-520.
+#'
+#' Friedman, J. H., Bentley, J. L., & Finkel, R. A. (1977).
+#' An algorithm for finding best matches in logarithmic expected time.
+#' ACM Transactions on Mathematical Software (TOMS), 3(3), 209-226.
+#'
+#' Maneewongvatana, S., & Mount, D. M. (1999, December).
+#' It’s okay to be skinny, if your friends are fat.
+#' In Center for geometric computing 4th annual workshop on computational geometry (Vol. 2, pp. 1-8).
+#'
+#' Lisic, J. J., & Cruze, N. B. (2016, June).
+#' Local pivotal methods for large surveys.
+#' In Proceedings of the Fifth International Conference on Establishment Surveys.
 #'
 #' @examples
 #' \dontrun{
@@ -47,34 +73,15 @@ lpm2 = function(
     x = t(x);
   }
 
-  if (type == "kdtree0") {
-    method = 0;
-  } else if (type == "kdtree1") {
-    method = 1;
-  } else if (type == "kdtree2") {
-    method = 2;
-  } else if (type == "notree") {
-    method = 0;
-    bucketSize = dim(x)[2L];
-  } else {
-    stop("'type' must be 'kdtree0', 'kdtree1', 'kdtree2', or 'notree'");
-  }
+  N = dim(x)[2L];
+  method = .kdtree_method_check(type, bucketSize);
+  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  .eps_check(eps);
 
-  if (bucketSize %% 1 != 0 || bucketSize < 1)
-    stop("'bucketSize' must be integer > 0");
-
-  if (length(prob) == 1) {
-    if (prob %% 1 != 0 || prob < 1 || prob > dim(x)[2L])
-      stop("'prob' must be a vector of probabilities or a single integer in [0, N]");
-
+  if (.prob_integer_test(prob, N)) {
     result = .lpm2_int_cpp(prob, x, bucketSize, method);
   } else {
-    if (length(prob) != dim(x)[2L])
-      stop("the size of 'prob' and 'x' does not match");
-
-    if (eps < 0.0 || 1e-4 < eps)
-      stop("'eps' must be in [0.0, 1e-4]");
-
+    prob = .prob_check(prob, N);
     result = .lpm2_cpp(prob, x, bucketSize, method, eps);
   }
 

@@ -2,14 +2,14 @@
 % Please edit documentation in R/cubestratified.R
 \name{cubestratified}
 \alias{cubestratified}
-\title{Stratified Cube method with pooling of landing phases}
+\title{Stratified Cube method}
 \usage{
 cubestratified(prob, x, strata, eps = 1e-12)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
 
-\item{x}{An N by p matrix of (standardized) auxiliary variables.}
+\item{x}{An N by q matrix of balancing auxiliary variables.}
 
 \item{strata}{An integer vector of length N with stratum numbers.}
 
@@ -20,17 +20,13 @@ close enough to 0.0 or 1.0.}
 A vector of selected indices in 1,2,...,N.
 }
 \description{
-Selects spatially balanced samples with prescribed inclusion probabilities
-from a finite population.
+Selects balanced samples with prescribed inclusion probabilities from a finite
+population using the fast flight Cube method and pooling of landing phases.
 }
-\section{Inclusion probabilities}{
-
-If the inclusion probabilities \code{prob} sum to an integer n, and the
-inclusion probabilities are included as the first balancing variable,
-the sample size is fixed (n).
-prob, x eps, .cube_cpp, .cube_fast_cpp
+\details{
+\code{prob} is automatically inserted as a balancing variable.
+If the inclusion probabilities sum to an integer in each stratum, a fixed sized sample will be produced.
 }
-
 \examples{
 \dontrun{
 set.seed(12345);
@@ -71,3 +67,17 @@ Chauvet, G. (2009).
 Stratified balanced sampling.
 Survey Methodology, 35, 115-119.
 }
+\seealso{
+Other sampling: 
+\code{\link{cube}()},
+\code{\link{hlpm2}()},
+\code{\link{lcubestratified}()},
+\code{\link{lcube}()},
+\code{\link{lpm1search}()},
+\code{\link{lpm1}()},
+\code{\link{lpm2}()},
+\code{\link{rpm}()},
+\code{\link{scps}()},
+\code{\link{spm}()}
+}
+\concept{sampling}

@@ -5,18 +5,22 @@
 
 #' The Cube method
 #'
-#' @inherit lpm1 description params return
+#' @description
+#' Selects balanced samples with prescribed inclusion probabilities
+#' from a finite population using the Cube Method.
 #'
-#' @section Inclusion probabilities:
-#' If the inclusion probabilities \code{prob} sum to an integer n, and the
-#' inclusion probabilities are included as the first balancing variable,
-#' the sample size is fixed (n).
-#' prob, x eps, .cube_cpp, .cube_fast_cpp
+#' @details
+#' If \code{prob} sum to an integer n, and \code{prob} is included as the first
+#' balancing variable, a fixed sized sample (n) will be produced.
 #'
-#' @param x An N by q matrix of balancing auxiliary variables.
-#' @param fastFlight If \code{FALSE}, the flight phase will update all remaining
+#' @templateVar xbal x
+#' @template sampling_template
+#' @template x_template
+#' @template probs_template
+#'
+#' @param fastFlight If `FALSE`, the flight phase will update all remaining
 #' units in each step, which can be very time consuming for large populations.
-#' Otherwise, it will utilize the fast flight method.
+#' Otherwise, it will use the fast flight method.
 #'
 #' @references
 #' Deville, J. C. and Tillé, Y. (2004).
@@ -61,14 +65,9 @@ cube = function(
     x = as.matrix(x);
   }
 
-  if (length(prob == 1))
-    stop("'prob' must be a vector of probabilities");
-
-  if (length(prob) != dim(x)[1L])
-    stop("the size of 'prob' and 'x' does not match");
-
-  if (eps < 0.0 || 1e-4 < eps)
-    stop("'eps' must be in [0.0, 1e-4]");
+  N = dim(x)[1L];
+  .eps_check(eps);
+  prob = .prob_check(prob, N);
 
   if (fastFlight == FALSE) {
     result = .cube_cpp(prob, x, eps);

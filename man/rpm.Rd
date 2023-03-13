@@ -17,18 +17,13 @@ A vector of selected indices in 1,2,...,N.
 }
 \description{
 Selects samples with prescribed inclusion probabilities from a finite population.
+This design has high entropy.
 }
 \details{
-This design has high entropy.
+If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 In each of the (at most) N steps, two undecided units are selected at random
 to compete.
 }
-\section{Inclusion probabilities}{
-
-If the inclusion probabilities \code{prob} sum to an integer n, the sample
-size is fixed (n).
-}
-
 \examples{
 \dontrun{
 set.seed(12345);
@@ -53,3 +48,17 @@ print(ep / r);
 }
 
 }
+\seealso{
+Other sampling: 
+\code{\link{cubestratified}()},
+\code{\link{cube}()},
+\code{\link{hlpm2}()},
+\code{\link{lcubestratified}()},
+\code{\link{lcube}()},
+\code{\link{lpm1search}()},
+\code{\link{lpm1}()},
+\code{\link{lpm2}()},
+\code{\link{scps}()},
+\code{\link{spm}()}
+}
+\concept{sampling}

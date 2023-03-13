@@ -7,10 +7,9 @@
 sb(prob, x, sample, measure = "voronoi", type = "kdtree2", bucketSize = 10)
 }
 \arguments{
-\item{prob}{A vector of length N with inclusion probabilities, or an integer > 1.
-If an integer n, then the probabilities will be assumed to be equal n / N.}
+\item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
 
-\item{x}{An N by p matrix of (standardized) auxiliary variables.}
+\item{x}{An N by p matrix of (standardized) auxiliary variables. Squared euclidean distance is used in the \code{x} space.}
 
 \item{sample}{A vector of sample indices.}
 
@@ -23,9 +22,28 @@ Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
 
 \item{bucketSize}{The maximum size of the terminal nodes in the k-d-trees.}
 }
+\value{
+The balance measure of the provided sample.
+}
 \description{
 Calculates the spatial balance of a sample.
 }
+\details{
+About voronoi and sumofsquares
+}
+\section{k-d-trees}{
+
+The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
+according to \code{bucketSize}.
+
+\itemize{
+\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
+\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
+\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
+\item{"notree"} does a naive search for the nearest neighbour.
+}
+}
+
 \examples{
 \dontrun{
 set.seed(12345);
@@ -54,3 +72,4 @@ Lisic, J. J., & Cruze, N. B. (2016, June).
 Local pivotal methods for large surveys.
 In Proceedings of the Fifth International Conference on Establishment Surveys.
 }
+\concept{measure}

@@ -5,11 +5,20 @@
 
 #' Stratified doubly balanced sampling with pooling of landing phases
 #'
-#' @inherit lpm1 params return
-#' @inherit cubestratified params
-#' @inherit lcube params details
-#' @inheritSection cube Inclusion probabilities
-#' @inheritSection lpm1 k-d-trees
+#' @description
+#' Selects balanced samples with prescribed inclusion probabilities from a finite
+#' population using the fast flight Local Cube method and pooling of landing phases.
+#'
+#' @details
+#' \code{prob} is automatically inserted as a balancing variable.
+#' If the inclusion probabilities sum to an integer in each stratum, a fixed sized sample will be produced.
+#'
+#' @templateVar xbal Xbal
+#' @templateVar xspread Xspread
+#' @template sampling_template
+#' @template kdtrees_template
+#' @template x_template
+#' @template probs_template
 #'
 #' @param strata An integer vector of length N with stratum numbers.
 #'
@@ -75,33 +84,15 @@ lcubestratified = function(
     Xspread = t(Xspread);
   }
 
-  if (type == "kdtree0") {
-    method = 0;
-  } else if (type == "kdtree1") {
-    method = 1;
-  } else if (type == "kdtree2") {
-    method = 2;
-  } else if (type == "notree") {
-    method = 0;
-    bucketSize = dim(x)[2L];
-  } else {
-    stop("'type' must be 'kdtree0', 'kdtree1', 'kdtree2', or 'notree'");
-  }
+  N = dim(Xbal)[1L];
+  method = .kdtree_method_check(type, bucketSize);
+  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  .eps_check(eps);
+  prob = .prob_check(prob, N);
+  strata = .strata_check(strata, N);
 
-  if (length(strata) != dim(Xbal)[1L])
-    stop("the size of 'strata' and 'Xbal' does not match");
-
-  if (dim(Xbal)[1L] != dim(Xspread)[2L])
+  if (N != dim(Xspread)[2L])
     stop("the size of 'Xbal' and 'Xspread' does not match");
-
-  if (length(prob == 1))
-    stop("'prob' must be a vector of probabilities");
-
-  if (length(prob) != dim(Xbal)[1L])
-    stop("the size of 'prob' and 'Xbal' does not match");
-
-  if (eps < 0.0 || 1e-4 < eps)
-    stop("'eps' must be in [0.0, 1e-4]");
 
   result = .lcube_stratified_cpp(prob, Xbal, Xspread, strata, bucketSize, method, eps);
 

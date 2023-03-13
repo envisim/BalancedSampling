@@ -5,15 +5,42 @@
 
 #' Spatial balance
 #'
+#' @family measure
+#'
+#' @description
 #' Calculates the spatial balance of a sample.
 #'
-#' @inherit lpm1 params references
+#' @details
+#' About voronoi and sumofsquares
 #'
-#' @param prob A vector of length N with inclusion probabilities, or an integer > 1.
-#' If an integer n, then the probabilities will be assumed to be equal n / N.
+#' @templateVar xspread x
+#' @templateVar integerprob TRUE
+#' @template kdtrees_template
+#' @template x_template
+#' @template probs_template
+#'
 #' @param sample A vector of sample indices.
 #' @param measure The type of balance measure to use.
-#' Must be one of \code{"voronoi"}, \code{"sumofsquares"}.
+#' Must be one of `"voronoi"`, `"sumofsquares"`.
+#'
+#' @return The balance measure of the provided sample.
+#'
+#' @references
+#' Grafström, A., Lundström, N.L.P. & Schelin, L. (2012).
+#' Spatially balanced sampling through the Pivotal method.
+#' Biometrics 68(2), 514-520.
+#'
+#' Friedman, J. H., Bentley, J. L., & Finkel, R. A. (1977).
+#' An algorithm for finding best matches in logarithmic expected time.
+#' ACM Transactions on Mathematical Software (TOMS), 3(3), 209-226.
+#'
+#' Maneewongvatana, S., & Mount, D. M. (1999, December).
+#' It’s okay to be skinny, if your friends are fat.
+#' In Center for geometric computing 4th annual workshop on computational geometry (Vol. 2, pp. 1-8).
+#'
+#' Lisic, J. J., & Cruze, N. B. (2016, June).
+#' Local pivotal methods for large surveys.
+#' In Proceedings of the Fifth International Conference on Establishment Surveys.
 #'
 #' @examples
 #' \dontrun{
@@ -40,34 +67,13 @@ sb = function(
     x = t(x);
   }
 
-  if (dim(x)[2L] < length(sample))
+  N = dim(x)[2L];
+  method = .kdtree_method_check(type, bucketSize);
+  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  prob = .prob_expand(prob, N);
+
+  if (N < length(sample))
     stop("'sample' must be a vector of unique indices");
-
-  if (type == "kdtree0") {
-    method = 0;
-  } else if (type == "kdtree1") {
-    method = 1;
-  } else if (type == "kdtree2") {
-    method = 2;
-  } else if (type == "notree") {
-    method = 0;
-    bucketSize = dim(x)[1L];
-  } else {
-    stop("'type' must be 'kdtree0', 'kdtree1', 'kdtree2', or 'notree'");
-  }
-
-  if (bucketSize %% 1 != 0 || bucketSize < 1)
-    stop("'bucketSize' must be integer > 0");
-
-  if (length(prob) == 1) {
-    if (prob %% 1 != 0 || prob < 1)
-      stop("'prob' must be a vector of probabilities or a single integer > 0");
-
-    prob = rep(prob / dim(x)[2L], dim(x)[2L]);
-  } else {
-    if (length(prob) != dim(x)[2L])
-      stop("the size of 'prob' and 'x' does not match");
-  }
 
   if (measure == "voronoi") {
     result = .sb_voronoi_cpp(prob, x, sample, bucketSize, method);

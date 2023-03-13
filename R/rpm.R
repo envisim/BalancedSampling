@@ -5,17 +5,17 @@
 
 #' Random Pivotal Method
 #'
-#' @inherit lpm1 params return
-#'
 #' @description
 #' Selects samples with prescribed inclusion probabilities from a finite population.
+#' This design has high entropy.
 #'
 #' @details
-#' This design has high entropy.
+#' If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 #' In each of the (at most) N steps, two undecided units are selected at random
 #' to compete.
 #'
-#' @inheritSection lpm1 Inclusion probabilities
+#' @template sampling_template
+#' @template probs_template
 #'
 #' @examples
 #' \dontrun{
@@ -44,14 +44,13 @@ rpm = function(
   prob,
   eps = 1e-12
 ) {
-  if (length(prob) == 1) {
+  if (length(prob) == 1)
     stop("'prob' must be a vector of probabilities");
-  } else {
-    if (eps < 0.0 || 1e-4 < eps)
-      stop("'eps' must be in [0.0, 1e-4]");
 
-    result = .rpm_cpp(prob, eps);
-  }
+  prob = as.numeric(prob);
+  .eps_check(eps);
+
+  result = .rpm_cpp(prob, eps);
 
   return(result);
 }

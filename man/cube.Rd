@@ -13,7 +13,7 @@ cube(prob, x, fastFlight = TRUE, eps = 1e-12)
 
 \item{fastFlight}{If \code{FALSE}, the flight phase will update all remaining
 units in each step, which can be very time consuming for large populations.
-Otherwise, it will utilize the fast flight method.}
+Otherwise, it will use the fast flight method.}
 
 \item{eps}{A small value used to determine when an updated probability is
 close enough to 0.0 or 1.0.}
@@ -22,17 +22,13 @@ close enough to 0.0 or 1.0.}
 A vector of selected indices in 1,2,...,N.
 }
 \description{
-Selects spatially balanced samples with prescribed inclusion probabilities
-from a finite population.
+Selects balanced samples with prescribed inclusion probabilities
+from a finite population using the Cube Method.
 }
-\section{Inclusion probabilities}{
-
-If the inclusion probabilities \code{prob} sum to an integer n, and the
-inclusion probabilities are included as the first balancing variable,
-the sample size is fixed (n).
-prob, x eps, .cube_cpp, .cube_fast_cpp
+\details{
+If \code{prob} sum to an integer n, and \code{prob} is included as the first
+balancing variable, a fixed sized sample (n) will be produced.
 }
-
 \examples{
 \dontrun{
 set.seed(12345);
@@ -67,3 +63,17 @@ Chauvet, G. and Tillé, Y. (2006).
 A fast algorithm for balanced sampling.
 Computational Statistics, 21(1), 53-62.
 }
+\seealso{
+Other sampling: 
+\code{\link{cubestratified}()},
+\code{\link{hlpm2}()},
+\code{\link{lcubestratified}()},
+\code{\link{lcube}()},
+\code{\link{lpm1search}()},
+\code{\link{lpm1}()},
+\code{\link{lpm2}()},
+\code{\link{rpm}()},
+\code{\link{scps}()},
+\code{\link{spm}()}
+}
+\concept{sampling}

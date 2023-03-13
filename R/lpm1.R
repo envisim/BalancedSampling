@@ -7,36 +7,17 @@
 #'
 #' @description
 #' Selects spatially balanced samples with prescribed inclusion probabilities
-#' from a finite population.
+#' from a finite population using the Local Pivotal Method 1 (LPM1).
 #'
 #' @details
-#' Euclidean distance is used in the \code{x} space.
+#' If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 #'
-#' @section Inclusion probabilities:
-#' If the inclusion probabilities \code{prob} sum to an integer n, the sample
-#' size is fixed (n).
-#'
-#' @section k-d-trees:
-#' The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
-#' according to \code{bucketSize}.
-#'
-#' \itemize{
-#'   \item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-#'   \item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-#'   \item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-#'   \item{"notree"} does a naive search for the nearest neighbour.
-#' }
-#'
-#' @param prob A vector of length N with inclusion probabilities.
-#' @param x An N by p matrix of (standardized) auxiliary variables.
-#' @param type The method used in finding nearest neighbours.
-#' Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
-#' \code{"notree"}.
-#' @param bucketSize The maximum size of the terminal nodes in the k-d-trees.
-#' @param eps A small value used to determine when an updated probability is
-#' close enough to 0.0 or 1.0.
-#'
-#' @return A vector of selected indices in 1,2,...,N.
+#' @templateVar xspread x
+#' @templateVar integerprob TRUE
+#' @template sampling_template
+#' @template kdtrees_template
+#' @template x_template
+#' @template probs_template
 #'
 #' @references
 #' Grafström, A., Lundström, N.L.P. & Schelin, L. (2012).
@@ -92,38 +73,13 @@ lpm1 = function(
     x = t(x);
   }
 
-  if (type == "kdtree0") {
-    method = 0;
-  } else if (type == "kdtree1") {
-    method = 1;
-  } else if (type == "kdtree2") {
-    method = 2;
-  } else if (type == "notree") {
-    method = 0;
-    bucketSize = dim(x)[2L];
-  } else {
-    stop("'type' must be 'kdtree0', 'kdtree1', 'kdtree2', or 'notree'");
-  }
+  N = dim(x)[2L];
+  method = .kdtree_method_check(type, bucketSize);
+  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  .eps_check(eps);
+  prob = .prob_expand(prob, N);
 
-  if (bucketSize %% 1 != 0 || bucketSize < 1)
-    stop("'bucketSize' must be integer > 0");
-
-  if (length(prob) == 1) {
-    stop("'prob' must be a vector of probabilities");
-
-    if (prob %% 1 != 0 || prob < 1)
-      stop("'prob' must be a vector of probabilities or a single integer > 0");
-
-    ## result = .lpm1_int_cpp(prob, x, bucketSize, method);
-  } else {
-    if (length(prob) != dim(x)[2L])
-      stop("the size of 'prob' and 'x' does not match");
-
-    if (eps < 0.0 || 1e-4 < eps)
-      stop("'eps' must be in [0.0, 1e-4]");
-
-    result = .lpm1_cpp(prob, x, bucketSize, method, eps);
-  }
+  result = .lpm1_cpp(prob, x, bucketSize, method, eps);
 
   return(result);
 }

@@ -8,7 +8,7 @@
 #' It contains fast (C++ via Rcpp) implementations of the included sampling methods.
 #'
 #' You can access the project website at
-#' \url{https://envisim.se/balancedsampling}.
+#' <https://envisim.se/balancedsampling>.
 #'
 #' @author Anton Grafström \email{anton.grafstrom@gmail.com}, Jonathan Lisic, Wilmer Prentius.
 #'

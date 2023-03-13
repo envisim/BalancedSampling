@@ -5,24 +5,45 @@
 
 #' Hierarchical Local Pivotal Method 2
 #'
-#' @inherit lpm1 details sections params return references
-#'
 #' @description
 #' Selects an initial sample using the [lpm2()], and then splits this sample into
-#' subsamples of given \code{sizes} using successive, hierarchical selection with
+#' subsamples of given `sizes` using successive, hierarchical selection with
 #' the [lpm2()].
 #' The method is used to select several subsamples, such that each subsample, and
 #' the combination (i.e. the union of all subsamples), is spatially balanced.
 #'
-#' @section Inclusion probabilities:
-#' The inclusion probabilities \code{prob} _must_ sum to an integer n.
-#' The sizes of the subsamples \code{sum(sizes)} _must_ sum to the same integer n.
+#' @details
+#' The inclusion probabilities `prob` _must_ sum to an integer n.
+#' The sizes of the subsamples `sum(sizes)` _must_ sum to the same integer n.
+#'
+#' @templateVar xspread x
+#' @template sampling_template
+#' @template kdtrees_template
+#' @template x_template
+#' @template probs_template
 #'
 #' @param sizes A vector of integers containing the sizes of the subsamples.
-#' \code{sum(sizes) = sum(prob)} must hold.
+#' `sum(sizes) = sum(prob)` must hold.
 #'
 #' @return A matrix with the population indices of the combined sample in the
 #' first column, and the associated subsample in the second column.
+#'
+#' @references
+#' Grafström, A., Lundström, N.L.P. & Schelin, L. (2012).
+#' Spatially balanced sampling through the Pivotal method.
+#' Biometrics 68(2), 514-520.
+#'
+#' Friedman, J. H., Bentley, J. L., & Finkel, R. A. (1977).
+#' An algorithm for finding best matches in logarithmic expected time.
+#' ACM Transactions on Mathematical Software (TOMS), 3(3), 209-226.
+#'
+#' Maneewongvatana, S., & Mount, D. M. (1999, December).
+#' It’s okay to be skinny, if your friends are fat.
+#' In Center for geometric computing 4th annual workshop on computational geometry (Vol. 2, pp. 1-8).
+#'
+#' Lisic, J. J., & Cruze, N. B. (2016, June).
+#' Local pivotal methods for large surveys.
+#' In Proceedings of the Fifth International Conference on Establishment Surveys.
 #'
 #' @examples
 #' \dontrun{
@@ -51,34 +72,11 @@ hlpm2 = function(
     x = t(x);
   }
 
-  if (type == "kdtree0") {
-    method = 0;
-  } else if (type == "kdtree1") {
-    method = 1;
-  } else if (type == "kdtree2") {
-    method = 2;
-  } else if (type == "notree") {
-    method = 0;
-    bucketSize = dim(x)[2L];
-  } else {
-    stop("'type' must be 'kdtree0', 'kdtree1', 'kdtree2', or 'notree'");
-  }
-
-  if (bucketSize %% 1 != 0 || bucketSize < 1)
-    stop("'bucketSize' must be integer > 0");
-
-  if (eps < 0.0 || 1e-4 < eps)
-    stop("'eps' must be in [0.0, 1e-4]");
-
-  if (length(prob) == 1) {
-    if (prob %% 1 != 0 || prob < 1 || prob > dim(x)[2L])
-      stop("'prob' must be a vector of probabilities or a single integer in [0, N]");
-
-    prob = rep(prob / dim(x)[2L], dim(x)[2L]);
-  } else {
-    if (length(prob) != dim(x)[2L])
-      stop("the size of 'prob' and 'x' does not match");
-  }
+  N = dim(x)[2L];
+  method = .kdtree_method_check(type, bucketSize);
+  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  .eps_check(eps);
+  prob = .prob_check(prob, N);
 
   probsum = sum(prob);
 

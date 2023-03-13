@@ -3,11 +3,20 @@
 # Licence: GPL (>=2)
 # **********************************************
 
-#' Stratified Cube method with pooling of landing phases
+#' Stratified Cube method
 #'
-#' @inherit lpm1 description params return
-#' @inherit cube params
-#' @inheritSection cube Inclusion probabilities
+#' @description
+#' Selects balanced samples with prescribed inclusion probabilities from a finite
+#' population using the fast flight Cube method and pooling of landing phases.
+#'
+#' @details
+#' \code{prob} is automatically inserted as a balancing variable.
+#' If the inclusion probabilities sum to an integer in each stratum, a fixed sized sample will be produced.
+#'
+#' @templateVar xbal x
+#' @template sampling_template
+#' @template x_template
+#' @template probs_template
 #'
 #' @param strata An integer vector of length N with stratum numbers.
 #'
@@ -60,17 +69,10 @@ cubestratified = function(
     x = as.matrix(x);
   }
 
-  if (length(strata) != dim(x)[1L])
-    stop("the size of 'strata' and 'x' does not match");
-
-  if (length(prob == 1))
-    stop("'prob' must be a vector of probabilities");
-
-  if (length(prob) != dim(x)[1L])
-    stop("the size of 'prob' and 'x' does not match");
-
-  if (eps < 0.0 || 1e-4 < eps)
-    stop("'eps' must be in [0.0, 1e-4]");
+  N = dim(x)[1L];
+  .eps_check(eps);
+  prob = .prob_check(prob, N);
+  strata = .strata_check(strata, N);
 
   result = .cube_stratified_cpp(prob, x, strata, eps);
 

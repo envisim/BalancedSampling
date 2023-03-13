@@ -19,3 +19,4 @@ Encoding: UTF-8
 URL: http://www.antongrafstrom.se/balancedsampling/
 NeedsCompilation: yes
 RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE)

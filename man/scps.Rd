@@ -7,9 +7,9 @@
 scps(prob, x, rand, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 }
 \arguments{
-\item{prob}{A vector of length N with inclusion probabilities.}
+\item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
 
-\item{x}{An N by p matrix of (standardized) auxiliary variables.}
+\item{x}{An N by p matrix of (standardized) auxiliary variables. Squared euclidean distance is used in the \code{x} space.}
 
 \item{rand}{A vector of length N with random numbers.
 If this is supplied, the decision of each unit is taken with the corresponding
@@ -29,29 +29,23 @@ A vector of selected indices in 1,2,...,N.
 }
 \description{
 Selects spatially balanced samples with prescribed inclusion probabilities
-from a finite population.
+from a finite population using Spatially Correlated Poisson Sampling (SCPS).
 }
 \details{
-Euclidean distance is used in the \code{x} space.
+If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 The implementation uses the maximal weight strategy, as specified in
 Grafström (2012).
 }
-\section{Inclusion probabilities}{
-
-If the inclusion probabilities \code{prob} sum to an integer n, the sample
-size is fixed (n).
-}
-
 \section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
 according to \code{bucketSize}.
 
 \itemize{
-  \item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-  \item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-  \item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-  \item{"notree"} does a naive search for the nearest neighbour.
+\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
+\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
+\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
+\item{"notree"} does a naive search for the nearest neighbour.
 }
 }
 
@@ -93,3 +87,17 @@ Maneewongvatana, S., & Mount, D. M. (1999, December).
 It’s okay to be skinny, if your friends are fat.
 In Center for geometric computing 4th annual workshop on computational geometry (Vol. 2, pp. 1-8).
 }
+\seealso{
+Other sampling: 
+\code{\link{cubestratified}()},
+\code{\link{cube}()},
+\code{\link{hlpm2}()},
+\code{\link{lcubestratified}()},
+\code{\link{lcube}()},
+\code{\link{lpm1search}()},
+\code{\link{lpm1}()},
+\code{\link{lpm2}()},
+\code{\link{rpm}()},
+\code{\link{spm}()}
+}
+\concept{sampling}

@@ -19,16 +19,11 @@ A vector of selected indices in 1,2,...,N.
 Selects samples with prescribed inclusion probabilities from a finite population.
 }
 \details{
+If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 The resulting samples are well spread in the list, similar to systematic sampling.
 In each of the, at most, N steps, the two undecided units with the smallest
 indices are selected to compete against each other.
 }
-\section{Inclusion probabilities}{
-
-If the inclusion probabilities \code{prob} sum to an integer n, the sample
-size is fixed (n).
-}
-
 \examples{
 \dontrun{
 set.seed(12345);
@@ -62,3 +57,17 @@ Chauvet, G. (2012).
 On a characterization of ordered pivotal sampling.
 Bernoulli, 18(4), 1320-1340.
 }
+\seealso{
+Other sampling: 
+\code{\link{cubestratified}()},
+\code{\link{cube}()},
+\code{\link{hlpm2}()},
+\code{\link{lcubestratified}()},
+\code{\link{lcube}()},
+\code{\link{lpm1search}()},
+\code{\link{lpm1}()},
+\code{\link{lpm2}()},
+\code{\link{rpm}()},
+\code{\link{scps}()}
+}
+\concept{sampling}

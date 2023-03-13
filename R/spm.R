@@ -5,17 +5,17 @@
 
 #' Sequential Pivotal Method
 #'
-#' @inherit lpm1 params return
-#'
 #' @description
 #' Selects samples with prescribed inclusion probabilities from a finite population.
 #'
 #' @details
+#' If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 #' The resulting samples are well spread in the list, similar to systematic sampling.
 #' In each of the, at most, N steps, the two undecided units with the smallest
 #' indices are selected to compete against each other.
 #'
-#' @inheritSection lpm1 Inclusion probabilities
+#' @template sampling_template
+#' @template probs_template
 #'
 #' @references
 #' Deville, J.-C. and  Tillé, Y. (1998).
@@ -53,14 +53,13 @@ spm = function(
   prob,
   eps = 1e-12
 ) {
-  if (length(prob) == 1) {
+  if (length(prob) == 1)
     stop("'prob' must be a vector of probabilities");
-  } else {
-    if (eps < 0.0 || 1e-4 < eps)
-      stop("'eps' must be in [0.0, 1e-4]");
 
-    result = .spm_cpp(prob, eps);
-  }
+  prob = as.numeric(prob);
+  .eps_check(eps);
+
+  result = .spm_cpp(prob, eps);
 
   return(result);
 }

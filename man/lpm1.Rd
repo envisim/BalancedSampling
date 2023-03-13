@@ -7,9 +7,9 @@
 lpm1(prob, x, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 }
 \arguments{
-\item{prob}{A vector of length N with inclusion probabilities.}
+\item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
 
-\item{x}{An N by p matrix of (standardized) auxiliary variables.}
+\item{x}{An N by p matrix of (standardized) auxiliary variables. Squared euclidean distance is used in the \code{x} space.}
 
 \item{type}{The method used in finding nearest neighbours.
 Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
@@ -25,27 +25,21 @@ A vector of selected indices in 1,2,...,N.
 }
 \description{
 Selects spatially balanced samples with prescribed inclusion probabilities
-from a finite population.
+from a finite population using the Local Pivotal Method 1 (LPM1).
 }
 \details{
-Euclidean distance is used in the \code{x} space.
+If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 }
-\section{Inclusion probabilities}{
-
-If the inclusion probabilities \code{prob} sum to an integer n, the sample
-size is fixed (n).
-}
-
 \section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
 according to \code{bucketSize}.
 
 \itemize{
-  \item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-  \item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-  \item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-  \item{"notree"} does a naive search for the nearest neighbour.
+\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
+\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
+\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
+\item{"notree"} does a naive search for the nearest neighbour.
 }
 }
 
@@ -91,3 +85,17 @@ Lisic, J. J., & Cruze, N. B. (2016, June).
 Local pivotal methods for large surveys.
 In Proceedings of the Fifth International Conference on Establishment Surveys.
 }
+\seealso{
+Other sampling: 
+\code{\link{cubestratified}()},
+\code{\link{cube}()},
+\code{\link{hlpm2}()},
+\code{\link{lcubestratified}()},
+\code{\link{lcube}()},
+\code{\link{lpm1search}()},
+\code{\link{lpm2}()},
+\code{\link{rpm}()},
+\code{\link{scps}()},
+\code{\link{spm}()}
+}
+\concept{sampling}
