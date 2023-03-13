@@ -7,8 +7,7 @@
 // Licence: GPL (>=2)
 //**********************************************
 
-#define intuniform(N) ((int)((double)N * stduniform()))
-#define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
+#define pclose(p, eps) ((p) <= (eps) || (p) >= 1.0 - (eps))
 
 // [[Rcpp::export(.rpm_cpp)]]
 Rcpp::IntegerVector rpm_cpp(

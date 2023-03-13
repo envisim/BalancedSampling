@@ -3,7 +3,6 @@
 
 #include <float.h>
 #include <algorithm>
-// #include <iostream>
 #include "kdtree.h"
 
 class KDTreeCps : public KDTree {

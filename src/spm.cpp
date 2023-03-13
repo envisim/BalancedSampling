@@ -6,8 +6,8 @@
 // Licence: GPL (>=2)
 //**********************************************
 
-#define pbig(p, eps) (p >= 1.0 - eps)
-#define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
+#define pbig(p, eps) ((p) >= 1.0 - (eps))
+#define pclose(p, eps) ((p) <= (eps) || (p) >= 1.0 - (eps))
 
 // [[Rcpp::export(.spm_cpp)]]
 Rcpp::IntegerVector spm_cpp(

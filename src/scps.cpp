@@ -10,7 +10,6 @@
 // Licence: GPL (>=2)
 //**********************************************
 
-// #define intuniform(N) ((int)((double)N * stduniform()))
 // #define pclose(p, eps) (p <= eps || p >= 1.0 - eps)
 
 void decide(

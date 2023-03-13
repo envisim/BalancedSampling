@@ -4,5 +4,7 @@
 #include <Rcpp.h>
 
 double stduniform();
+int intuniform(int);
+int intuniform(double);
 
 #endif

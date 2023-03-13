@@ -1,3 +1,4 @@
+// #include <Rcpp.h>
 #include "index-list.h"
 
 IndexList::IndexList(const int N) {
@@ -65,6 +66,21 @@ void IndexList::set(const int id) {
   reverse[id] = id;
 }
 
+void IndexList::shuffle() {
+  for (int i = 0; i < len - 1; i++) {
+    int k = i + intuniform(len - i);
+    if (i == k)
+      continue;
+
+    int id = list[i];
+    list[i] = list[k];
+    list[k] = id;
+
+    reverse[id] = k;
+    reverse[list[i]] = i;
+  }
+}
+
 int IndexList::get(const int k) {
   if (k < 0 || k >= len)
     throw std::range_error("(get) Inadmissible value of k");
@@ -84,10 +100,33 @@ bool IndexList::exists(const int id) {
 }
 
 int IndexList::draw() {
-  // int k = (int)((double) len * stduniform());
-  int k;
-  do { k = (int)((double)(len) * stduniform()); } while (k == len);
+  int k = (int)((double) len * stduniform());
+  // int k;
+  // do { k = (int)((double)(len) * stduniform()); } while (k == len);
   return list[k];
+}
+
+int IndexList::drawN(const int N, int *index) {
+  if (len <= N) {
+    for (int i = 0; i < len; i++) {
+      index[i] = list[i];
+    }
+
+    return len;
+  }
+
+  // The size which can be returned
+  int size = 0;
+
+  for (int i = 0; i < len && size < N; i++) {
+    if (intuniform(len - i) >= (N - size))
+      continue;
+
+    index[size] = list[i];
+    size += 1;
+  }
+
+  return N;
 }
 
 void IndexList::erase(const int id) {

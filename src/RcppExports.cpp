@@ -10,107 +10,43 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// cube
-IntegerVector cube(NumericVector prob, NumericMatrix Xbal);
-RcppExport SEXP _BalancedSampling_cube(SEXP probSEXP, SEXP XbalSEXP) {
+// cube_stratified_cpp
+Rcpp::IntegerVector cube_stratified_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::IntegerVector& strata, double eps);
+RcppExport SEXP _BalancedSampling_cube_stratified_cpp(SEXP probSEXP, SEXP xSEXP, SEXP strataSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xbal(XbalSEXP);
-    rcpp_result_gen = Rcpp::wrap(cube(prob, Xbal));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type strata(strataSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cube_stratified_cpp(prob, x, strata, eps));
     return rcpp_result_gen;
 END_RCPP
 }
-// lcube
-IntegerVector lcube(NumericVector prob, NumericMatrix Xspread, NumericMatrix Xbal);
-RcppExport SEXP _BalancedSampling_lcube(SEXP probSEXP, SEXP XspreadSEXP, SEXP XbalSEXP) {
+// cube_cpp
+Rcpp::IntegerVector cube_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, double eps);
+RcppExport SEXP _BalancedSampling_cube_cpp(SEXP probSEXP, SEXP xSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xspread(XspreadSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xbal(XbalSEXP);
-    rcpp_result_gen = Rcpp::wrap(lcube(prob, Xspread, Xbal));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cube_cpp(prob, x, eps));
     return rcpp_result_gen;
 END_RCPP
 }
-// flightphase
-NumericVector flightphase(NumericVector prob, NumericMatrix Xbal);
-RcppExport SEXP _BalancedSampling_flightphase(SEXP probSEXP, SEXP XbalSEXP) {
+// cube_fast_cpp
+Rcpp::IntegerVector cube_fast_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, double eps);
+RcppExport SEXP _BalancedSampling_cube_fast_cpp(SEXP probSEXP, SEXP xSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xbal(XbalSEXP);
-    rcpp_result_gen = Rcpp::wrap(flightphase(prob, Xbal));
-    return rcpp_result_gen;
-END_RCPP
-}
-// landingphase
-IntegerVector landingphase(NumericVector prob, NumericVector probflight, NumericMatrix Xbal);
-RcppExport SEXP _BalancedSampling_landingphase(SEXP probSEXP, SEXP probflightSEXP, SEXP XbalSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type probflight(probflightSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xbal(XbalSEXP);
-    rcpp_result_gen = Rcpp::wrap(landingphase(prob, probflight, Xbal));
-    return rcpp_result_gen;
-END_RCPP
-}
-// lcubeflightphase
-NumericVector lcubeflightphase(NumericVector prob, NumericMatrix Xspread, NumericMatrix Xbal);
-RcppExport SEXP _BalancedSampling_lcubeflightphase(SEXP probSEXP, SEXP XspreadSEXP, SEXP XbalSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xspread(XspreadSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xbal(XbalSEXP);
-    rcpp_result_gen = Rcpp::wrap(lcubeflightphase(prob, Xspread, Xbal));
-    return rcpp_result_gen;
-END_RCPP
-}
-// lcubelandingphase
-IntegerVector lcubelandingphase(NumericVector prob, NumericVector probflight, NumericMatrix Xspread, NumericMatrix Xbal);
-RcppExport SEXP _BalancedSampling_lcubelandingphase(SEXP probSEXP, SEXP probflightSEXP, SEXP XspreadSEXP, SEXP XbalSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type probflight(probflightSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xspread(XspreadSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xbal(XbalSEXP);
-    rcpp_result_gen = Rcpp::wrap(lcubelandingphase(prob, probflight, Xspread, Xbal));
-    return rcpp_result_gen;
-END_RCPP
-}
-// cubestratified
-IntegerVector cubestratified(NumericVector prob, NumericMatrix Xbal, IntegerVector integerStrata);
-RcppExport SEXP _BalancedSampling_cubestratified(SEXP probSEXP, SEXP XbalSEXP, SEXP integerStrataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xbal(XbalSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type integerStrata(integerStrataSEXP);
-    rcpp_result_gen = Rcpp::wrap(cubestratified(prob, Xbal, integerStrata));
-    return rcpp_result_gen;
-END_RCPP
-}
-// lcubestratified
-IntegerVector lcubestratified(NumericVector prob, NumericMatrix Xspread, NumericMatrix Xbal, IntegerVector integerStrata);
-RcppExport SEXP _BalancedSampling_lcubestratified(SEXP probSEXP, SEXP XspreadSEXP, SEXP XbalSEXP, SEXP integerStrataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xspread(XspreadSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Xbal(XbalSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type integerStrata(integerStrataSEXP);
-    rcpp_result_gen = Rcpp::wrap(lcubestratified(prob, Xspread, Xbal, integerStrata));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cube_fast_cpp(prob, x, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -139,6 +75,39 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(lcps(prob, x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lcube_stratified_cpp
+Rcpp::IntegerVector lcube_stratified_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& xbal, Rcpp::NumericMatrix& xspread, Rcpp::IntegerVector& strata, int bucketSize, int method, double eps);
+RcppExport SEXP _BalancedSampling_lcube_stratified_cpp(SEXP probSEXP, SEXP xbalSEXP, SEXP xspreadSEXP, SEXP strataSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xbal(xbalSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xspread(xspreadSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type strata(strataSEXP);
+    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(lcube_stratified_cpp(prob, xbal, xspread, strata, bucketSize, method, eps));
+    return rcpp_result_gen;
+END_RCPP
+}
+// lcube_cpp
+Rcpp::IntegerVector lcube_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& xbal, Rcpp::NumericMatrix& xspread, int bucketSize, int method, double eps);
+RcppExport SEXP _BalancedSampling_lcube_cpp(SEXP probSEXP, SEXP xbalSEXP, SEXP xspreadSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xbal(xbalSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xspread(xspreadSEXP);
+    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    rcpp_result_gen = Rcpp::wrap(lcube_cpp(prob, xbal, xspread, bucketSize, method, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -313,16 +282,13 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_BalancedSampling_cube", (DL_FUNC) &_BalancedSampling_cube, 2},
-    {"_BalancedSampling_lcube", (DL_FUNC) &_BalancedSampling_lcube, 3},
-    {"_BalancedSampling_flightphase", (DL_FUNC) &_BalancedSampling_flightphase, 2},
-    {"_BalancedSampling_landingphase", (DL_FUNC) &_BalancedSampling_landingphase, 3},
-    {"_BalancedSampling_lcubeflightphase", (DL_FUNC) &_BalancedSampling_lcubeflightphase, 3},
-    {"_BalancedSampling_lcubelandingphase", (DL_FUNC) &_BalancedSampling_lcubelandingphase, 4},
-    {"_BalancedSampling_cubestratified", (DL_FUNC) &_BalancedSampling_cubestratified, 3},
-    {"_BalancedSampling_lcubestratified", (DL_FUNC) &_BalancedSampling_lcubestratified, 4},
+    {"_BalancedSampling_cube_stratified_cpp", (DL_FUNC) &_BalancedSampling_cube_stratified_cpp, 4},
+    {"_BalancedSampling_cube_cpp", (DL_FUNC) &_BalancedSampling_cube_cpp, 3},
+    {"_BalancedSampling_cube_fast_cpp", (DL_FUNC) &_BalancedSampling_cube_fast_cpp, 3},
     {"_BalancedSampling_hlpm2_cpp", (DL_FUNC) &_BalancedSampling_hlpm2_cpp, 6},
     {"_BalancedSampling_lcps", (DL_FUNC) &_BalancedSampling_lcps, 2},
+    {"_BalancedSampling_lcube_stratified_cpp", (DL_FUNC) &_BalancedSampling_lcube_stratified_cpp, 7},
+    {"_BalancedSampling_lcube_cpp", (DL_FUNC) &_BalancedSampling_lcube_cpp, 6},
     {"_BalancedSampling_lpm", (DL_FUNC) &_BalancedSampling_lpm, 3},
     {"_BalancedSampling_lpm1_search_cpp", (DL_FUNC) &_BalancedSampling_lpm1_search_cpp, 5},
     {"_BalancedSampling_lpm1_cpp", (DL_FUNC) &_BalancedSampling_lpm1_cpp, 5},

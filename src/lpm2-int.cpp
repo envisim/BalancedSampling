@@ -8,8 +8,6 @@
 // Licence: GPL (>=2)
 //**********************************************
 
-#define intuniform(N) ((int)((double)N * stduniform()))
-
 // [[Rcpp::export(.lpm2_int_cpp)]]
 Rcpp::IntegerVector lpm2_int_cpp(
   int n,

@@ -18,10 +18,12 @@ public:
   void fill();
   void reset();
   void set(const int);
+  void shuffle();
   int get(const int);
   int getK(const int);
   bool exists(const int);
   int draw();
+  int drawN(const int, int*);
   void erase(const int);
   void eraseK(const int);
 };

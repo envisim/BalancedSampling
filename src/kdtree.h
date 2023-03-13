@@ -25,8 +25,10 @@ protected:
   int splitSpread(KDNode*, int*, const int);
   int splitMod(KDNode*, int*, const int);
   int splitMidpointSlide(KDNode*, int*, const int);
-  void findNeighbourInNode(int*, const int, int*, KDNode*, double*, const int, const double*);
   void findNeighbourSearch(int*, const int, int*, KDNode*, double*, const int, const double*);
+  void findNeighbourInNode(int*, const int, int*, KDNode*, double*, const int, const double*);
+  void findNeighboursNSearch(double*, int*, const int, int*, KDNode*, const int, const double*);
+  void findNeighboursNInNode(double*, int*, const int, int*, KDNode*, const int, const double*);
   double distance(const double*, const double*);
 
 public:
@@ -38,6 +40,7 @@ public:
 
   KDNode* findNode(const int);
   int findNeighbour(int*, const int, const int);
+  int findNeighboursN(double*, int*, const int, const int);
   int findClosest(int*, const int, const double*);
   double findSmallestDistanceToPoint(const double*);
   void removeUnit(const int);

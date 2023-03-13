@@ -425,6 +425,136 @@ void KDTree::findNeighbourInNode(
   }
 }
 
+int KDTree::findNeighboursN(
+  double *dists,
+  int *neighbours,
+  // const int maxsize,
+  const int minlen,
+  const int idx
+) {
+  if (top == nullptr)
+    return 0;
+
+  double *unit = data + idx * p;
+  int size = 0;
+
+  findNeighboursNSearch(dists, neighbours, minlen, &size, top, idx, unit);
+
+  return size;
+}
+
+void KDTree::findNeighboursNSearch(
+  double *dists,
+  int *neighbours,
+  // const int maxsize,
+  const int minlen,
+  int *size,
+  KDNode *node,
+  const int idx,
+  const double *unit
+) {
+  if (node->isTerminal()) {
+    findNeighboursNInNode(dists, neighbours, minlen, size, node,  idx, unit);
+    return;
+  }
+
+  double dist = *(unit + node->split) - node->value;
+  KDNode *nextnode = dist <= 0.0 ? node->cleft : node->cright;
+
+  findNeighboursNSearch(dists, neighbours, minlen, size, nextnode, idx, unit);
+
+  // <= to be precise, but maybe we can ignore this...
+  // if (square(data[idx * p + node->split] - node->value) < *mindist) {
+  if (*size < minlen || dist * dist < dists[neighbours[*size - 1]]) {
+    findNeighboursNSearch(dists, neighbours, minlen, size, nextnode->getSibling(), idx, unit);
+  }
+}
+
+void KDTree::findNeighboursNInNode(
+  double *dists,
+  int *neighbours,
+  // const int maxsize,
+  const int minlen,
+  int *size,
+  KDNode *node,
+  const int idx,
+  const double *unit
+) {
+  int nunits = node->getSize();
+
+  // If there are no units within this node, we need not to bother
+  if (nunits == 0)
+    return;
+
+  int tempsize = *size;
+  double distmin = DBL_MAX;
+
+  // Search through all units in the node, and decide the distances and weights
+  for (int i = 0; i < nunits; i++) {
+    int idx2 = node->units[i];
+    if (idx2 == idx) // Same unit
+      continue;
+
+    neighbours[tempsize] = idx2;
+    tempsize += 1;
+
+    dists[idx2] = distance(unit, data + idx2 * p);
+
+    if (dists[idx2] < distmin)
+      distmin = dists[idx2];
+  }
+
+  // The only available unit was the idx unit
+  if (*size == tempsize)
+    return;
+
+  // If we have filled the required size, and the smallest in this node is
+  // larger than the current largest, we have nothing here to do
+  if (*size >= minlen && dists[neighbours[*size - 1]] < distmin)
+    return;
+
+  // Otherwise, we have three possibilities
+  // - The distmin is smaller then the current smallest
+  // - The distmin is larger than the current largest
+  // - The distmin is in between the current smallest and current largest
+  int i;
+  if (*size == 0 || distmin < dists[neighbours[0]]) {
+    i = 0;
+  } else if (distmin >= dists[neighbours[*size - 1]]) {
+    i = *size;
+  } else {
+    i = *size - 2;
+    while (i >= 0) {
+      if (distmin >= dists[neighbours[i]])
+        break;
+
+      i -= 1;
+    }
+
+    i += 1;
+  }
+
+  // Sort the range [i, tempsize)
+  std::sort(
+    neighbours + i,
+    neighbours + tempsize,
+    [dists](int a, int b) { return dists[a] < dists[b]; }
+  );
+
+  // Add any following unit, stopping when
+  // - i >= minlen, and
+  // - the previous distance is smaller than the current distance
+  *size += 1;
+  while (*size < tempsize) {
+    if (*size >= minlen && dists[neighbours[*size - 1]] < dists[neighbours[*size]])
+      break;
+
+    *size += 1;
+  }
+
+  return;
+}
+
 int KDTree::findClosest(int *neighbours, const int maxsize, const double *unit) {
   if (top == nullptr)
     return 0;
