@@ -13,6 +13,10 @@
     .Call('_BalancedSampling_cube_fast_cpp', PACKAGE = 'BalancedSampling', prob, x, eps)
 }
 
+.getpps_cpp <- function(x, n) {
+    .Call('_BalancedSampling_getpps_cpp', PACKAGE = 'BalancedSampling', x, n)
+}
+
 .hlpm2_cpp <- function(prob, x, sizes, bucketSize, method, eps) {
     .Call('_BalancedSampling_hlpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, sizes, bucketSize, method, eps)
 }
