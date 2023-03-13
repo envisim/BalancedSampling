@@ -1,40 +1,95 @@
 #include <Rcpp.h>
-using namespace Rcpp;
+#include "kdtree.h"
 
 //**********************************************
-// Author: Anton Grafström
-// Last edit: 2014-03-18 
+// Author: Wilmer Prentius
 // Licence: GPL (>=2)
 //**********************************************
 
-// [[Rcpp::export]]
-double vsb(NumericVector probs, NumericVector ys, NumericMatrix xs){
-	int ncol = xs.ncol();
-	int n = ys.size();
-	double mindist, d, dp=0.0, res = 0.0;
-  NumericVector ni(n), sydp(n);
-        
-	for(int i=0;i<n;i++){
-		mindist = 1e+200; 
-		for(int j=0;j<n;j++){
-			if( i != j ){
-				d = 0.0;
-				for(int k=0;k<ncol;k++){
-					dp = xs(i,k)-xs(j,k);
-					d += dp*dp;
-				}
-        if(d==mindist){
-          ni[i] = ni[i] + 1;
-          sydp[i] = sydp[i] + ys[j]/probs[j];
-        }
-				if(d<mindist){
-					mindist = d;
-          ni[i] = 2;
-          sydp[i] = ys[i]/probs[i] + ys[j]/probs[j];
-				}
-			}
-		}
-    res += ni[i]/(ni[i]-1)*(ys[i]/probs[i]-1/ni[i]*sydp[i])*(ys[i]/probs[i]-1/ni[i]*sydp[i]);
-	}
-	return res;
+// [[Rcpp::export(.vsb0_cpp)]]
+double vsb0_cpp(
+  Rcpp::NumericVector &probs,
+  Rcpp::NumericVector &ys,
+  Rcpp::NumericMatrix &xs,
+  int bucketSize,
+  int method
+) {
+  int N = xs.ncol();
+  double *xx = REAL(xs);
+  int *neighbours = new int[N];
+  double *yp = new double[N];
+
+  KDTree *tree = new KDTree(xx, N, xs.nrow(), bucketSize, method);
+  tree->init();
+
+  for (int i = 0; i < N; i++)
+    yp[i] = ys[i] / probs[i];
+
+  double result = 0.0;
+
+  for (int i = 0; i < N; i++) {
+    int len = tree->findNeighbour(neighbours, N, i);
+
+    double localMean = yp[i];
+
+    for (int j = 0; j < len; j++)
+      localMean += yp[neighbours[j]];
+
+    localMean = yp[i] - localMean / (double)(len + 1);
+    result += (double)(len + 1) / (double)(len) * (localMean * localMean);
+  }
+
+  delete[] neighbours;
+  delete[] yp;
+  delete tree;
+
+  return result;
 }
+
+// [[Rcpp::export(.vsbn_cpp)]]
+double vsbn_cpp(
+  Rcpp::NumericVector &probs,
+  Rcpp::NumericVector &ys,
+  Rcpp::NumericMatrix &xs,
+  int n,
+  int bucketSize,
+  int method
+) {
+  if (n < 1)
+    std::range_error("n must be > 1");
+
+  int N = xs.ncol();
+  double *xx = REAL(xs);
+  int *neighbours = new int[N];
+  double *yp = new double[N];
+  double *distances = new double[N];
+
+  KDTree *tree = new KDTree(xx, N, xs.nrow(), bucketSize, method);
+  tree->init();
+
+  for (int i = 0; i < N; i++)
+    yp[i] = ys[i] / probs[i];
+
+  double result = 0.0;
+
+  for (int i = 0; i < N; i++) {
+    int len = tree->findNeighboursN(distances, neighbours, n, i);
+
+    double localMean = yp[i];
+
+    for (int j = 0; j < len; j++)
+      localMean += yp[neighbours[j]];
+
+    localMean = yp[i] - localMean / (double)(len + 1);
+    result += (double)(len + 1) / (double)(len) * (localMean * localMean);
+  }
+
+  delete[] neighbours;
+  delete[] yp;
+  delete[] distances;
+  delete tree;
+
+  return result;
+}
+
+

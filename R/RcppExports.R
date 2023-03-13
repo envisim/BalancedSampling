@@ -69,7 +69,11 @@ lcps <- function(prob, x) {
     .Call('_BalancedSampling_spm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
 }
 
-vsb <- function(probs, ys, xs) {
-    .Call('_BalancedSampling_vsb', PACKAGE = 'BalancedSampling', probs, ys, xs)
+.vsb0_cpp <- function(probs, ys, xs, bucketSize, method) {
+    .Call('_BalancedSampling_vsb0_cpp', PACKAGE = 'BalancedSampling', probs, ys, xs, bucketSize, method)
+}
+
+.vsbn_cpp <- function(probs, ys, xs, n, bucketSize, method) {
+    .Call('_BalancedSampling_vsbn_cpp', PACKAGE = 'BalancedSampling', probs, ys, xs, n, bucketSize, method)
 }
 

@@ -544,13 +544,15 @@ void KDTree::findNeighboursNInNode(
   // Add any following unit, stopping when
   // - i >= minlen, and
   // - the previous distance is smaller than the current distance
-  *size += 1;
-  while (*size < tempsize) {
-    if (*size >= minlen && dists[neighbours[*size - 1]] < dists[neighbours[*size]])
+  i += 1;
+  while (i < tempsize) {
+    if (i >= minlen && dists[neighbours[i - 1]] < dists[neighbours[i]])
       break;
 
-    *size += 1;
+    i += 1;
   }
+
+  *size = i;
 
   return;
 }

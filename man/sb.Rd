@@ -2,9 +2,12 @@
 % Please edit documentation in R/sb.R
 \name{sb}
 \alias{sb}
+\alias{sbss}
 \title{Spatial balance}
 \usage{
-sb(prob, x, sample, measure = "voronoi", type = "kdtree2", bucketSize = 10)
+sb(prob, x, sample, type = "kdtree2", bucketSize = 10)
+
+sbss(x, sample, type = "kdtree2", bucketSize = 10)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
@@ -12,9 +15,6 @@ sb(prob, x, sample, measure = "voronoi", type = "kdtree2", bucketSize = 10)
 \item{x}{An N by p matrix of (standardized) auxiliary variables. Squared euclidean distance is used in the \code{x} space.}
 
 \item{sample}{A vector of sample indices.}
-
-\item{measure}{The type of balance measure to use.
-Must be one of \code{"voronoi"}, \code{"sumofsquares"}.}
 
 \item{type}{The method used in finding nearest neighbours.
 Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
@@ -31,6 +31,11 @@ Calculates the spatial balance of a sample.
 \details{
 About voronoi and sumofsquares
 }
+\section{Functions}{
+\itemize{
+\item \code{sbss()}: Spatial balance using the sum of squares
+
+}}
 \section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
@@ -71,5 +76,9 @@ In Center for geometric computing 4th annual workshop on computational geometry 
 Lisic, J. J., & Cruze, N. B. (2016, June).
 Local pivotal methods for large surveys.
 In Proceedings of the Fifth International Conference on Establishment Surveys.
+}
+\seealso{
+Other measure: 
+\code{\link{vsb}()}
 }
 \concept{measure}

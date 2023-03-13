@@ -20,8 +20,6 @@
 #' @template probs_template
 #'
 #' @param sample A vector of sample indices.
-#' @param measure The type of balance measure to use.
-#' Must be one of `"voronoi"`, `"sumofsquares"`.
 #'
 #' @return The balance measure of the provided sample.
 #'
@@ -57,7 +55,6 @@ sb = function(
   prob,
   x,
   sample,
-  measure = "voronoi",
   type = "kdtree2",
   bucketSize = 10
 ) {
@@ -75,13 +72,32 @@ sb = function(
   if (N < length(sample))
     stop("'sample' must be a vector of unique indices");
 
-  if (measure == "voronoi") {
-    result = .sb_voronoi_cpp(prob, x, sample, bucketSize, method);
-  } else if (measure == "sumofsquares") {
-    result = .sb_sumofsquares_cpp(x, sample, bucketSize, method);
+  result = .sb_voronoi_cpp(prob, x, sample, bucketSize, method);
+
+  return(result);
+}
+
+#' @describeIn sb Spatial balance using the sum of squares
+sbss = function(
+  x,
+  sample,
+  type = "kdtree2",
+  bucketSize = 10
+) {
+  if (!is.matrix(x)) {
+    x = t(as.matrix(x));
   } else {
-    stop("'balance' must be 'voronoi', or 'sumofsquares'");
+    x = t(x);
   }
+
+  N = dim(x)[2L];
+  method = .kdtree_method_check(type, bucketSize);
+  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+
+  if (N < length(sample))
+    stop("'sample' must be a vector of unique indices");
+
+  result = .sb_sumofsquares_cpp(x, sample, bucketSize, method);
 
   return(result);
 }
