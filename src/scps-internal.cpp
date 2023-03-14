@@ -15,12 +15,12 @@ void scpsDecide(
   } else if (props->probs[uid] >= 1.0 - props->eps) {
     props->idx->erase(uid);
     props->tree->removeUnit(uid);
+    props->sample[*(props->sampleSize)] = uid + 1;
     *(props->sampleSize) += 1;
   }
 }
 
 void scps_internal(
-  const double *xx,
   const int N,
   double *probabilities,
   KDTreeCps *tree,
@@ -31,14 +31,16 @@ void scps_internal(
   int *sampleSize,
   IndexList *idx
 ) {
+  // Initialize arrays needed for neighbour search
   int *neighbours = new int[N];
   double *weights = new double[N];
   double *dists = new double[N];
 
-  ScpsDecideProps decideProps(idx, tree, probabilities, sampleSize, eps);
+  // Initialize decideProps, for use in scpsDecideUnits
+  ScpsDecideProps decideProps(idx, tree, probabilities, sample, sampleSize, eps);
 
+  // Loop through this until at most one unit exists
   while (idx->length() > 1) {
-    // int id1 = idx->draw();
     int id1 = unitfun();
 
     // We need to remove the unit first, so that it is not searching itself
@@ -49,22 +51,19 @@ void scps_internal(
     // Find all neighbours
     int len = tree->findNeighbours(probabilities, weights, dists, neighbours, id1);
 
-    bool included = randfun(id1) < probabilities[id1];
-    double slag;
+    double slag = probabilities[id1];
 
-    if (included) {
-      slag = probabilities[id1] - 1.0;
-      probabilities[id1] = 1.0;
-
+    if (randfun(id1) < probabilities[id1]) {
+      slag -= 1.0;
+      sample[*sampleSize] = id1 + 1;
       *sampleSize += 1;
-    } else {
-      slag = probabilities[id1];
-      // probabilities[id1] = 0.0;
     }
 
+    // The weight that remains to be put out to the neighbours
     double remweight = 1.0;
 
     // Loop through all found neighbours
+    // The loop is conducted so that we take equal distance neighbours together
     for (int i = 0; i < len && remweight > eps;) {
       // First we need to find how many neighbours exists on the same distance
       // Initialize totweight to the first neighbour, then search through
@@ -132,20 +131,17 @@ void scps_internal(
     }
   }
 
+  // Sort out any remaining lone unit
   if (idx->length() == 1) {
     int id1 = idx->get(0);
     if (randfun(id1) < probabilities[id1]) {
-      probabilities[id1] = 1.0;
+      sample[*sampleSize] = id1 + 1;
       *sampleSize += 1;
     }
   }
 
-  for (int i = 0, j = 0; i < N && j < *sampleSize; i++) {
-    if (probabilities[i] >= 1.0 - eps) {
-      sample[j] = i + 1;
-      j += 1;
-    }
-  }
+  // Sort the sample list
+  std::sort(sample, sample + *sampleSize);
 
   delete[] neighbours;
   delete[] weights;

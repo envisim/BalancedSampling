@@ -37,7 +37,9 @@ Rcpp::IntegerVector lcps_cpp(
     return stduniform();
   };
 
+  // The function to choose the next deciding unit
   std::function<int ()> unitfun = [&idx, &tree, &probabilities, &idxarr, &dists, &weights, &neighbours]() {
+    // Take care of edge cases
     if (idx->length() <= 1) {
       if (idx->length() == 1)
         return idx->get(0);
@@ -48,6 +50,8 @@ Rcpp::IntegerVector lcps_cpp(
     int idxarrlen = 0;
     double idxmindist = DBL_MAX;
 
+    // Loop through all remaining units.
+    // Put the smallest distances in idxarr
     for (int i = 0; i < idx->length(); i++) {
       int len = tree->findNeighbours(probabilities, weights, dists, neighbours, idx->get(i));
       double idxdist = dists[neighbours[len - 1]];
@@ -62,12 +66,12 @@ Rcpp::IntegerVector lcps_cpp(
       }
     }
 
+    // Choose randomly from the units in idxarr
     int idxi = intuniform(idxarrlen);
     return idx->get(idxi);
   };
 
   scps_internal(
-    xx,
     N,
     probabilities,
     tree,

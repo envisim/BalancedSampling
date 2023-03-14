@@ -43,7 +43,6 @@ Rcpp::IntegerVector scps_coord_cpp(
   };
 
   scps_internal(
-    xx,
     N,
     probabilities,
     tree,
