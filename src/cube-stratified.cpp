@@ -63,7 +63,6 @@ Rcpp::IntegerVector cube_stratified_cpp(
   int *tindex = new int[N];
   double *tprobabilities = new double[N];
   int *tsample = new int[N];
-  int tsampleSize;
   int *tivec = new int[N];
   double *tuvec = new double[N];
   int *tstratumArr = new int[stratumMap.size()];
@@ -207,7 +206,7 @@ Rcpp::IntegerVector cube_stratified_cpp(
   }
 
   // 3. Landing per stratum
-  int maxSize3 = p + 2;
+  // int maxSize3 = p + 2;
 
   for (std::unordered_map<int, int>::iterator it = stratumMap.begin(); it != stratumMap.end(); ++it) {
     int tsampleSize = 0;

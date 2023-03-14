@@ -11,6 +11,9 @@ double stduniform() {
 }
 
 int intuniform(int N) {
+  if (N == 1 || N == 0)
+    return 0;
+
   return (int)((double)N * stduniform());
 }
 

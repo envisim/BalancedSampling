@@ -88,6 +88,7 @@ In Proceedings of the Fifth International Conference on Establishment Surveys.
 Other sampling: 
 \code{\link{cubestratified}()},
 \code{\link{cube}()},
+\code{\link{lcps}()},
 \code{\link{lcubestratified}()},
 \code{\link{lcube}()},
 \code{\link{lpm1search}()},

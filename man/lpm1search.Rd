@@ -90,6 +90,7 @@ Other sampling:
 \code{\link{cubestratified}()},
 \code{\link{cube}()},
 \code{\link{hlpm2}()},
+\code{\link{lcps}()},
 \code{\link{lcubestratified}()},
 \code{\link{lcube}()},
 \code{\link{lpm1}()},

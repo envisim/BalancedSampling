@@ -83,10 +83,6 @@ print(ep / r);
 
 }
 \references{
-Grafström, A. (2012).
-Spatially correlated Poisson sampling.
-Journal of Statistical Planning and Inference, 142(1), 139-147.
-
 Friedman, J. H., Bentley, J. L., & Finkel, R. A. (1977).
 An algorithm for finding best matches in logarithmic expected time.
 ACM Transactions on Mathematical Software (TOMS), 3(3), 209-226.
@@ -94,12 +90,17 @@ ACM Transactions on Mathematical Software (TOMS), 3(3), 209-226.
 Maneewongvatana, S., & Mount, D. M. (1999, December).
 It’s okay to be skinny, if your friends are fat.
 In Center for geometric computing 4th annual workshop on computational geometry (Vol. 2, pp. 1-8).
+
+Grafström, A. (2012).
+Spatially correlated Poisson sampling.
+Journal of Statistical Planning and Inference, 142(1), 139-147.
 }
 \seealso{
 Other sampling: 
 \code{\link{cubestratified}()},
 \code{\link{cube}()},
 \code{\link{hlpm2}()},
+\code{\link{lcps}()},
 \code{\link{lcubestratified}()},
 \code{\link{lcube}()},
 \code{\link{lpm1search}()},

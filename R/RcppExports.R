@@ -21,8 +21,8 @@
     .Call('_BalancedSampling_hlpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, sizes, bucketSize, method, eps)
 }
 
-lcps <- function(prob, x) {
-    .Call('_BalancedSampling_lcps', PACKAGE = 'BalancedSampling', prob, x)
+.lcps_cpp <- function(prob, x, bucketSize, method, eps) {
+    .Call('_BalancedSampling_lcps_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
 }
 
 .lcube_stratified_cpp <- function(prob, xbal, xspread, strata, bucketSize, method, eps) {

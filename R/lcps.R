@@ -3,23 +3,20 @@
 # Licence: GPL (>=2)
 # **********************************************
 
-#' Spatially Correlated Poisson Sampling
+#' Locally Correlated Poisson Sampling
 #'
 #' @description
 #' Selects spatially balanced samples with prescribed inclusion probabilities
-#' from a finite population using Spatially Correlated Poisson Sampling (SCPS).
+#' from a finite population using Locally Correlated Poisson Sampling (LCPS).
 #'
 #' @details
 #' If `prob` sum to an integer n, a fixed sized sample (n) will be produced.
 #' The implementation uses the maximal weight strategy, as specified in
 #' Grafström (2012).
 #'
-#' # Coordinated SCPS
-#' If `rand` is supplied, coordinated SCPS will be performed.
-#' The algorithm for coordinated SCPS differs from the SCPS algorithm, as
-#' uncoordinated SCPS chooses a unit to update randomly, whereas coordinated SCPS
-#' traverses the units in the supplied order.
-#' This has a small impact on the efficiency of the algorithm for coordinated SCPS.
+#' The method differs from SCPS as LPM1 differs from LPM2. In each step of the
+#' algorithm, the unit with the smallest updating distance is chosen as the
+#' deciding unit.
 #'
 #' @templateVar xspread x
 #' @templateVar integerprob TRUE
@@ -27,10 +24,6 @@
 #' @template kdtrees_template
 #' @template x_template
 #' @template probs_template
-#'
-#' @param rand A vector of length N with random numbers.
-#' If this is supplied, the decision of each unit is taken with the corresponding
-#' random number. This makes it possible to coordinate the samples.
 #'
 #' @references
 #' Friedman, J. H., Bentley, J. L., & Finkel, R. A. (1977).
@@ -45,6 +38,10 @@
 #' Spatially correlated Poisson sampling.
 #' Journal of Statistical Planning and Inference, 142(1), 139-147.
 #'
+#' Prentius, W. (2023).
+#' Locally correlated Poisson sampling.
+#' Manuscript.
+#'
 #' @examples
 #' \dontrun{
 #' set.seed(12345);
@@ -52,7 +49,7 @@
 #' n = 100;
 #' prob = rep(n/N, N);
 #' x = matrix(runif(N * 2), ncol = 2);
-#' s = scps(prob, x);
+#' s = lcps(prob, x);
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
@@ -63,16 +60,15 @@
 #' ep = rep(0L, N);
 #' r = 10000L;
 #' for (i in seq_len(r)) {
-#'   s = scps(prob, x);
+#'   s = lcps(prob, x);
 #'   ep[s] = ep[s] + 1L;
 #' }
 #' print(ep / r);
 #' }
 #'
-scps = function(
+lcps = function(
   prob,
   x,
-  rand = NULL,
   type = "kdtree2",
   bucketSize = 50,
   eps = 1e-12
@@ -89,14 +85,7 @@ scps = function(
   .eps_check(eps);
   prob = .prob_expand(prob, N);
 
-  if (rand != FALSE && is.vector(rand)) {
-    if (length(rand) != N)
-      stop("the size of 'rand' and 'x' does not match");
-
-    result = .scps_coord_cpp(prob, x, rand, bucketSize, method, eps);
-  } else {
-    result = .scps_cpp(prob, x, bucketSize, method, eps);
-  }
+  result = .lcps_cpp(prob, x, bucketSize, method, eps);
 
   return(result);
 }
