@@ -28,8 +28,10 @@ void scps_internal(
   KDTreeCps *,
   const double,
   std::function<double (const int)>,
+  std::function<int ()>,
   int *,
-  int *
+  int *,
+  IndexList *
 );
 
 #endif

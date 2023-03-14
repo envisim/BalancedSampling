@@ -26,20 +26,20 @@ void scps_internal(
   KDTreeCps *tree,
   const double eps,
   std::function<double (const int)> randfun,
+  std::function<int ()> unitfun,
   int *sample,
-  int *sampleSize
+  int *sampleSize,
+  IndexList *idx
 ) {
-  IndexList *idx = new IndexList(N);
   int *neighbours = new int[N];
   double *weights = new double[N];
   double *dists = new double[N];
 
   ScpsDecideProps decideProps(idx, tree, probabilities, sampleSize, eps);
 
-  idx->fill();
-
   while (idx->length() > 1) {
-    int id1 = idx->draw();
+    // int id1 = idx->draw();
+    int id1 = unitfun();
 
     // We need to remove the unit first, so that it is not searching itself
     // in the tree search
@@ -150,7 +150,6 @@ void scps_internal(
   delete[] neighbours;
   delete[] weights;
   delete[] dists;
-  delete idx;
 
   return;
 }

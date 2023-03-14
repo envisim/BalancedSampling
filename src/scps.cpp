@@ -18,15 +18,21 @@ Rcpp::IntegerVector scps_cpp(
   int *sample = new int[N];
   int sampleSize = 0;
 
+  IndexList *idx = new IndexList(N);
   KDTreeCps *tree = new KDTreeCps(xx, N, x.nrow(), bucketSize, method);
   tree->init();
 
   for (int i = 0; i < N; i++) {
+    idx->set(i);
     probabilities[i] = prob[i];
   }
 
   std::function<double (const int)> randfun = [](int i) {
     return stduniform();
+  };
+
+  std::function<int ()> unitfun = [&idx]() {
+    return idx->draw();
   };
 
   scps_internal(
@@ -36,14 +42,17 @@ Rcpp::IntegerVector scps_cpp(
     tree,
     eps,
     randfun,
+    unitfun,
     sample,
-    &sampleSize
+    &sampleSize,
+    idx
   );
 
   Rcpp::IntegerVector svec(sample, sample + sampleSize);
 
   delete[] probabilities;
   delete[] sample;
+  delete idx;
   delete tree;
 
   return svec;
