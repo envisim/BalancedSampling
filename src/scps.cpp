@@ -36,15 +36,15 @@ Rcpp::IntegerVector scps_cpp(
   };
 
   scps_internal(
-    N,
-    probabilities,
     tree,
+    idx,
+    probabilities,
+    N,
     eps,
-    randfun,
-    unitfun,
     sample,
     &sampleSize,
-    idx
+    randfun,
+    unitfun
   );
 
   Rcpp::IntegerVector svec(sample, sample + sampleSize);

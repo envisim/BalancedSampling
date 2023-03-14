@@ -6,7 +6,7 @@
 //**********************************************
 
 void scpsDecide(
-  ScpsDecideProps *props,
+  ScpsDecideProps* props,
   const int uid
 ) {
   if (props->probs[uid] <= props->eps) {
@@ -21,15 +21,15 @@ void scpsDecide(
 }
 
 void scps_internal(
+  KDTreeCps* tree,
+  IndexList* idx,
+  double* probabilities,
   const int N,
-  double *probabilities,
-  KDTreeCps *tree,
   const double eps,
+  int* sample,
+  int* sampleSize,
   std::function<double (const int)> randfun,
-  std::function<int ()> unitfun,
-  int *sample,
-  int *sampleSize,
-  IndexList *idx
+  std::function<int ()> unitfun
 ) {
   // Initialize arrays needed for neighbour search
   int *neighbours = new int[N];
@@ -37,7 +37,7 @@ void scps_internal(
   double *dists = new double[N];
 
   // Initialize decideProps, for use in scpsDecideUnits
-  ScpsDecideProps decideProps(idx, tree, probabilities, sample, sampleSize, eps);
+  ScpsDecideProps decideProps(tree, idx, probabilities, eps, sample, sampleSize);
 
   // Loop through this until at most one unit exists
   while (idx->length() > 1) {
@@ -140,12 +140,11 @@ void scps_internal(
     }
   }
 
-  // Sort the sample list
-  std::sort(sample, sample + *sampleSize);
-
   delete[] neighbours;
   delete[] weights;
   delete[] dists;
 
+  // Sort the sample list
+  std::sort(sample, sample + *sampleSize);
   return;
 }

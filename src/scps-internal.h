@@ -6,27 +6,27 @@
 #include "index-list.h"
 
 struct ScpsDecideProps {
-  IndexList *idx;
-  KDTreeCps *tree;
-  double *probs;
-  int *sample;
-  int *sampleSize;
+  KDTreeCps* tree;
+  IndexList* idx;
+  double* probs;
   double eps;
+  int* sample;
+  int* sampleSize;
 
   ScpsDecideProps(
-    IndexList *t_idx,
-    KDTreeCps *t_tree,
-    double *t_probs,
-    int *t_sample,
-    int *t_sampleSize,
-    double t_eps
+    KDTreeCps* t_tree,
+    IndexList* t_idx,
+    double* t_probs,
+    double t_eps,
+    int* t_sample,
+    int* t_sampleSize
   ) :
-  idx(t_idx),
-    tree(t_tree),
+  tree(t_tree),
+    idx(t_idx),
     probs(t_probs),
+    eps(t_eps),
     sample(t_sample),
-    sampleSize(t_sampleSize),
-    eps(t_eps)
+    sampleSize(t_sampleSize)
     {};
 };
 
@@ -36,15 +36,15 @@ void scpsDecide(
 );
 
 void scps_internal(
+  KDTreeCps*,
+  IndexList*,
+  double*,
   const int,
-  double *,
-  KDTreeCps *,
   const double,
+  int*,
+  int*,
   std::function<double (const int)>,
-  std::function<int ()>,
-  int *,
-  int *,
-  IndexList *
+  std::function<int ()>
 );
 
 #endif

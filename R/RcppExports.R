@@ -41,12 +41,12 @@
     .Call('_BalancedSampling_lpm1_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
 }
 
-.lpm2_int_cpp <- function(n, x, bucketSize, method) {
-    .Call('_BalancedSampling_lpm2_int_cpp', PACKAGE = 'BalancedSampling', n, x, bucketSize, method)
-}
-
 .lpm2_cpp <- function(prob, x, bucketSize, method, eps) {
     .Call('_BalancedSampling_lpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
+}
+
+.lpm2_int_cpp <- function(n, x, bucketSize, method) {
+    .Call('_BalancedSampling_lpm2_int_cpp', PACKAGE = 'BalancedSampling', n, x, bucketSize, method)
 }
 
 .rpm_cpp <- function(prob, eps) {

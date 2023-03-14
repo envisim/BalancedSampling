@@ -1,91 +1,113 @@
 #include <Rcpp.h>
-#include "kdtree.h"
-#include "uniform.h"
-#include "index-list.h"
+#include "lpm-internal.h"
 
 //**********************************************
 // Author: Wilmer Prentius
 // Licence: GPL (>=2)
 //**********************************************
 
-#define pclose(p, eps) ((p) <= (eps) || (p) >= 1.0 - (eps))
+struct Lpm1Search {
+  KDTree* tree;
+  IndexList* idx;
+  int* neighbours;
+  int* tneighbours;
+  int* history;
+  int histn;
+  int N;
+  Lpm1Search(KDTree* t_tree, IndexList* t_idx, const int t_N) {
+    tree = t_tree;
+    idx = t_idx;
+    neighbours = new int[t_N];
+    tneighbours = new int[t_N];
+    history = new int[t_N];
+    histn = 0;
+    N = t_N;
+  };
+  ~Lpm1Search() {
+    delete[] neighbours;
+    delete[] tneighbours;
+    delete[] history;
+  };
+  void traverse(int* pair) {
+    // Set the first unit to the last in history
+    pair[0] = history[histn - 1];
+    // Find this units nearest neighbours
+    int len = tree->findNeighbour(neighbours, N, pair[0]);
+    int len_copy = len;
 
-void traverse(
-  int *id1,
-  int *id2,
-  KDTree* tree,
-  int *neighbours1,
-  int *neighbours2,
-  int *history,
-  int *histn,
-  int N
-) {
-  *id1 = history[*histn - 1];
-  int len1 = tree->findNeighbour(neighbours1, N, *id1);
-  int len1_2 = len1;
+    // Go through all nearest neighbours
+    for (int i = 0; i < len;) {
+      // Find the neighbours nearest neighbours
+      int tlen = tree->findNeighbour(tneighbours, N, neighbours[i]);
+      bool found = false;
 
-  for (int i = 0; i < len1;) {
-    int len2 = tree->findNeighbour(neighbours2, N, neighbours1[i]);
-    int found = 0;
-    for (int j = 0; j < len2; j++) {
-      if (neighbours2[j] == *id1) {
-        found = 1;
-        break;
+      // Check if any of these are the history-unit
+      for (int j = 0; j < tlen; j++) {
+        if (tneighbours[j] == pair[0]) {
+          found = true;
+          break;
+        }
+      }
+
+      // If the history-unit exists among the nearest neighbours, we continue
+      // to see if any other of the history-units neighbours also are mutual.
+      // Otherwise, the history-unit is not among the nearest neighbours,
+      // we swap places and continue the search.
+      if (found) {
+        i += 1;
+      } else {
+        len -= 1;
+        if (i != len) {
+          int temp = neighbours[i];
+          neighbours[i] = neighbours[len];
+          neighbours[len] = temp;
+        }
       }
     }
 
-    if (found == 0) {
-      len1 -= 1;
-      if (i != len1) {
-        int temp = neighbours1[i];
-        neighbours1[i] = neighbours1[len1];
-        neighbours1[len1] = temp;
-      }
-    } else {
-      i += 1;
+    // If we found one or more mutual neighbours, we select one at random
+    if (len > 0) {
+      pair[1] = neighbours[intuniform(len)];
+      return;
     }
-  }
 
-  if (len1 > 0) {
-    *id2 = len1 == 1 ? neighbours1[0] : neighbours1[intuniform(len1)];
+    // If we come here, no mutual neighbours exist
+
+    // We might need to clear the history if the search has been going on for
+    // too long. This can probably? happen if there is a long history, and
+    // updates has affected previous units.
+    if (histn == N)
+      histn = 0;
+
+    // We select a unit at random to become the next history unit, and traverse
+    // one step further.
+    history[histn] = neighbours[intuniform(len_copy)];
+    histn += 1;
+    traverse(pair);
     return;
   }
+  void search(int* pair) {
+    // Go back in the history and remove units that does not exist
+    while (histn > 0) {
+      if (idx->exists(history[histn - 1])) {
+        break;
+      }
 
-  if (*histn == N) {
-    *histn = 0;
-  }
-
-  history[*histn] = len1_2 == 1 ? neighbours1[0] : neighbours1[intuniform(len1_2)];
-  *histn += 1;
-  traverse(id1, id2, tree, neighbours1, neighbours2, history, histn, N);
-}
-
-void search(
-  int *id1,
-  int *id2,
-  KDTree* tree,
-  IndexList *idx,
-  int *neighbours1,
-  int *neighbours2,
-  int *history,
-  int *histn,
-  int N
-) {
-  while (*histn > 0) {
-    if (idx->exists(history[*histn - 1])) {
-      break;
+      histn -= 1;
     }
 
-    *histn -= 1;
-  }
+    // If there is no history, we draw a unit at random
+    if (histn == 0) {
+      history[0] = idx->draw();
+      histn = 1;
+    }
 
-  if (*histn == 0) {
-    history[0] = idx->draw();
-    *histn = 1;
-  }
+    // Traverse the history to find a unit with a mutual nearest neighbour
+    traverse(pair);
+    return;
+  };
+};
 
-  traverse(id1, id2, tree, neighbours1, neighbours2, history, histn, N);
-}
 
 // [[Rcpp::export(.lpm1_search_cpp)]]
 Rcpp::IntegerVector lpm1_search_cpp(
@@ -96,95 +118,44 @@ Rcpp::IntegerVector lpm1_search_cpp(
   double eps
 ) {
   int N = x.ncol();
-  double *xx = REAL(x);
+  double* xx = REAL(x);
 
-  double *probability = new double[N];
-  IndexList *idx = new IndexList(N);
-  int *neighbours1 = new int[N];
-  int *neighbours2 = new int[N];
-  int *history = new int[N];
-  int histn = 0;
+  double* probabilities = new double[N];
+  int* sample = new int[N];
+  int sampleSize = 0;
 
-
-  KDTree *tree = new KDTree(xx, N, x.nrow(), bucketSize, method);
+  IndexList* idx = new IndexList(N);
+  KDTree* tree = new KDTree(xx, N, x.nrow(), bucketSize, method);
   tree->init();
 
   for (int i = 0; i < N; i++) {
-    probability[i] = prob[i];
+    probabilities[i] = prob[i];
     idx->set(i);
   }
 
-  while (idx->length() > 1) {
-    int id1;
-    int id2;
-    search(
-      &id1,
-      &id2,
-      tree,
-      idx,
-      neighbours1,
-      neighbours2,
-      history,
-      &histn,
-      N
-    );
+  Lpm1Search* lpm1search = new Lpm1Search(tree, idx, N);
 
-    double p1 = probability[id1];
-    double p2 = probability[id2];
-    double psum = p1 + p2;
+  std::function<void (int*)> unitfun = [&lpm1search](int* pair) {
+    lpm1search->search(pair);
+  };
 
+  lpm_internal(
+    tree,
+    idx,
+    probabilities,
+    N,
+    eps,
+    sample,
+    &sampleSize,
+    unitfun
+  );
 
-    if (psum > 1.0) {
-      if (1.0 - p2 > stduniform() * (2.0 - psum)) {
-        probability[id1] = 1.0;
-        probability[id2] = psum - 1.0;
-      } else {
-        probability[id1] = psum - 1.0;
-        probability[id2] = 1.0;
-      }
-    } else {
-      if (p2 > stduniform() * psum) {
-        probability[id1] = 0.0;
-        probability[id2] = psum;
-      } else {
-        probability[id1] = psum;
-        probability[id2] = 0.0;
-      }
-    }
-
-    if (pclose(probability[id1], eps)) {
-      idx->erase(id1);
-      tree->removeUnit(id1);
-      histn -= 1;
-    }
-
-    if (pclose(probability[id2], eps)) {
-      idx->erase(id2);
-      tree->removeUnit(id2);
-    }
-  }
-
-  if (idx->length() == 1) {
-    int id1 = idx->get(0);
-    if (stduniform() < probability[id1])
-      probability[id1] = 1.0;
-  }
-
-  int j = 0;
-  for (int i = 0; i < N; i++) {
-    if (probability[i] >= 1.0 - eps) {
-      neighbours1[j] = i + 1;
-      j += 1;
-    }
-  }
-
-  Rcpp::IntegerVector sample(neighbours1, neighbours1 + j);
-  delete[] neighbours1;
-  delete[] neighbours2;
-  delete[] probability;
-  delete[] history;
+  Rcpp::IntegerVector svec(sample, sample + sampleSize);
+  delete[] probabilities;
+  delete[] sample;
   delete idx;
   delete tree;
+  delete lpm1search;
 
-  return sample;
+  return svec;
 }
