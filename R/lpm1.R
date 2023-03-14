@@ -77,9 +77,13 @@ lpm1 = function(
   method = .kdtree_method_check(type, bucketSize);
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
   .eps_check(eps);
-  prob = .prob_expand(prob, N);
 
-  result = .lpm1_cpp(prob, x, bucketSize, method, eps);
+  if (.prob_integer_test(prob, N)) {
+    result = .lpm_int_cpp(1, prob, x, bucketSize, method);
+  } else {
+    prob = .prob_check(prob, N);
+    result = .lpm_cpp(1, prob, x, bucketSize, method, eps);
+  }
 
   return(result);
 }

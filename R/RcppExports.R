@@ -33,20 +33,12 @@
     .Call('_BalancedSampling_lcube_cpp', PACKAGE = 'BalancedSampling', prob, xbal, xspread, bucketSize, method, eps)
 }
 
-.lpm1_search_cpp <- function(prob, x, bucketSize, method, eps) {
-    .Call('_BalancedSampling_lpm1_search_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
+.lpm_cpp <- function(lpMethod, prob, x, bucketSize, method, eps) {
+    .Call('_BalancedSampling_lpm_cpp', PACKAGE = 'BalancedSampling', lpMethod, prob, x, bucketSize, method, eps)
 }
 
-.lpm1_cpp <- function(prob, x, bucketSize, method, eps) {
-    .Call('_BalancedSampling_lpm1_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
-}
-
-.lpm2_cpp <- function(prob, x, bucketSize, method, eps) {
-    .Call('_BalancedSampling_lpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, bucketSize, method, eps)
-}
-
-.lpm2_int_cpp <- function(n, x, bucketSize, method) {
-    .Call('_BalancedSampling_lpm2_int_cpp', PACKAGE = 'BalancedSampling', n, x, bucketSize, method)
+.lpm_int_cpp <- function(lpMethod, n, x, bucketSize, method) {
+    .Call('_BalancedSampling_lpm_int_cpp', PACKAGE = 'BalancedSampling', lpMethod, n, x, bucketSize, method)
 }
 
 .rpm_cpp <- function(prob, eps) {

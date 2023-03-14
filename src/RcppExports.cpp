@@ -126,62 +126,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// lpm1_search_cpp
-Rcpp::IntegerVector lpm1_search_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, int bucketSize, int method, double eps);
-RcppExport SEXP _BalancedSampling_lpm1_search_cpp(SEXP probSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+// lpm_cpp
+Rcpp::IntegerVector lpm_cpp(int lpMethod, Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, int bucketSize, int method, double eps);
+RcppExport SEXP _BalancedSampling_lpm_cpp(SEXP lpMethodSEXP, SEXP probSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type lpMethod(lpMethodSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(lpm1_search_cpp(prob, x, bucketSize, method, eps));
+    rcpp_result_gen = Rcpp::wrap(lpm_cpp(lpMethod, prob, x, bucketSize, method, eps));
     return rcpp_result_gen;
 END_RCPP
 }
-// lpm1_cpp
-Rcpp::IntegerVector lpm1_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, int bucketSize, int method, double eps);
-RcppExport SEXP _BalancedSampling_lpm1_cpp(SEXP probSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+// lpm_int_cpp
+Rcpp::IntegerVector lpm_int_cpp(int lpMethod, int n, Rcpp::NumericMatrix& x, int bucketSize, int method);
+RcppExport SEXP _BalancedSampling_lpm_int_cpp(SEXP lpMethodSEXP, SEXP nSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(lpm1_cpp(prob, x, bucketSize, method, eps));
-    return rcpp_result_gen;
-END_RCPP
-}
-// lpm2_cpp
-Rcpp::IntegerVector lpm2_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, int bucketSize, int method, double eps);
-RcppExport SEXP _BalancedSampling_lpm2_cpp(SEXP probSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(lpm2_cpp(prob, x, bucketSize, method, eps));
-    return rcpp_result_gen;
-END_RCPP
-}
-// lpm2_int_cpp
-Rcpp::IntegerVector lpm2_int_cpp(int n, Rcpp::NumericMatrix& x, int bucketSize, int method);
-RcppExport SEXP _BalancedSampling_lpm2_int_cpp(SEXP nSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type lpMethod(lpMethodSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(lpm2_int_cpp(n, x, bucketSize, method));
+    rcpp_result_gen = Rcpp::wrap(lpm_int_cpp(lpMethod, n, x, bucketSize, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -310,10 +282,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_lcps_cpp", (DL_FUNC) &_BalancedSampling_lcps_cpp, 5},
     {"_BalancedSampling_lcube_stratified_cpp", (DL_FUNC) &_BalancedSampling_lcube_stratified_cpp, 7},
     {"_BalancedSampling_lcube_cpp", (DL_FUNC) &_BalancedSampling_lcube_cpp, 6},
-    {"_BalancedSampling_lpm1_search_cpp", (DL_FUNC) &_BalancedSampling_lpm1_search_cpp, 5},
-    {"_BalancedSampling_lpm1_cpp", (DL_FUNC) &_BalancedSampling_lpm1_cpp, 5},
-    {"_BalancedSampling_lpm2_cpp", (DL_FUNC) &_BalancedSampling_lpm2_cpp, 5},
-    {"_BalancedSampling_lpm2_int_cpp", (DL_FUNC) &_BalancedSampling_lpm2_int_cpp, 4},
+    {"_BalancedSampling_lpm_cpp", (DL_FUNC) &_BalancedSampling_lpm_cpp, 6},
+    {"_BalancedSampling_lpm_int_cpp", (DL_FUNC) &_BalancedSampling_lpm_int_cpp, 5},
     {"_BalancedSampling_rpm_cpp", (DL_FUNC) &_BalancedSampling_rpm_cpp, 2},
     {"_BalancedSampling_sb_sumofsquares_cpp", (DL_FUNC) &_BalancedSampling_sb_sumofsquares_cpp, 4},
     {"_BalancedSampling_sb_voronoi_cpp", (DL_FUNC) &_BalancedSampling_sb_voronoi_cpp, 5},

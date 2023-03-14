@@ -79,10 +79,10 @@ lpm2 = function(
   .eps_check(eps);
 
   if (.prob_integer_test(prob, N)) {
-    result = .lpm2_int_cpp(prob, x, bucketSize, method);
+    result = .lpm_int_cpp(2, prob, x, bucketSize, method);
   } else {
     prob = .prob_check(prob, N);
-    result = .lpm2_cpp(prob, x, bucketSize, method, eps);
+    result = .lpm_cpp(2, prob, x, bucketSize, method, eps);
   }
 
   return(result);
