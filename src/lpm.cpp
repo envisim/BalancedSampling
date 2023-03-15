@@ -21,7 +21,7 @@ Rcpp::IntegerVector lpm_cpp(
   if (prob.length() != N)
     std::invalid_argument("prob an x does not match");
 
-  Lpm lpm(REAL(prob), REAL(x), N, p, lpMethod, bucketSize, method, eps);
+  Lpm lpm(REAL(prob), REAL(x), N, p, intToLpmMethod(lpMethod), bucketSize, method, eps);
   lpm.run();
 
   Rcpp::IntegerVector sample(lpm.sample, lpm.sample + lpm.sampleSize);
@@ -40,7 +40,7 @@ Rcpp::IntegerVector lpm_int_cpp(
   int N = x.ncol();
   int p = x.nrow();
 
-  Lpm lpm(n, REAL(x), N, p, lpMethod, bucketSize, method);
+  Lpm lpm(n, REAL(x), N, p, intToLpmMethod(lpMethod), bucketSize, method);
   lpm.run();
 
   Rcpp::IntegerVector sample(lpm.sample, lpm.sample + lpm.sampleSize);

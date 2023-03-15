@@ -8,13 +8,21 @@
 #define pbig(p, eps) ((p) >= 1.0 - (eps))
 #define pclose(p, eps) ((p) <= (eps) || (p) >= 1.0 - (eps))
 
+LpmMethod intToLpmMethod(const int i) {
+  if (1 <= i && i <= 5)
+    return static_cast<LpmMethod>(i);
+
+  std::invalid_argument("lpm-method does not exist");
+  return err;
+}
+
 // DOUBLE
 Lpm::Lpm(
   const double* t_probabilities,
   double* xx,
   const int t_N,
   const int p,
-  const int lpMethod,
+  const LpmMethod lpMethod,
   const int bucketSize,
   const int method,
   const double t_eps
@@ -44,7 +52,7 @@ Lpm::Lpm(
   double* xx,
   const int t_N,
   const int p,
-  const int lpMethod,
+  const LpmMethod lpMethod,
   const int bucketSize,
   const int method
 ) {
@@ -72,7 +80,7 @@ Lpm::Lpm(
   KDTree* t_tree,
   IndexList* t_idx,
   const int t_N,
-  const int lpMethod,
+  const LpmMethod lpMethod,
   const double t_eps
 ) {
   set_indirect = true;
@@ -91,7 +99,7 @@ Lpm::Lpm(
   KDTree* t_tree,
   IndexList* t_idx,
   const int t_N,
-  const int lpMethod
+  const LpmMethod lpMethod
 ) {
   set_indirect = true;
 
@@ -103,7 +111,7 @@ Lpm::Lpm(
   init(lpMethod, true);
 }
 
-void Lpm::init(const int lpMethod, const bool isInt) {
+void Lpm::init(const LpmMethod lpMethod, const bool isInt) {
   sample = new int[N];
   neighbours = new int[N];
 
@@ -117,16 +125,33 @@ void Lpm::init(const int lpMethod, const bool isInt) {
 
   set_run = true;
 
-  if (lpMethod == 1) {
+  switch (lpMethod) {
+  case lpm1:
     neighbours2 = new int[N];
     _draw = &Lpm::draw_lpm1;
-  } else if (lpMethod == 3) {
+    break;
+
+  case lpm2:
+    _draw = &Lpm::draw_lpm2;
+    break;
+
+  case lpm1search:
     neighbours2 = new int[N];
     history = new int[N];
     _draw = &Lpm::draw_lpm1search;
-  } else {
-    // lpMethod == 2
-    _draw = &Lpm::draw_lpm2;
+    break;
+
+  case rpm:
+    _draw = &Lpm::draw_rpm;
+    break;
+
+  case spm:
+    _draw = &Lpm::draw_spm;
+    break;
+
+  default:
+    std::invalid_argument("lpMethod does not exist");
+    break;
   }
 
   set_draw = true;
@@ -142,7 +167,8 @@ void Lpm::addUnitToSample(const int id) {
 
 void Lpm::eraseUnit(const int id) {
   idx->erase(id);
-  tree->removeUnit(id);
+  if (tree != nullptr)
+    tree->removeUnit(id);
   return;
 }
 
@@ -258,8 +284,45 @@ void Lpm::draw_lpm1search(int* pair) {
   }
 }
 
+void Lpm::draw_rpm(int* pair) {
+  pair[0] = idx->draw();
+  int len = idx->length() - 1;
+  pair[1] = idx->get(intuniform(len));
+  if (pair[0] == pair[1])
+    pair[1] = idx->get(len);
+  return;
+}
+
+void Lpm::draw_spm(int* pair) {
+  if (!idx->exists(pair[0])) {
+    pair[0] = pair[1];
+
+    if (!idx->exists(pair[0])) {
+      pair[0] += 1;
+
+      if (pair[0] >= N)
+        std::range_error("invalid value of pair 0");
+    }
+  }
+
+  if (pair[0] >= pair[1]) {
+    pair[1] = pair[0] + 1;
+    return;
+  }
+
+  if (!idx->exists(pair[1])) {
+    pair[1] += 1;
+    if (pair[1] >= N)
+      std::range_error("invalid value of pair 1");
+  }
+
+  return;
+}
+
 void Lpm::run_double() {
   int *pair = new int[2];
+  pair[0] = 0;
+  pair[1] = 1;
 
   while (idx->length() > 1) {
     draw(pair);
@@ -320,6 +383,8 @@ void Lpm::run_double() {
 
 void Lpm::run_int() {
   int *pair = new int[2];
+  pair[0] = 0;
+  pair[1] = 1;
 
   while (idx->length() > 1) {
     draw(pair);

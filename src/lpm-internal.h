@@ -8,6 +8,17 @@
 #include "uniform.h"
 #include "index-list.h"
 
+enum LpmMethod {
+  err = 0,
+  lpm1 = 1,
+  lpm2 = 2,
+  lpm1search = 3,
+  rpm = 4,
+  spm = 5
+};
+
+LpmMethod intToLpmMethod(const int i);
+
 class Lpm {
 protected:
   bool set_indirect = false;
@@ -42,7 +53,7 @@ public:
     double* xx,
     const int t_N,
     const int p,
-    const int lpMethod,
+    const LpmMethod lpMethod,
     const int bucketSize,
     const int method,
     const double t_eps
@@ -53,7 +64,7 @@ public:
     double* xx,
     const int t_N,
     const int p,
-    const int lpMethod,
+    const LpmMethod lpMethod,
     const int bucketSize,
     const int method
   );
@@ -63,8 +74,8 @@ public:
     KDTree* t_tree,
     IndexList* t_idx,
     const int t_N,
-    const int lpMethod,
-    const double teps
+    const LpmMethod lpMethod,
+    const double t_eps
   );
   // INT PRE
   Lpm(
@@ -72,7 +83,7 @@ public:
     KDTree* t_tree,
     IndexList* t_idx,
     const int t_N,
-    const int lpMethod
+    const LpmMethod lpMethod
   );
 
   ~Lpm() {
@@ -90,7 +101,7 @@ public:
   };
 
 public:
-  void init(const int lpMethod, const bool isInt);
+  void init(const LpmMethod lpMethod, const bool isInt);
   void addUnitToSample(const int id);
   void eraseUnit(const int id);
 
@@ -98,6 +109,8 @@ protected:
   void draw_lpm1(int* pair);
   void draw_lpm2(int* pair);
   void draw_lpm1search(int* pair);
+  void draw_rpm(int *pair);
+  void draw_spm(int *pair);
   void run_double();
   void run_int();
 
