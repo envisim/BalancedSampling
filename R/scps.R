@@ -93,9 +93,9 @@ scps = function(
     if (length(rand) != N)
       stop("the size of 'rand' and 'x' does not match");
 
-    result = .scps_coord_cpp(prob, x, rand, bucketSize, method, eps);
+    result = .cps_random_cpp(prob, x, rand, bucketSize, method, eps);
   } else {
-    result = .scps_cpp(prob, x, bucketSize, method, eps);
+    result = .cps_cpp(2L, prob, x, bucketSize, method, eps);
   }
 
   return(result);

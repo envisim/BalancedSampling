@@ -85,7 +85,7 @@ lcps = function(
   .eps_check(eps);
   prob = .prob_expand(prob, N);
 
-  result = .lcps_cpp(prob, x, bucketSize, method, eps);
+  result = .cps_cpp(1L, prob, x, bucketSize, method, eps);
 
   return(result);
 }

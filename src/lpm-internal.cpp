@@ -115,8 +115,6 @@ void Lpm::init(const LpmMethod lpMethod, const bool isInt) {
   sample = new int[N];
   neighbours = new int[N];
 
-  // sampleSize = 0;
-
   if (isInt) {
     _run = &Lpm::run_int;
   } else {
@@ -354,25 +352,22 @@ void Lpm::run_double() {
     if (pclose(*p1, eps)) {
       eraseUnit(id1);
 
-      if (pbig(*p1, eps)) {
+      if (pbig(*p1, eps))
         addUnitToSample(id1);
-      }
     }
 
     if (pclose(*p2, eps)) {
       eraseUnit(id2);
 
-      if (pbig(*p2, eps)) {
+      if (pbig(*p2, eps))
         addUnitToSample(id2);
-      }
     }
   }
 
   if (idx->length() == 1) {
     int id1 = idx->get(0);
-    if (stduniform() < probabilities[id1]) {
+    if (stduniform() < probabilities[id1])
       addUnitToSample(id1);
-    }
   }
 
   delete[] pair;
@@ -416,25 +411,22 @@ void Lpm::run_int() {
     if (*p1 == 0 || *p1 == N) {
       eraseUnit(id1);
 
-      if (*p1 == N) {
+      if (*p1 == N)
         addUnitToSample(id1);
-      }
     }
 
     if (*p2 == 0 || *p2 == N) {
       eraseUnit(id2);
 
-      if (*p2 == N) {
+      if (*p2 == N)
         addUnitToSample(id2);
-      }
     }
   }
 
   if (idx->length() == 1) {
     int id1 = idx->get(0);
-    if (intuniform(N) < iprobabilities[id1]) {
+    if (intuniform(N) < iprobabilities[id1])
       addUnitToSample(id1);
-    }
   }
 
   delete[] pair;

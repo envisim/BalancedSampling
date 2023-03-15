@@ -2,7 +2,6 @@
 #define LPMINTERNAL_HEADER
 
 #include <algorithm>
-#include <functional>
 #include <stdexcept>
 #include "kdtree.h"
 #include "uniform.h"
@@ -111,6 +110,7 @@ protected:
   void draw_lpm1search(int* pair);
   void draw_rpm(int *pair);
   void draw_spm(int *pair);
+
   void run_double();
   void run_int();
 
@@ -125,7 +125,6 @@ public:
 
     (this->*_run)();
   };
-  // Return
 };
 
 #endif
