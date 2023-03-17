@@ -13,10 +13,10 @@ LpmMethod intToLpmMethod(const int i) {
     return static_cast<LpmMethod>(i);
 
   std::invalid_argument("lpm-method does not exist");
-  return err;
+  return LpmMethod::err;
 }
 
-// DOUBLE
+// DOUBLE DIRECT
 Lpm::Lpm(
   const double* t_probabilities,
   double* xx,
@@ -32,6 +32,7 @@ Lpm::Lpm(
   N = t_N;
   eps = t_eps;
 
+  sample = new int[N];
   probabilities = new double[N];
 
   tree = new KDTree(xx, N, p, bucketSize, method);
@@ -39,14 +40,24 @@ Lpm::Lpm(
 
   idx = new IndexList(N);
 
-  for (int i = 0; i < N; i++) {
-    probabilities[i] = t_probabilities[i];
-    idx->set(i);
+  if (N > 0) {
+    // Decrement done before evaluating the loop, so it begins on N - 1
+    for (int i = N; i-- > 0; ) {
+      probabilities[i] = t_probabilities[i];
+      idx->set(i);
+
+      if (pclose(probabilities[i], eps)) {
+        eraseUnit(i);
+
+        if (pbig(probabilities[i], eps))
+          addUnitToSample(i);
+      }
+    }
   }
 
   init(lpMethod, false);
 }
-// INT
+// INT DIRECT
 Lpm::Lpm(
   const int t_pn,
   double* xx,
@@ -60,21 +71,30 @@ Lpm::Lpm(
 
   N = t_N;
 
+  sample = new int[N];
   iprobabilities = new int[N];
 
   tree = new KDTree(xx, N, p, bucketSize, method);
   tree->init();
 
-  idx = new IndexList(N);
-
-  for (int i = 0; i < N; i++) {
-    iprobabilities[i] = t_pn;
-    idx->set(i);
+  if (N == 0 || t_pn == 0) {
+    idx = new IndexList(0);
+  } else if (t_pn == N) {
+    idx = new IndexList(0);
+    for (int i = 0; i < N; i++) {
+      addUnitToSample(i);
+    }
+  } else {
+    idx = new IndexList(N);
+    for (int i = 0; i < N; i++) {
+      probabilities[i] = t_pn;
+      idx->set(i);
+    }
   }
 
   init(lpMethod, true);
 }
-// DOUBLE SET
+// DOUBLE INDIRECT
 Lpm::Lpm(
   double* t_probabilities,
   KDTree* t_tree,
@@ -84,6 +104,7 @@ Lpm::Lpm(
   const double t_eps
 ) {
   set_indirect = true;
+  sample = new int[N];
 
   probabilities = t_probabilities;
   tree = t_tree;
@@ -93,7 +114,7 @@ Lpm::Lpm(
 
   init(lpMethod, false);
 }
-// INT SET
+// INT INDIRECT
 Lpm::Lpm(
   int* t_probabilities,
   KDTree* t_tree,
@@ -108,11 +129,12 @@ Lpm::Lpm(
   idx = t_idx;
   N = t_N;
 
+  sample = new int[N];
+
   init(lpMethod, true);
 }
 
 void Lpm::init(const LpmMethod lpMethod, const bool isInt) {
-  sample = new int[N];
   neighbours = new int[N];
 
   if (isInt) {
@@ -124,26 +146,26 @@ void Lpm::init(const LpmMethod lpMethod, const bool isInt) {
   set_run = true;
 
   switch (lpMethod) {
-  case lpm1:
+  case LpmMethod::lpm1:
     neighbours2 = new int[N];
     _draw = &Lpm::draw_lpm1;
     break;
 
-  case lpm2:
+  case LpmMethod::lpm2:
     _draw = &Lpm::draw_lpm2;
     break;
 
-  case lpm1search:
+  case LpmMethod::lpm1search:
     neighbours2 = new int[N];
     history = new int[N];
     _draw = &Lpm::draw_lpm1search;
     break;
 
-  case rpm:
+  case LpmMethod::rpm:
     _draw = &Lpm::draw_rpm;
     break;
 
-  case spm:
+  case LpmMethod::spm:
     _draw = &Lpm::draw_spm;
     break;
 
@@ -366,8 +388,11 @@ void Lpm::run_double() {
 
   if (idx->length() == 1) {
     int id1 = idx->get(0);
+
     if (stduniform() < probabilities[id1])
       addUnitToSample(id1);
+
+    eraseUnit(id1);
   }
 
   delete[] pair;
@@ -425,8 +450,11 @@ void Lpm::run_int() {
 
   if (idx->length() == 1) {
     int id1 = idx->get(0);
+
     if (intuniform(N) < iprobabilities[id1])
       addUnitToSample(id1);
+
+    eraseUnit(id1);
   }
 
   delete[] pair;

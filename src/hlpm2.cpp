@@ -33,7 +33,7 @@ Rcpp::IntegerMatrix hlpm2_cpp(
     orgIdx->set(i);
   }
 
-  Lpm lpm(probabilities, tree, orgIdx, N, lpm2, eps);
+  Lpm lpm(probabilities, tree, orgIdx, N, LpmMethod::lpm2, eps);
   lpm.run();
   int sampleSize = lpm.sampleSize;
 

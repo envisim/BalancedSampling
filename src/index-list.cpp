@@ -1,11 +1,13 @@
+#include <stdexcept>
 // #include <Rcpp.h>
 #include "index-list.h"
+#include "uniform.h"
 
 IndexList::IndexList(const int N) {
   list = new int[N];
   reverse = new int[N];
   len = N;
-  olen = N;
+  capacity = N;
 }
 
 IndexList::~IndexList() {
@@ -14,9 +16,9 @@ IndexList::~IndexList() {
 }
 
 IndexList* IndexList::copy() {
-  IndexList* il = new IndexList(olen);
+  IndexList* il = new IndexList(capacity);
 
-  for (int i = 0; i < olen; i++) {
+  for (int i = 0; i < capacity; i++) {
     il->list[i] = list[i];
     il->reverse[i] = reverse[i];
   }
@@ -27,7 +29,7 @@ IndexList* IndexList::copy() {
 }
 
 IndexList* IndexList::copyLen() {
-  IndexList* il = new IndexList(olen);
+  IndexList* il = new IndexList(capacity);
 
   for (int i = 0; i < len; i++) {
     il->list[i] = list[i];
@@ -45,21 +47,31 @@ int IndexList::length() {
 }
 
 void IndexList::fill() {
-  for (int i = 0; i < olen; i++) {
+  for (int i = 0; i < capacity; i++) {
     list[i] = i;
     reverse[i] = i;
   }
 
-  len = olen;
+  len = capacity;
 }
 
 void IndexList::reset() {
-  len = olen;
+  len = capacity;
+  return;
+}
+
+void IndexList::resize(const int newLen) {
+  if (newLen < 0 || newLen > capacity) {
+    throw std::range_error("(resize) Inadmissable value of len");
+    return;
+  }
+
+  len = newLen;
   return;
 }
 
 void IndexList::set(const int id) {
-  if (id < 0 || id >= olen)
+  if (id < 0 || id >= capacity)
     throw std::range_error("(set) Inadmissible value of id");
 
   list[id] = id;
@@ -89,7 +101,7 @@ int IndexList::get(const int k) {
 }
 
 int IndexList::getK(const int id) {
-  if (id < 0 || id >= olen)
+  if (id < 0 || id >= capacity)
     throw std::range_error("(getK) Inadmissable value of id");
 
   return reverse[id];
@@ -130,7 +142,7 @@ int IndexList::drawN(const int N, int *index) {
 }
 
 void IndexList::erase(const int id) {
-  if (id < 0 || id >= olen)
+  if (id < 0 || id >= capacity)
     throw std::range_error("(erase, 1) Inadmissible value of id");
 
   int k = reverse[id];

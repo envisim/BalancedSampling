@@ -9,16 +9,20 @@
     .Call('_BalancedSampling_cps_random_cpp', PACKAGE = 'BalancedSampling', prob, x, random, bucketSize, method, eps)
 }
 
-.cube_stratified_cpp <- function(prob, x, strata, eps) {
-    .Call('_BalancedSampling_cube_stratified_cpp', PACKAGE = 'BalancedSampling', prob, x, strata, eps)
-}
-
 .cube_cpp <- function(prob, x, eps) {
     .Call('_BalancedSampling_cube_cpp', PACKAGE = 'BalancedSampling', prob, x, eps)
 }
 
-.cube_fast_cpp <- function(prob, x, eps) {
-    .Call('_BalancedSampling_cube_fast_cpp', PACKAGE = 'BalancedSampling', prob, x, eps)
+.lcube_cpp <- function(prob, xbal, xspread, bucketSize, method, eps) {
+    .Call('_BalancedSampling_lcube_cpp', PACKAGE = 'BalancedSampling', prob, xbal, xspread, bucketSize, method, eps)
+}
+
+.cube_stratified_cpp <- function(prob, x, strata, eps) {
+    .Call('_BalancedSampling_cube_stratified_cpp', PACKAGE = 'BalancedSampling', prob, x, strata, eps)
+}
+
+.lcube_stratified_cpp <- function(prob, xbalance, xspread, strata, bucketSize, method, eps) {
+    .Call('_BalancedSampling_lcube_stratified_cpp', PACKAGE = 'BalancedSampling', prob, xbalance, xspread, strata, bucketSize, method, eps)
 }
 
 .getpps_cpp <- function(x, n) {
@@ -27,14 +31,6 @@
 
 .hlpm2_cpp <- function(prob, x, sizes, bucketSize, method, eps) {
     .Call('_BalancedSampling_hlpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, sizes, bucketSize, method, eps)
-}
-
-.lcube_stratified_cpp <- function(prob, xbal, xspread, strata, bucketSize, method, eps) {
-    .Call('_BalancedSampling_lcube_stratified_cpp', PACKAGE = 'BalancedSampling', prob, xbal, xspread, strata, bucketSize, method, eps)
-}
-
-.lcube_cpp <- function(prob, xbal, xspread, bucketSize, method, eps) {
-    .Call('_BalancedSampling_lcube_cpp', PACKAGE = 'BalancedSampling', prob, xbal, xspread, bucketSize, method, eps)
 }
 
 .lpm_cpp <- function(lpMethod, prob, x, bucketSize, method, eps) {
@@ -49,16 +45,16 @@
     .Call('_BalancedSampling_rpm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
 }
 
+.spm_cpp <- function(prob, eps) {
+    .Call('_BalancedSampling_spm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
+}
+
 .sb_sumofsquares_cpp <- function(x, sample, bucketSize, method) {
     .Call('_BalancedSampling_sb_sumofsquares_cpp', PACKAGE = 'BalancedSampling', x, sample, bucketSize, method)
 }
 
 .sb_voronoi_cpp <- function(prob, x, sample, bucketSize, method) {
     .Call('_BalancedSampling_sb_voronoi_cpp', PACKAGE = 'BalancedSampling', prob, x, sample, bucketSize, method)
-}
-
-.spm_cpp <- function(prob, eps) {
-    .Call('_BalancedSampling_spm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
 }
 
 .vsb0_cpp <- function(probs, ys, xs, bucketSize, method) {

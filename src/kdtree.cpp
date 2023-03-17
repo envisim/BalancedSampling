@@ -1,3 +1,6 @@
+#include <float.h>
+#include <algorithm>
+#include <stdexcept>
 // #include <Rcpp.h>
 #include "kdtree.h"
 

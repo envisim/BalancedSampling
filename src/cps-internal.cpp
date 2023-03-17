@@ -14,7 +14,7 @@ CpsMethod intToCpsMethod(const int i) {
     return static_cast<CpsMethod>(i);
 
   std::invalid_argument("cps-method does not exist");
-  return err;
+  return CpsMethod::err;
 }
 
 // DIRECT
@@ -34,6 +34,7 @@ Cps::Cps(
   N = t_N;
   eps = t_eps;
 
+  sample = new int[N];
   probabilities = new double[N];
   randomValues = t_random;
 
@@ -42,9 +43,19 @@ Cps::Cps(
 
   idx = new IndexList(N);
 
-  for (int i = 0; i < N; i++) {
-    probabilities[i] = t_probabilities[i];
-    idx->set(i);
+  if (N > 0) {
+    // Decrement done before evaluating the loop, so it begins on N - 1
+    for (int i = N; i-- > 0; ) {
+      probabilities[i] = t_probabilities[i];
+      idx->set(i);
+
+      if (pclose(probabilities[i], eps)) {
+        eraseUnit(i);
+
+        if (pbig(probabilities[i], eps))
+          addUnitToSample(i);
+      }
+    }
   }
 
   init(cpsMethod);
@@ -69,11 +80,11 @@ Cps::Cps(
   N = t_N;
   eps = t_eps;
 
+  sample = new int[N];
   init(cpsMethod);
 }
 
 void Cps::init(const CpsMethod cpsMethod) {
-  sample = new int[N];
   neighbours = new int[N];
   distances = new double[N];
   weights = new double[N];
@@ -85,16 +96,16 @@ void Cps::init(const CpsMethod cpsMethod) {
   }
 
   switch(cpsMethod) {
-  case lcps:
+  case CpsMethod::lcps:
     neighbours2 = new int[N];
     _draw = &Cps::draw_lcps;
     break;
 
-  case scps:
+  case CpsMethod::scps:
     _draw = &Cps::draw_scps;
     break;
 
-  case scpscoord:
+  case CpsMethod::scpscoord:
     _draw = &Cps::draw_scpscoord;
     if (randomValues == nullptr)
       std::invalid_argument("random not set for scpscoord");

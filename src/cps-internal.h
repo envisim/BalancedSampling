@@ -7,7 +7,7 @@
 #include "uniform.h"
 #include "index-list.h"
 
-enum CpsMethod {
+enum class CpsMethod {
   err = 0,
   lcps = 1,
   scps = 2,

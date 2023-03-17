@@ -4,16 +4,12 @@
 \alias{cube}
 \title{The Cube method}
 \usage{
-cube(prob, x, fastFlight = TRUE, eps = 1e-12)
+cube(prob, x, eps = 1e-12)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
 
 \item{x}{An N by q matrix of balancing auxiliary variables.}
-
-\item{fastFlight}{If \code{FALSE}, the flight phase will update all remaining
-units in each step, which can be very time consuming for large populations.
-Otherwise, it will use the fast flight method.}
 
 \item{eps}{A small value used to determine when an updated probability is
 close enough to 0.0 or 1.0.}

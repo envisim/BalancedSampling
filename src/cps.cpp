@@ -46,7 +46,17 @@ Rcpp::IntegerVector cps_random_cpp(
   if (random.length() != N)
     std::invalid_argument("random an x does not match");
 
-  Cps cps(REAL(prob), REAL(x), REAL(random), N, p, scpscoord, bucketSize, method, eps);
+  Cps cps(
+    REAL(prob),
+    REAL(x),
+    REAL(random),
+    N,
+    p,
+    CpsMethod::scpscoord,
+    bucketSize,
+    method,
+    eps
+  );
   cps.run();
 
   Rcpp::IntegerVector sample(cps.sample, cps.sample + cps.sampleSize);

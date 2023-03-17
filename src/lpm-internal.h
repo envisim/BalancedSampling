@@ -7,7 +7,7 @@
 #include "uniform.h"
 #include "index-list.h"
 
-enum LpmMethod {
+enum class LpmMethod {
   err = 0,
   lpm1 = 1,
   lpm2 = 2,

@@ -18,10 +18,6 @@
 #' @template x_template
 #' @template probs_template
 #'
-#' @param fastFlight If `FALSE`, the flight phase will update all remaining
-#' units in each step, which can be very time consuming for large populations.
-#' Otherwise, it will use the fast flight method.
-#'
 #' @references
 #' Deville, J. C. and Tillé, Y. (2004).
 #' Efficient balanced sampling: the cube method.
@@ -58,7 +54,6 @@
 cube = function(
   prob,
   x,
-  fastFlight = TRUE,
   eps = 1e-12
 ) {
   if (!is.matrix(x)) {
@@ -69,11 +64,7 @@ cube = function(
   .eps_check(eps);
   prob = .prob_check(prob, N);
 
-  if (fastFlight == FALSE) {
-    result = .cube_cpp(prob, x, eps);
-  } else {
-    result = .cube_fast_cpp(prob, x, eps);
-  }
+  result = .cube_cpp(prob, x, eps);
 
   return(result);
 }

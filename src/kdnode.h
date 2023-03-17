@@ -1,9 +1,6 @@
 #ifndef KDNODE_HEADER
 #define KDNODE_HEADER
 
-#include <float.h>
-#include <algorithm>
-#include <stdexcept>
 
 class KDNode {
   // REGULAR NODE

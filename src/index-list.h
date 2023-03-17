@@ -1,14 +1,12 @@
 #ifndef INDEXLIST_HEADER
 #define INDEXLIST_HEADER
 
-#include "uniform.h"
-
 class IndexList {
 private:
   int *list = nullptr;
   int *reverse = nullptr;
   int len = 0;
-  int olen = 0;
+  int capacity = 0;
 public:
   IndexList(const int);
   ~IndexList();
@@ -17,6 +15,7 @@ public:
   int length();
   void fill();
   void reset();
+  void resize(const int);
   void set(const int);
   void shuffle();
   int get(const int);

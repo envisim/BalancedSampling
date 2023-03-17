@@ -1,9 +1,8 @@
-#include "rref.h"
+#include "ReducedRowEchelonForm.h"
+#include "utils.h"
 
-#define mati(r, c, p) ((r) * (p) + (c))
-
-void rref(
-  double *b,
+void ReducedRowEchelonForm(
+  double *mat,
   const int rowCount,
   const int colCount
 ) {
@@ -15,7 +14,7 @@ void rref(
 
     int i = r;
 
-    while (b[mati(i, lead, colCount)] == 0) {
+    while (mat[MatrixIdx(i, lead, colCount)] == 0) {
       i += 1;
 
       if (i == rowCount) {
@@ -27,10 +26,10 @@ void rref(
       }
     }
 
-    double *br = b + mati(r, 0, colCount);
+    double *br = mat + MatrixIdx(r, 0, colCount);
 
     if (i != r) {
-      double *bi = b + mati(i, 0, colCount);
+      double *bi = mat + MatrixIdx(i, 0, colCount);
 
       for (int k = 0; k < colCount; k++) {
         double temp = bi[k];
@@ -50,9 +49,9 @@ void rref(
       if (j == r)
         continue;
 
-      double temp = b[mati(j, lead, colCount)];
+      double temp = mat[MatrixIdx(j, lead, colCount)];
       for (int k = 0; k < colCount; k++) {
-        b[mati(j, k, colCount)] -= br[k] * temp;
+        mat[MatrixIdx(j, k, colCount)] -= br[k] * temp;
       }
     }
 

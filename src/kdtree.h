@@ -1,9 +1,6 @@
 #ifndef KDTREE_HEADER
 #define KDTREE_HEADER
 
-#include <float.h>
-#include <algorithm>
-#include <stdexcept>
 #include "kdnode.h"
 
 class KDTree {
