@@ -1,104 +1,99 @@
-#include <Rcpp.h>
-#include "lpm-internal.h"
+#include <stddef.h>
 
-// [[Rcpp::export(.hlpm2_cpp)]]
-Rcpp::IntegerMatrix hlpm2_cpp(
+#include <Rcpp.h>
+
+#include "IndexListClass.h"
+#include "KDTreeClass.h"
+#include "LpmClass.h"
+
+// [[Rcpp::export(.hlpm2_cpp2)]]
+Rcpp::IntegerMatrix hlpm2_cpp2(
   Rcpp::NumericVector &prob,
   Rcpp::NumericMatrix &x,
   Rcpp::IntegerVector &sizes,
-  int bucketSize,
-  int method,
+  size_t treeBucketSize,
+  int treeMethod,
   double eps
 ) {
-  int sn = sizes.length();
-  int N = x.ncol();
-  int p = x.nrow();
-  double* xx = REAL(x);
+  size_t sn = sizes.length();
+  size_t N = x.ncol();
+  size_t p = x.nrow();
 
   if (prob.length() != N)
     std::invalid_argument("prob an x does not match");
 
-  // int *sample = new int[N];
-  // int sampleSize = 0;
+  Lpm lpm(
+    LpmMethod::lpm2,
+    REAL(prob),
+    REAL(x),
+    N,
+    p,
+    eps,
+    treeBucketSize,
+    treeMethod
+  );
 
-  KDTree* orgTree = new KDTree(xx, N, x.nrow(), bucketSize, method);
-  orgTree->init();
-  KDTree* tree = orgTree->copy();
+  // Make a copy of the tree for reuse later
+  KDTree* orgTree = lpm.tree->Copy();
+  IndexList* orgIdx = lpm.idx;
 
-  IndexList* orgIdx = new IndexList(N);
-  double* probabilities = new double[N];
+  // Run the algorithm to get a base sample
+  lpm.Run();
 
-  for (int i = 0; i < N; i++) {
-    probabilities[i] = prob[i];
-    orgIdx->set(i);
-  }
+  orgIdx->Reset();
+  delete lpm.tree;
 
-  Lpm lpm(probabilities, tree, orgIdx, N, LpmMethod::lpm2, eps);
-  lpm.run();
-  int sampleSize = lpm.sampleSize;
+  // Set the return matrix
+  size_t orgSampleSize = lpm.sample.size();
+  Rcpp::IntegerMatrix sample(orgSampleSize, 2);
 
-  delete tree;
-  orgIdx->reset();
-
-  for (int i = 0, j = 0; i < N; i++) {
-    if (j < sampleSize && i == lpm.sample[j] - 1) {
+  for (size_t i = 0, j = 0; i < N; i++) {
+    if (j < orgSampleSize && i == lpm.sample[j] - 1) {
+      sample(j, 0) = lpm.sample[j];
+      sample(j, 1) = sn;
       j += 1;
-      continue;
+    } else {
+      orgTree->RemoveUnit(i);
+      orgIdx->Erase(i);
     }
-
-    orgTree->removeUnit(i);
-    orgIdx->erase(i);
   }
 
-  // orgTree->prune();
+  size_t remainingSize = orgSampleSize;
 
-  Rcpp::IntegerMatrix smat(sampleSize, 2);
-  int* psmat = INTEGER(smat);
-
-  for (int i = 0; i < sampleSize; i++)
-    psmat[i] = lpm.sample[i];
-
-  int remainingSize = sampleSize;
-
-  for (int i = 0; i < sn - 1; i++) {
+  for (size_t i = 0; i < sn - 1; i++) {
     double subprob = (double)sizes[i] / (double)remainingSize;
-    KDTree* tree = orgTree->copy();
-    IndexList* idx = orgIdx->copyLen();
+    lpm.tree = orgTree->Copy();
+    lpm.idx = orgIdx->CopyLen();
+    lpm.sample.resize(0);
 
-    for (int j = 0; j < idx->length(); j++) {
-      probabilities[idx->get(j)] = subprob;
+    for (size_t j = 0; j < orgIdx->Length(); j++) {
+      lpm.probabilities[orgIdx->Get(j)] = subprob;
     }
 
-    lpm.probabilities = probabilities;
-    lpm.tree = tree;
-    lpm.idx = idx;
-    lpm.sampleSize = 0;
-    lpm.run();
+    lpm.Run();
 
-    for (int j = 0, k = 0; j < sampleSize && k < lpm.sampleSize; j++) {
-      if (psmat[j] == lpm.sample[k]) {
-        orgTree->removeUnit(lpm.sample[k] - 1);
-        orgIdx->erase(lpm.sample[k] - 1);
-        psmat[j + sampleSize] = i + 1;
-        k += 1;
-      }
+    // Remove all selected unit from orgTree and orgIdx, and set their subsample
+    for (size_t j = 0, k = 0; j < orgSampleSize && k < lpm.sample.size(); j++) {
+      if (sample(j, 0) != lpm.sample[k])
+        continue;
+
+      size_t id = lpm.sample[k] - 1;
+      orgTree->RemoveUnit(id);
+      orgIdx->Erase(id);
+      sample(j, 1) = i + 1;
+      k += 1;
     }
 
-    remainingSize -= lpm.sampleSize;
-    delete tree;
-    delete idx;
+    remainingSize -= lpm.sample.size();
+    delete lpm.tree;
+    delete lpm.idx;
   }
 
-  // Set the remaining units to the remaining group
-  for (int i = 0; i < sampleSize; i++) {
-    if (psmat[sampleSize + i] == 0)
-      psmat[sampleSize + i] = sn;
-  }
-
-  delete[] probabilities;
-  delete orgIdx;
+  lpm.tree = nullptr;
+  lpm.idx = nullptr;
   delete orgTree;
+  delete orgIdx;
 
-  return smat;
+  return sample;
 }
 

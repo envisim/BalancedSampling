@@ -37,11 +37,11 @@ public:
   KDTree* tree = nullptr;
   KDStore* store = nullptr;
 
-  size_t pair [2] = {0, 1};
   std::vector<double> probabilities = std::vector<double>(0);
   std::vector<size_t> iprobabilities = std::vector<size_t>(0);
 
 protected:
+  size_t pair [2] = {0, 1};
   std::vector<size_t> candidates = std::vector<size_t>(0);
   std::vector<size_t> history = std::vector<size_t>(0);
 

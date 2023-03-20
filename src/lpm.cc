@@ -1,4 +1,7 @@
+#include <stddef.h>
+
 #include <Rcpp.h>
+
 #include "LpmClass.h"
 
 //**********************************************
