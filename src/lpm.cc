@@ -1,5 +1,5 @@
 #include <Rcpp.h>
-#include "lpm-internal.h"
+#include "LpmClass.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -11,20 +11,30 @@ Rcpp::IntegerVector lpm_cpp(
   int lpMethod,
   Rcpp::NumericVector &prob,
   Rcpp::NumericMatrix &x,
-  int bucketSize,
-  int method,
+  size_t treeBucketSize,
+  int treeMethod,
   double eps
 ) {
-  int N = x.ncol();
-  int p = x.nrow();
+  size_t N = x.ncol();
+  size_t p = x.nrow();
 
   if (prob.length() != N)
     std::invalid_argument("prob an x does not match");
 
-  Lpm lpm(REAL(prob), REAL(x), N, p, intToLpmMethod(lpMethod), bucketSize, method, eps);
-  lpm.run();
+  Lpm lpm(
+    IntToLpmMethod(lpMethod),
+    REAL(prob),
+    REAL(x),
+    N,
+    p,
+    eps,
+    treeBucketSize,
+    treeMethod
+  );
 
-  Rcpp::IntegerVector sample(lpm.sample, lpm.sample + lpm.sampleSize);
+  lpm.Run();
+
+  Rcpp::IntegerVector sample(lpm.sample.begin(), lpm.sample.end());
 
   return sample;
 }
@@ -32,18 +42,27 @@ Rcpp::IntegerVector lpm_cpp(
 // [[Rcpp::export(.lpm_int_cpp)]]
 Rcpp::IntegerVector lpm_int_cpp(
   int lpMethod,
-  int n,
+  size_t n,
   Rcpp::NumericMatrix &x,
-  int bucketSize,
-  int method
+  size_t treeBucketSize,
+  int treeMethod
 ) {
-  int N = x.ncol();
-  int p = x.nrow();
+  size_t N = x.ncol();
+  size_t p = x.nrow();
 
-  Lpm lpm(n, REAL(x), N, p, intToLpmMethod(lpMethod), bucketSize, method);
-  lpm.run();
+  Lpm lpm(
+    IntToLpmMethod(lpMethod),
+    n,
+    REAL(x),
+    N,
+    p,
+    treeBucketSize,
+    treeMethod
+  );
 
-  Rcpp::IntegerVector sample(lpm.sample, lpm.sample + lpm.sampleSize);
+  lpm.Run();
+
+  Rcpp::IntegerVector sample(lpm.sample.begin(), lpm.sample.end());
 
   return sample;
 }
@@ -53,23 +72,22 @@ Rcpp::IntegerVector rpm_cpp(
   Rcpp::NumericVector &prob,
   double eps
 ) {
-  int N = prob.length();
+  size_t N = prob.length();
 
-  IndexList* idx = new IndexList(N);
-  double* probabilities = new double[N];
+  Lpm lpm(
+    LpmMethod::rpm,
+    REAL(prob),
+    nullptr,
+    N,
+    0,
+    eps,
+    40,
+    2
+  );
 
-  for (int i = 0; i < N; i++) {
-    idx->set(i);
-    probabilities[i] = prob[i];
-  }
+  lpm.Run();
 
-  Lpm lpm(probabilities, nullptr, idx, N, LpmMethod::rpm, eps);
-  lpm.run();
-
-  Rcpp::IntegerVector sample(lpm.sample, lpm.sample + lpm.sampleSize);
-
-  delete idx;
-  delete[] probabilities;
+  Rcpp::IntegerVector sample(lpm.sample.begin(), lpm.sample.end());
 
   return sample;
 }
@@ -79,23 +97,22 @@ Rcpp::IntegerVector spm_cpp(
   Rcpp::NumericVector &prob,
   double eps
 ) {
-  int N = prob.length();
+  size_t N = prob.length();
 
-  IndexList* idx = new IndexList(N);
-  double* probabilities = new double[N];
+  Lpm lpm(
+    LpmMethod::spm,
+    REAL(prob),
+    nullptr,
+    N,
+    0,
+    eps,
+    40,
+    2
+  );
 
-  for (int i = 0; i < N; i++) {
-    idx->set(i);
-    probabilities[i] = prob[i];
-  }
+  lpm.Run();
 
-  Lpm lpm(probabilities, nullptr, idx, N, LpmMethod::spm, eps);
-  lpm.run();
-
-  Rcpp::IntegerVector sample(lpm.sample, lpm.sample + lpm.sampleSize);
-
-  delete idx;
-  delete[] probabilities;
+  Rcpp::IntegerVector sample(lpm.sample.begin(), lpm.sample.end());
 
   return sample;
 }

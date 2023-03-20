@@ -17,6 +17,10 @@ inline int intuniform(int N) {
   return ((N == 0 || N == 1) ? 0 : (int)stduniform((double)N));
 };
 
+inline size_t intuniform(size_t N) {
+  return ((N == 0 || N == 1) ? 0 : (size_t)stduniform((double)N));
+};
+
 /* double stduniform(); */
 /* int intuniform(int); */
 /* int intuniform(double); */
