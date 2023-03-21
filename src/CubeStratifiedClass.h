@@ -1,95 +1,88 @@
 #ifndef CUBESTRATIFIEDCLASS_HEADER
 #define CUBESTRATIFIEDCLASS_HEADER
 
+#include <stddef.h>
 #include <unordered_map>
 #include <vector>
-#include "CubeClass.h"
 
-#include "kdtree.h"
-#include "index-list.h"
+#include "CubeClass.h"
+#include "IndexListClass.h"
+#include "KDTreeClass.h"
 
 class CubeStratified {
-private:
-  int N;
-  int pb = 0;
-  int ps = 0;
+public:
+  CubeMethod cubeMethod;
+  size_t N;
+  size_t pbalance;
+  size_t pspread;
   double eps = 1e-12;
 
-  CubeMethod cubeMethod;
+  IndexList* idx = nullptr;
 
+  std::vector<double> probabilities = std::vector<double>(0);
+
+protected:
   double* r_prob = nullptr; // NO DELETE
   double* r_xbalance = nullptr; // NO DELETE
   double* r_xspread = nullptr; // NO DELETE
   int* r_strata = nullptr; // NO DELETE
 
-  int treeBucketSize = 40;
-  int treeMethod = 2;
-  KDTree* tree = nullptr;
+  std::vector<double> zspread = std::vector<double>(0);
 
-  IndexList* idx = nullptr;
+  size_t treeBucketSize = 40;
+  KDTreeSplitMethod treeMethod = KDTreeSplitMethod::midpointSlide;
 
-  std::unordered_map<int, int> stratumMap;
-
-  Cube* cube = nullptr;
+  std::unordered_map<int, size_t> stratumMap;
+  std::vector<int> stratumArr = std::vector<int>(0);
+  std::vector<size_t> index = std::vector<size_t>(0);
 
 public:
   std::vector<int> sample;
-private:
-  std::vector<double> probabilities;
-  std::vector<int> index;
-  std::vector<int> stratumArr;
-  double* spread = nullptr;
 
 public:
   CubeStratified(
-    double* t_prob,
-    double* t_xbalance,
     int* t_strata,
-    const int t_N,
-    const int t_pb,
+    double* t_probabilities,
+    double* t_xbalance,
+    const size_t t_N,
+    const size_t t_pbalance,
     const double t_eps
   );
 
   CubeStratified(
-    double* t_prob,
-    double* t_xbalance,
-    double* t_xspread,
     int* t_strata,
-    const int t_N,
-    const int t_pb,
-    const int t_ps,
+    double* t_probabilities,
+    double* t_xbalance,
+    const size_t t_N,
+    const size_t t_pbalance,
     const double t_eps,
-    const int t_bucketSize,
-    const int t_method
+    double* t_xspread,
+    const size_t t_pspread,
+    const size_t t_treeBucketSize,
+    const int t_treeMethod
   );
 
-  ~CubeStratified() {
-    delete tree;
-    delete idx;
-    delete cube;
-    delete[] spread;
-  };
+  void Init(
+    int* t_strata,
+    double* t_probabilities,
+    double* t_xbalance,
+    const size_t t_N,
+    const size_t t_pbalance,
+    const double t_eps
+  );
+
+  ~CubeStratified();
+
+public:
+  void AddUnitToSample(const size_t);
 
 private:
-  void Init(
-    const int t_N,
-    const int t_pb,
-    const double t_eps,
-    double* t_prob,
-    double* t_xbalance,
-    int* t_strata
-  );
-
-  void AddUnitToSample(const int id);
-  void EraseUnit(const int id);
-
   void RunFlightPerStratum();
   void RunFlightOnFull();
   void RunLandingPerStratum();
 
 public:
   void Run();
-
 };
 
 #endif

@@ -1,91 +1,90 @@
 #include <algorithm>
-// #include <Rcpp.h>
+#include <stddef.h>
+#include <unordered_map>
+#include <vector>
 
+#include "CubeClass.h"
 #include "CubeStratifiedClass.h"
+#include "IndexListClass.h"
+#include "KDTreeClass.h"
 #include "utils.h"
 
-//**********************************************
-// Author: Wilmer Prentius
-// Licence: GPL (>=2)
-//**********************************************
-
+// CUBE
 CubeStratified::CubeStratified(
-  double* t_prob,
-  double* t_xbalance,
   int* t_strata,
-  const int t_N,
-  const int t_pb,
+  double* t_probabilities,
+  double* t_xbalance,
+  const size_t t_N,
+  const size_t t_pbalance,
   const double t_eps
 ) {
   cubeMethod = CubeMethod::cube;
 
   Init(
-    t_N,
-    t_pb,
-    t_eps,
-    t_prob,
+    t_strata,
+    t_probabilities,
     t_xbalance,
-    t_strata
+    t_N,
+    t_pbalance,
+    t_eps
   );
 }
 
+// LCUBE
 CubeStratified::CubeStratified(
-  double* t_prob,
-  double* t_xbalance,
-  double* t_xspread,
   int* t_strata,
-  const int t_N,
-  const int t_pb,
-  const int t_ps,
+  double* t_probabilities,
+  double* t_xbalance,
+  const size_t t_N,
+  const size_t t_pbalance,
   const double t_eps,
-  const int t_bucketSize,
-  const int t_method
+  double* t_xspread,
+  const size_t t_pspread,
+  const size_t t_treeBucketSize,
+  const int t_treeMethod
 ) {
   cubeMethod = CubeMethod::lcube;
-  ps = t_ps;
   r_xspread = t_xspread;
-  treeBucketSize = t_bucketSize;
-  treeMethod = t_method;
-
-  tree = new KDTree(r_xspread, t_N, ps, treeBucketSize, treeMethod);
-  tree->init();
-  spread = new double[t_N * ps];
+  pspread = t_pspread;
+  treeBucketSize = t_treeBucketSize;
+  treeMethod = IntToKDTreeSplitMethod(t_treeMethod);
 
   Init(
-    t_N,
-    t_pb,
-    t_eps,
-    t_prob,
+    t_strata,
+    t_probabilities,
     t_xbalance,
-    t_strata
+    t_N,
+    t_pbalance,
+    t_eps
   );
 }
 
 void CubeStratified::Init(
-  const int t_N,
-  const int t_pb,
-  const double t_eps,
-  double* t_prob,
+  int* t_strata,
+  double* t_probabilities,
   double* t_xbalance,
-  int* t_strata
+  const size_t t_N,
+  const size_t t_pbalance,
+  const double t_eps
 ) {
-  N = t_N;
-  pb = t_pb;
-  eps = t_eps;
-  r_prob = t_prob;
-  r_xbalance = t_xbalance;
   r_strata = t_strata;
+  N = t_N;
+  eps = t_eps;
+
+  r_prob = t_probabilities;
+  r_xbalance = t_xbalance;
+  pbalance = t_pbalance;
 
   idx = new IndexList(N);
 
-  sample = std::vector<int>(0);
+  probabilities.resize(N);
   sample.reserve(N);
 
-  for (int i = N; i-- > 0; ) {
-    idx->set(i);
+  for (size_t i = N; i-- > 0; ) {
+    idx->Set(i);
 
     if (ProbabilityInt(r_prob[i], eps)) {
-      EraseUnit(i);
+      idx->Erase(i);
 
       if (Probability1(r_prob[i], eps))
         AddUnitToSample(i);
@@ -99,23 +98,221 @@ void CubeStratified::Init(
       stratumMap[r_strata[i]] += 1;
   }
 
-  cube = new Cube(cubeMethod, N, pb + stratumMap.size(), eps);
-  cube->InitIndirect();
+  stratumArr.resize(stratumMap.size());
 
-  probabilities = std::vector<double>(N);
-  index = std::vector<int>(0); index.reserve(N);
-  stratumArr = std::vector<int>(stratumMap.size());
+  size_t stratumMax = 0;
+  for (std::unordered_map<int, size_t>::iterator it = stratumMap.begin(); it != stratumMap.end(); ++it) {
+    if (it->second > stratumMax)
+      stratumMax = it->second;
+  }
+
+  size_t fullsizeMax = (pbalance + 1) * stratumMap.size();
+  if (stratumMax < fullsizeMax)
+    stratumMax = fullsizeMax;
+
+  index.reserve(stratumMax);
+
+  if (cubeMethod == CubeMethod::lcube)
+    zspread.reserve(stratumMax * pspread);
+
+  return;
 }
 
-void CubeStratified::AddUnitToSample(const int id) {
+CubeStratified::~CubeStratified() {
+  delete idx;
+}
+
+void CubeStratified::AddUnitToSample(const size_t id) {
   sample.push_back(id + 1);
   return;
 }
 
-void CubeStratified::EraseUnit(const int id) {
-  idx->erase(id);
-  if (tree != nullptr)
-    tree->removeUnit(id);
+void CubeStratified::RunFlightPerStratum() {
+  size_t maxSize = pbalance + 2;
+  stratumArr.resize(0);
+
+  for (std::unordered_map<int, size_t>::iterator it = stratumMap.begin(); it != stratumMap.end(); ++it) {
+    // We can skip this completely if there are too few obs in the stratum
+    if (it->second < maxSize)
+      continue;
+
+    size_t idxlen = idx->Length();
+    index.resize(0);
+    zspread.resize(0);
+    Cube cube(cubeMethod, it->second, maxSize - 1, eps);
+    IndexList* tidx = new IndexList(it->second);
+    cube.idx = tidx;
+
+    for (size_t i = 0; i < idxlen; i++) {
+      size_t id = idx->Get(i);
+      if (it->first != r_strata[id])
+        continue;
+
+      size_t indexSize = index.size();
+      index.push_back(id);
+      tidx->Set(indexSize);
+
+      cube.probabilities[indexSize] = r_prob[id];
+
+      cube.amat[MatrixIdxRow((size_t)0, indexSize, it->second)] = 1.0;
+
+      for (size_t k = 0; k < pbalance; k++)
+        cube.amat[MatrixIdxRow(k + 1, indexSize, it->second)] =
+          r_xbalance[MatrixIdxCol(id, k, N)] / r_prob[id];
+
+      if (cubeMethod == CubeMethod::lcube) {
+        for (size_t k = 0; k < pspread; k++)
+          zspread.push_back(r_xspread[MatrixIdxRow(id, k, pspread)]);
+      }
+    }
+
+    if (cubeMethod == CubeMethod::lcube) {
+      KDTree* tree = new KDTree(zspread.data(), it->second, pspread, treeBucketSize, treeMethod);
+      cube.tree = tree;
+      cube.RunFlight();
+      cube.tree = nullptr;
+      delete tree;
+    } else {
+      cube.RunFlight();
+    }
+
+    for (size_t i = 0; i < index.size(); i++) {
+      size_t id = index[i];
+
+      if (!tidx->Exists(i)) {
+        idx->Erase(id);
+        it->second -= 1;
+      } else {
+        probabilities[id] = cube.probabilities[i];
+      }
+    }
+
+    for (size_t i = 0; i < cube.sample.size(); i++)
+      AddUnitToSample(index[cube.sample[i] - 1]);
+
+    if (it->second == 0)
+      stratumArr.push_back(it->first);
+
+    cube.idx = nullptr;
+    delete tidx;
+  }
+
+  for (size_t k = 0; k < stratumArr.size(); k++)
+    stratumMap.erase(stratumArr[k]);
+
+  // Repopulate stratumArr with stratum numbers
+  stratumArr.resize(0);
+  for (std::unordered_map<int, size_t>::iterator it = stratumMap.begin(); it != stratumMap.end(); ++it)
+    stratumArr.push_back(it->first);
+
+  return;
+}
+
+void CubeStratified::RunFlightOnFull() {
+  size_t strsize = stratumMap.size();
+  size_t maxSize = pbalance + 1 + strsize;
+  size_t idxlen = idx->Length();
+
+  // If we can't run, we can't run
+  if (idxlen < maxSize)
+    return;
+
+  index.resize(0);
+  zspread.resize(0);
+  Cube cube(cubeMethod, idxlen, maxSize - 1, eps);
+  IndexList* tidx = new IndexList(idxlen);
+  cube.idx = tidx;
+
+  for (size_t i = 0; i < idxlen; i++) {
+    size_t id = idx->Get(i);
+    size_t indexSize = index.size();
+    index.push_back(id);
+    tidx->Set(indexSize);
+    cube.probabilities[indexSize] = probabilities[id];
+
+    for (size_t k = 0; k < strsize; k++)
+      cube.amat[MatrixIdxRow(k, indexSize, idxlen)] = (r_strata[id] == stratumArr[k]) ? 1.0 : 0.0;
+
+    for (size_t k = 0; k < pbalance; k++)
+      cube.amat[MatrixIdxRow(strsize + k, indexSize, idxlen)]
+        = r_xbalance[MatrixIdxCol(id, k, N)] / r_prob[id];
+
+    if (cubeMethod == CubeMethod::lcube) {
+      for (size_t k = 0; k < pspread; k++)
+        zspread.push_back(r_xspread[MatrixIdxRow(id, k, pspread)]);
+    }
+  }
+
+  if (cubeMethod == CubeMethod::lcube) {
+    KDTree* tree = new KDTree(zspread.data(), idxlen, pspread, treeBucketSize, treeMethod);
+    cube.tree = tree;
+    cube.RunFlight();
+    cube.tree = nullptr;
+    delete tree;
+  } else {
+    cube.RunFlight();
+  }
+
+  for (size_t i = 0; i < index.size(); i++) {
+    size_t id = index[i];
+
+    if (!tidx->Exists(i)) {
+      idx->Erase(id);
+      stratumMap[r_strata[id]] -= 1;
+    } else {
+      probabilities[id] = cube.probabilities[i];
+    }
+  }
+
+  for (size_t i = 0; i < cube.sample.size(); i++)
+    AddUnitToSample(index[cube.sample[i] - 1]);
+
+  cube.idx = nullptr;
+  delete tidx;
+
+  return;
+}
+
+void CubeStratified::RunLandingPerStratum() {
+  size_t maxSize = pbalance + 2;
+
+  for (std::unordered_map<int, size_t>::iterator it = stratumMap.begin(); it != stratumMap.end(); ++it) {
+    // Skip if all decided
+    if (it->second <= 0)
+      continue;
+
+    size_t idxlen = idx->Length();
+    index.resize(0);
+    Cube cube(CubeMethod::cube, it->second, maxSize - 1, eps);
+    IndexList* tidx = new IndexList(it->second);
+    cube.idx = tidx;
+
+    for (size_t i = 0; i < idxlen; i++) {
+      size_t id = idx->Get(i);
+      if (it->first != r_strata[id])
+        continue;
+
+      size_t indexSize = index.size();
+      index.push_back(id);
+      tidx->Set(indexSize);
+      cube.probabilities[indexSize] = probabilities[id];
+
+      cube.amat[MatrixIdxRow((size_t)0, indexSize, it->second)] = 1.0;
+
+      for (size_t k = 0; k < pbalance; k++)
+        cube.amat[MatrixIdxRow(k + 1, indexSize, it->second)] =
+          r_xbalance[MatrixIdxCol(id, k, N)] / probabilities[id];
+    }
+
+    cube.RunLanding();
+
+    for (size_t i = 0; i < cube.sample.size(); i++)
+      AddUnitToSample(index[cube.sample[i] - 1]);
+
+    cube.idx = nullptr;
+    delete tidx;
+  }
+
   return;
 }
 
@@ -125,179 +322,6 @@ void CubeStratified::Run() {
   RunLandingPerStratum();
 
   std::sort(sample.begin(), sample.end());
-
-  return;
-}
-
-void CubeStratified::RunFlightPerStratum() {
-  int maxSize = pb + 2;
-  cube->p = maxSize - 1;
-
-  for (std::unordered_map<int, int>::iterator it = stratumMap.begin(); it != stratumMap.end(); ++it) {
-    // We can skip this completely if there are too few obs in the stratum
-    if (it->second < maxSize)
-      continue;
-
-    cube->N = it->second;
-    cube->sample.resize(0);
-    cube->idx->resize(it->second);
-    index.resize(0);
-
-    // Add units into cube
-    for (int i = 0; i < idx->length(); i++) {
-      int id = idx->get(i);
-      if (it->first != r_strata[id])
-        continue;
-
-      int indexSize = index.size();
-      index.push_back(id);
-      cube->idx->set(indexSize);
-      cube->probabilities[indexSize] = r_prob[id];
-      cube->amat[MatrixIdxRow(0, indexSize, it->second)] = 1.0;
-
-      for (int k = 0; k < pb; k++)
-        cube->amat[MatrixIdxRow(k + 1, indexSize, it->second)] =
-          r_xbalance[MatrixIdxCol(id, k, N)] / r_prob[id];
-
-      if (tree != nullptr) {
-        for (int k = 0; k < ps; k++)
-          spread[MatrixIdxRow(indexSize, k, ps)] =
-            r_xspread[MatrixIdxRow(id, k, ps)];
-      }
-    }
-
-    if (tree != nullptr) {
-      KDTree* ttree = new KDTree(spread, it->second, ps, treeBucketSize, treeMethod);
-      ttree->init();
-      cube->tree = ttree;
-
-      cube->RunFlight();
-
-      delete ttree;
-    } else {
-      cube->RunFlight();
-    }
-
-    // Update idx and probabilities
-    for (int i = 0; i < index.size(); i++) {
-      int id = index[i];
-
-      if (!cube->idx->exists(i)) {
-        EraseUnit(id);
-        it->second -= 1;
-      } else {
-        probabilities[id] = cube->probabilities[i];
-      }
-    }
-
-    // Update sample
-    for (int i = 0; i < cube->sample.size(); i++)
-      AddUnitToSample(index[cube->sample[i] - 1]);
-
-    // Add empty stratas for removal
-    if (it->second == 0)
-      stratumArr.push_back(it->first);
-  }
-
-  for (int k = 0; k < stratumArr.size(); k++)
-    stratumMap.erase(stratumArr[k]);
-
-  // Repopulate stratumArr with stratum numbers
-  stratumArr.resize(0);
-  for (std::unordered_map<int, int>::iterator it = stratumMap.begin(); it != stratumMap.end(); ++it)
-    stratumArr.push_back(it->first);
-
-  return;
-}
-
-void CubeStratified::RunFlightOnFull() {
-  int maxSize = pb + 1 + stratumMap.size();
-  cube->p = maxSize - 1;
-
-  if (idx->length() >= maxSize) {
-    IndexList* tidx = cube->idx;
-    cube->idx = idx;
-    cube->tree = tree;
-    int idxlen = idx->length();
-    cube->N = N;
-    cube->sample.resize(0);
-    index.resize(0);
-
-    for (int i = 0; i < idxlen; i++) {
-      int id = idx->get(i);
-      index.push_back(id);
-      cube->probabilities[id] = probabilities[id];
-
-      for (int k = 0; k < stratumMap.size(); k++)
-        cube->amat[MatrixIdxRow(k, id, N)] = r_strata[id] == stratumArr[k] ? 1.0 : 0.0;
-
-      for (int k = 0; k < pb; k++)
-        cube->amat[MatrixIdxRow(stratumMap.size() + k, id, N)] =
-          r_xbalance[MatrixIdxCol(id, k, N)] / r_prob[id];
-          // r_xbalance[MatrixIdx(id, k, pb)] / r_prob[id];
-    }
-
-    cube->RunFlight();
-
-    // Update sample
-    for (int i = 0; i < cube->sample.size(); i++)
-      AddUnitToSample(cube->sample[i] - 1);
-
-    // Remove units from strata that has been decided
-    for (int i = 0; i < idxlen; i++) {
-      int id = index[i];
-      if (!idx->exists(id))
-        stratumMap[r_strata[id]] -= 1;
-      else
-        probabilities[id] = cube->probabilities[id];
-    }
-
-    // Put back tidx
-    cube->idx = tidx;
-  }
-
-  return;
-}
-
-void CubeStratified::RunLandingPerStratum() {
-  int maxSize = pb + 2;
-  cube->p = maxSize - 1;
-  cube->tree = nullptr;
-
-  for (std::unordered_map<int, int>::iterator it = stratumMap.begin(); it != stratumMap.end(); ++it) {
-    // Skip if all decided
-    if (it->second <= 0)
-      continue;
-
-    cube->N = it->second;
-    cube->sample.resize(0);
-    cube->idx->resize(it->second);
-    index.resize(0);
-
-    // Add units into cube
-    for (int i = 0; i < idx->length(); i++) {
-      int id = idx->get(i);
-      if (it->first != r_strata[id])
-        continue;
-
-      int indexSize = index.size();
-      index.push_back(id);
-      cube->idx->set(indexSize);
-      cube->probabilities[indexSize] = probabilities[id];
-      cube->amat[MatrixIdxRow(0, indexSize, it->second)] = 1.0;
-
-      for (int k = 0; k < pb; k++)
-        cube->amat[MatrixIdxRow(k + 1, indexSize, it->second)] =
-          r_xbalance[MatrixIdxCol(id, k, N)] / probabilities[id];
-          // r_xbalance[MatrixIdx(id, k, pb)] / probabilities[id];
-    }
-
-    cube->RunLanding();
-
-    // Update sample
-    for (int i = 0; i < cube->sample.size(); i++)
-      AddUnitToSample(index[cube->sample[i] - 1]);
-  }
 
   return;
 }

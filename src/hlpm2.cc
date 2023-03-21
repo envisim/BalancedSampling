@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdexcept>
 
 #include <Rcpp.h>
 
@@ -19,7 +20,7 @@ Rcpp::IntegerMatrix hlpm2_cpp2(
   size_t N = x.ncol();
   size_t p = x.nrow();
 
-  if (prob.length() != N)
+  if (N != (size_t)prob.length())
     std::invalid_argument("prob an x does not match");
 
   Lpm lpm(

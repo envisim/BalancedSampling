@@ -1,4 +1,6 @@
+#include <stddef.h>
 #include <stdexcept>
+
 #include <Rcpp.h>
 
 #include "CubeStratifiedClass.h"
@@ -10,18 +12,18 @@ Rcpp::IntegerVector cube_stratified_cpp(
   Rcpp::IntegerVector &strata,
   const double eps
 ) {
-  int N = x.nrow();
-  int p = x.ncol();
+  size_t N = x.nrow();
+  size_t p = x.ncol();
 
-  if (prob.length() != N)
+  if (N != (size_t)prob.length())
     std::invalid_argument("prob and x does not match");
-  if (N != strata.length())
+  if (N != (size_t)strata.length())
     std::range_error("strata and x does not match");
 
   CubeStratified cube(
+    INTEGER(strata),
     REAL(prob),
     REAL(x),
-    INTEGER(strata),
     N,
     p,
     eps
@@ -40,30 +42,30 @@ Rcpp::IntegerVector lcube_stratified_cpp(
   Rcpp::NumericMatrix &xbalance,
   Rcpp::NumericMatrix &xspread,
   Rcpp::IntegerVector &strata,
-  const int bucketSize,
+  const size_t bucketSize,
   const int method,
   const double eps
 ) {
-  int N = xbalance.nrow();
-  int p = xbalance.ncol();
-  int pxs = xspread.nrow();
+  size_t N = xbalance.nrow();
+  size_t p = xbalance.ncol();
+  size_t pxs = xspread.nrow();
 
-  if (prob.length() != N)
+  if (N != (size_t)prob.length())
     std::invalid_argument("prob and x does not match");
-  if (N != strata.length())
+  if (N != (size_t)strata.length())
     std::range_error("strata and x does not match");
-  if (N != xspread.length())
+  if (N != (size_t)xspread.length())
     std::range_error("xspread and xbal does not match");
 
   CubeStratified cube(
+    INTEGER(strata),
     REAL(prob),
     REAL(xbalance),
-    REAL(xspread),
-    INTEGER(strata),
     N,
     p,
-    pxs,
     eps,
+    REAL(xspread),
+    pxs,
     bucketSize,
     method
   );

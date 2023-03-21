@@ -1,8 +1,14 @@
-#include <cmath>
+#include <algorithm>
+#include <float.h>
+#include <stddef.h>
 #include <stdexcept>
-#include <Rcpp.h>
+#include <utility>
+#include <vector>
 
 #include "CubeClass.h"
+#include "IndexListClass.h"
+#include "KDStoreClass.h"
+#include "KDTreeClass.h"
 #include "ReducedRowEchelonForm.h"
 #include "uniform.h"
 #include "utils.h"
@@ -20,57 +26,66 @@ CubeMethod IntToCubeMethod(const int i) {
   return CubeMethod::err;
 }
 
-void Cube::InitIndirect() {
-  sample = std::vector<int>(0);
-  sample.reserve(N);
-  probabilities = std::vector<double>(N);
-  amat = std::vector<double>(N * p);
+// DIRECT CUBE
+Cube::Cube(
+  const double* t_probabilities,
+  double* xxbalance,
+  const size_t t_N,
+  const size_t t_pbalance,
+  const double t_eps
+  ) {
+  set_direct = true;
+  cubeMethod = CubeMethod::cube;
+  Init(t_probabilities, xxbalance, t_N, t_pbalance, t_eps);
 
-  index = std::vector<int>(N);
-  uvec = std::vector<double>(p + 1);
-  bmat = std::vector<double>((p + 1) * p);
+  idx->Shuffle();
+}
 
-  idx = new IndexList(N);
+// DIRECT LCUBE
+Cube::Cube(
+  const double* t_probabilities,
+  double* xxbalance,
+  const size_t t_N,
+  const size_t t_pbalance,
+  const double t_eps,
+  double* xxspread,
+  const size_t t_pspread,
+  const size_t t_treeBucketSize,
+  const int t_treeMethod
+) {
+  set_direct = true;
+  cubeMethod = CubeMethod::lcube;
+  Init(t_probabilities, xxbalance, t_N, t_pbalance, t_eps);
 
-  switch(cubeMethod) {
-  case CubeMethod::cube:
-    _Draw = &Cube::Draw_cube;
-    break;
-  case CubeMethod::lcube:
-    _Draw = &Cube::Draw_lcube;
-    neighbours = std::vector<int>(N);
-    distances = std::vector<double>(N);
-    break;
-  default:
-    std::invalid_argument("cubeMethod does not exist");
-    break;
-  }
+  tree = new KDTree(xxspread, N, t_pspread, t_treeBucketSize, IntToKDTreeSplitMethod(t_treeMethod));
+}
 
-  set_draw = true;
-};
+// INDIRECT CUBE
+Cube::Cube(
+  const CubeMethod t_cubeMethod,
+  const size_t t_N,
+  const size_t t_pbalance,
+  const double t_eps
+) {
+  set_direct = false;
+  cubeMethod = t_cubeMethod;
+  InitIndirect(t_N, t_pbalance, t_eps);
+}
 
 void Cube::Init(
   const double* t_probabilities,
   double* xxbalance,
-  const int t_N,
-  const int t_p,
+  const size_t t_N,
+  const size_t t_pbalance,
   const double t_eps
 ) {
-  N = t_N;
-  p = t_p;
-  eps = t_eps;
+  InitIndirect(t_N, t_pbalance, t_eps);
 
-  if (N == 0) {
-    idx = new IndexList(0);
-    return;
-  }
+  idx = new IndexList(N);
 
-  InitIndirect();
-
-  // Decrement done before evaluating the loop, so it begins on N - 1
-  for (int i = N; i-- > 0; ) {
+  for (size_t i = N; i-- > 0; ) {
     probabilities[i] = t_probabilities[i];
-    idx->set(i);
+    idx->Set(i);
 
     if (ProbabilityInt(probabilities[i], eps)) {
       EraseUnit(i);
@@ -81,126 +96,160 @@ void Cube::Init(
       continue;
     }
 
-    for (int k = 0; k < p; k++)
+    for (size_t k = 0; k < pbalance; k++)
       amat[MatrixIdxRow(k, i, N)] =
-        xxbalance[MatrixIdxCol(i, k, p)] / probabilities[i];
+        xxbalance[MatrixIdxCol(i, k, pbalance)] / probabilities[i];
   }
 
   return;
-};
+}
 
-// NO INIT CUBE
-Cube::Cube(
-  const CubeMethod t_cubeMethod,
-  const int t_N,
-  const int t_p,
+void Cube::InitIndirect(
+  const size_t t_N,
+  const size_t t_pbalance,
   const double t_eps
 ) {
-  cubeMethod = t_cubeMethod;
+  if (t_N == 0)
+    return;
+
   N = t_N;
-  p = t_p;
+  pbalance = t_pbalance;
   eps = t_eps;
-  set_indirect = true;
+
+  probabilities.resize(N);
+  sample.reserve(N);
+  candidates.reserve(pbalance + 1);
+
+  amat.resize(N * pbalance);
+  uvec.resize(pbalance + 1);
+  bmat.resize((pbalance + 1) * pbalance);
+
+  switch(cubeMethod) {
+  case CubeMethod::cube:
+    _Draw = &Cube::Draw_cube;
+    break;
+  case CubeMethod::lcube:
+    _Draw = &Cube::Draw_lcube;
+    store = new KDStore(N, pbalance);
+    break;
+  default:
+    std::invalid_argument("cubeMethod does not exist");
+    break;
+  }
+
+  set_draw = true;
 }
 
-// DIRECT CUBE
-Cube::Cube(
-  const double* t_probabilities,
-  double* xxbalance,
-  const int t_N,
-  const int t_p,
-  const double t_eps
-) {
-  cubeMethod = CubeMethod::cube;
-  set_indirect = false;
-  Init(t_probabilities, xxbalance, t_N, t_p, t_eps);
+Cube::~Cube() {
+  if (set_direct) {
+    delete idx;
+    delete tree;
+  }
 
-  idx->shuffle();
+  delete store;
 }
 
-// DIRECT LCUBE
-Cube::Cube(
-  const double* t_probabilities,
-  double* xxbalance,
-  const int t_N,
-  const int t_pbalance,
-  const double t_eps,
-  double* xxspread,
-  const int t_pspread,
-  const int bucketSize,
-  const int method
-) {
-  cubeMethod = CubeMethod::lcube;
-  set_indirect = false;
-  Init(t_probabilities, xxbalance, t_N, t_pbalance, t_eps);
-
-  tree = new KDTree(xxspread, N, t_pspread, bucketSize, method);
-  tree->init();
-}
-
-void Cube::AddUnitToSample(const int id) {
+void Cube::AddUnitToSample(const size_t id) {
   sample.push_back(id + 1);
   return;
 }
 
-void Cube::EraseUnit(const int id) {
-  idx->erase(id);
+void Cube::EraseUnit(const size_t id) {
+  idx->Erase(id);
 
   // Needed like this as tree might be nullptr during landing
   if (tree != nullptr)
-    tree->removeUnit(id);
+    tree->RemoveUnit(id);
 
   return;
 }
 
-int Cube::MaxSize() {
-  int il = idx->length();
-  return p + 1 <= il ? p + 1 : il;
+size_t Cube::MaxSize() {
+  size_t il = idx->Length();
+  return pbalance + 1 <= il ? pbalance + 1 : il;
 }
 
-void Cube::Draw(const int maxSize) {return (this->*_Draw)(maxSize);}
+void Cube::Draw_cube() {
+  size_t maxSize = MaxSize();
+  candidates.resize(0);
 
-void Cube::RunFlight() {
-  if (!set_draw)
-    std::runtime_error("_Draw is nullptr");
+  for (size_t i = 0; i < maxSize; i++)
+    candidates.push_back(idx->Get(i));
 
-  _RunFlight();
+  return;
 }
 
-void Cube::RunLanding() {
-  if (!set_draw)
-    std::runtime_error("_Draw is nullptr");
+void Cube::Draw_lcube() {
+  // maxSize - 1 since the first unit is drawn at random
+  size_t maxSize = MaxSize() - 1;
+  candidates.resize(1);
 
-  _RunLanding();
+  // Set the first unit
+  size_t id = idx->Draw();
+  candidates[0] = id;
+
+  // Prepare the store and run the algorithm
+  store->maxSize = maxSize;
+  tree->FindNeighbours(store, id);
+  size_t size = store->GetSize();
+
+  // If we have no equal dist units at the end, we can just return the candidates
+  if (size == maxSize) {
+    for (size_t i = 0; i < size; i++)
+      candidates.push_back(store->neighbours[i]);
+    return;
+  }
+
+  if (size < maxSize) {
+    std::runtime_error("(Draw_lcube) size < maxSize - 1");
+    return;
+  }
+
+  double maximumDistance = store->MaximumDistance();
+  size_t i = 0;
+
+  // Fill up all the units with distance less than maxdist
+  // This algorithm will leave i to be one more than the size of candidates
+  // when either maxSize has been filled (shouldn't happen),
+  // or when the distance equals the maxdist
+  for (; i < maxSize && store->GetDistance(i) < maximumDistance; i++)
+    candidates.push_back(store->neighbours[i]);
+
+  // Randomly select from the units at the end
+  for (; i < maxSize; i++) {
+    // Draw a random number from 0 to size - i.
+    // If i = 2, size = 5, that means that we have already selected two units
+    // and we have 3 more available in the store.
+    size_t k = sizeuniform(size - i);
+    candidates.push_back(store->neighbours[k + i]);
+    if (k != 0)
+      std::swap(store->neighbours[k + i], store->neighbours[i]);
+  }
+
+  return;
 }
 
-void Cube::Run() {
-  if (!set_draw)
-    std::runtime_error("_Draw is nullptr");
-
-  _RunFlight();
-  _RunLanding();
-  std::sort(sample.begin(), sample.end());
-
+void Cube::Draw() {
+  (this->*_Draw)();
   return;
 }
 
 void Cube::RunUpdate() {
-  int maxSize = MaxSize();
+  size_t maxSize = MaxSize();
   ReducedRowEchelonForm(&bmat[0], maxSize - 1, maxSize);
 
   double lambda1 = DBL_MAX;
   double lambda2 = DBL_MAX;
 
-  for (int i = 0; i < maxSize; i++) {
+  for (size_t i = 0; i < maxSize; i++) {
     if (i == maxSize - 1) {
       uvec[i] = 1.0;
     } else {
       uvec[i] = -bmat[MatrixIdxRow(i, maxSize - 1, maxSize)];
     }
 
-    double lval1 = std::abs(probabilities[index[i]] / uvec[i]);
-    double lval2 = std::abs((1.0 - probabilities[index[i]]) / uvec[i]);
+    double lval1 = std::abs(probabilities[candidates[i]] / uvec[i]);
+    double lval2 = std::abs((1.0 - probabilities[candidates[i]]) / uvec[i]);
 
     if (uvec[i] >= 0.0) {
       if (lambda1 > lval2)
@@ -217,8 +266,8 @@ void Cube::RunUpdate() {
 
   double lambda = stduniform(lambda1 + lambda2) < lambda2 ? lambda1 : -lambda2;
 
-  for (int i = 0; i < maxSize; i++) {
-    int id = index[i];
+  for (size_t i = 0; i < maxSize; i++) {
+    size_t id = candidates[i];
     probabilities[id] += lambda * uvec[i];
 
     if (ProbabilityInt(probabilities[id], eps)) {
@@ -232,56 +281,23 @@ void Cube::RunUpdate() {
   return;
 }
 
-void Cube::Draw_cube(const int maxSize) {
-  for (int i = 0; i < maxSize; i++)
-    index[i] = idx->get(i);
+void Cube::RunFlight() {
+  if (!set_draw)
+    std::runtime_error("_Draw is nullptr");
 
-  return;
-}
-
-void Cube::Draw_lcube(const int maxSize) {
-  int id = idx->draw();
-  index[0] = id;
-  int len = tree->findNeighboursN(&distances[0], &index[1], maxSize - 1, id);
-  len += 1;
-
-  if (len > maxSize) {
-    // We have equals at the end
-    int i = len - 1;
-    while (i > 2) {
-      if (distances[index[i]] > distances[index[i - 1]])
-        break;
-
-      i -= 1;
-    }
-
-    for (; i < maxSize; i++) {
-      int j = intuniform(len - i) + i;
-      if (i == j)
-        continue;
-      int temp = index[i];
-      index[i] = index[j];
-      index[j] = temp;
-    }
-  }
-
-  return;
-}
-
-void Cube::_RunFlight() {
   // Cases:
   // - choose from tree and all
   // - choose from list and all
 
-  int maxSize = MaxSize();
+  size_t maxSize = MaxSize();
 
-  while (idx->length() >= maxSize) {
-    Draw(maxSize);
+  while (idx->Length() >= maxSize) {
+    Draw();
 
     // Prepare bmat
-    for (int i = 0; i < maxSize; i++) {
-      for (int k = 0; k < maxSize - 1; k++) {
-        bmat[MatrixIdxRow(k, i, maxSize)] = amat[MatrixIdxRow(k, index[i], N)];
+    for (size_t i = 0; i < maxSize; i++) {
+      for (size_t k = 0; k < maxSize - 1; k++) {
+        bmat[MatrixIdxRow(k, i, maxSize)] = amat[MatrixIdxRow(k, candidates[i], N)];
       }
     }
 
@@ -291,32 +307,45 @@ void Cube::_RunFlight() {
   return;
 }
 
-void Cube::_RunLanding() {
-  if (idx->length() >= p + 1)
+void Cube::RunLanding() {
+  if (!set_draw)
+    std::runtime_error("_Draw is nullptr");
+
+  if (idx->Length() >= pbalance + 1)
     std::range_error("landingphase committed early");
 
-  while (idx->length() > 1) {
-    int maxSize = idx->length();
+  while (idx->Length() > 1) {
+    size_t maxSize = idx->Length();
+    candidates.resize(0);
 
-    for (int i = 0; i < maxSize; i++) {
-      index[i] = idx->get(i);
+    for (size_t i = 0; i < maxSize; i++) {
+      size_t id = idx->Get(i);
+      candidates.push_back(id);
 
-      for (int k = 0; k < maxSize - 1; k++) {
-        bmat[MatrixIdxRow(k, i, maxSize)] = amat[MatrixIdxRow(k, index[i], N)];
+      for (size_t k = 0; k < maxSize - 1; k++) {
+        bmat[MatrixIdxRow(k, i, maxSize)] = amat[MatrixIdxRow(k, id, N)];
       }
     }
 
     RunUpdate();
   }
 
-  if (idx->length() == 1) {
-    int id1 = idx->get(0);
+  if (idx->Length() == 1) {
+    size_t id1 = idx->Get(0);
 
     if (stduniform() < probabilities[id1])
       AddUnitToSample(id1);
 
     EraseUnit(id1);
   }
+
+  return;
+}
+
+void Cube::Run() {
+  RunFlight();
+  RunLanding();
+  std::sort(sample.begin(), sample.end());
 
   return;
 }

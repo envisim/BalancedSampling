@@ -1,18 +1,20 @@
+#include <stddef.h>
+
 #include "ReducedRowEchelonForm.h"
 #include "utils.h"
 
 void ReducedRowEchelonForm(
   double *mat,
-  const int rowCount,
-  const int colCount
+  const size_t rowCount,
+  const size_t colCount
 ) {
-  int lead = 0;
+  size_t lead = 0;
 
-  for (int r = 0; r < rowCount; r++) {
+  for (size_t r = 0; r < rowCount; r++) {
     if (colCount <= lead)
       return;
 
-    int i = r;
+    size_t i = r;
 
     while (mat[MatrixIdx(i, lead, colCount)] == 0) {
       i += 1;
@@ -26,12 +28,12 @@ void ReducedRowEchelonForm(
       }
     }
 
-    double *br = mat + MatrixIdx(r, 0, colCount);
+    double *br = mat + MatrixIdx(r, (size_t)0, colCount);
 
     if (i != r) {
-      double *bi = mat + MatrixIdx(i, 0, colCount);
+      double *bi = mat + MatrixIdx(i, (size_t)0, colCount);
 
-      for (int k = 0; k < colCount; k++) {
+      for (size_t k = 0; k < colCount; k++) {
         double temp = bi[k];
         bi[k] = br[k];
         br[k] = temp;
@@ -40,17 +42,17 @@ void ReducedRowEchelonForm(
 
     if (br[lead] != 0.0) {
       double temp = br[lead];
-      for (int k = 0; k < colCount; k++) {
+      for (size_t k = 0; k < colCount; k++) {
         br[k] /= temp;
       }
     }
 
-    for (int j = 0; j < rowCount; j++) {
+    for (size_t j = 0; j < rowCount; j++) {
       if (j == r)
         continue;
 
       double temp = mat[MatrixIdx(j, lead, colCount)];
-      for (int k = 0; k < colCount; k++) {
+      for (size_t k = 0; k < colCount; k++) {
         mat[MatrixIdx(j, k, colCount)] -= br[k] * temp;
       }
     }

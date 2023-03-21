@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdexcept>
 
 #include <Rcpp.h>
 
@@ -18,10 +19,10 @@ Rcpp::IntegerVector cps_cpp(
   int treeMethod,
   double eps
 ) {
-  int N = x.ncol();
-  int p = x.nrow();
+  size_t N = x.ncol();
+  size_t p = x.nrow();
 
-  if (prob.length() != N)
+  if (N != (size_t)prob.length())
     std::invalid_argument("prob an x does not match");
 
   Cps cps(
@@ -51,12 +52,12 @@ Rcpp::IntegerVector cps_random_cpp(
   int treeMethod,
   double eps
 ) {
-  int N = x.ncol();
-  int p = x.nrow();
+  size_t N = x.ncol();
+  size_t p = x.nrow();
 
-  if (prob.length() != N)
+  if (N != (size_t)prob.length())
     std::invalid_argument("prob an x does not match");
-  if (random.length() != N)
+  if (N != (size_t)random.length())
     std::invalid_argument("random an x does not match");
 
   Cps cps(

@@ -1,4 +1,8 @@
+#include <stddef.h>
+#include <stdexcept>
+
 #include <Rcpp.h>
+
 #include "CubeClass.h"
 
 //**********************************************
@@ -12,13 +16,14 @@ Rcpp::IntegerVector cube_cpp(
   Rcpp::NumericMatrix &x,
   double eps
 ) {
-  int N = x.nrow();
-  int p = x.ncol();
+  size_t N = x.nrow();
+  size_t p = x.ncol();
 
-  if (prob.length() != N)
+  if (N != (size_t)prob.length())
     std::invalid_argument("prob and x does not match");
 
   Cube cube(REAL(prob), REAL(x), N, p, eps);
+
   cube.Run();
 
   Rcpp::IntegerVector sample(cube.sample.begin(), cube.sample.end());
@@ -31,17 +36,17 @@ Rcpp::IntegerVector lcube_cpp(
   Rcpp::NumericVector &prob,
   Rcpp::NumericMatrix &xbal,
   Rcpp::NumericMatrix &xspread,
-  int bucketSize,
-  int method,
+  size_t treeBucketSize,
+  int treeMethod,
   double eps
 ) {
-  int N = xbal.nrow();
-  int pbal = xbal.ncol();
-  int pspread = xspread.nrow();
+  size_t N = xbal.nrow();
+  size_t pbal = xbal.ncol();
+  size_t pspread = xspread.nrow();
 
-  if (N != xspread.ncol())
+  if (N != (size_t)xspread.ncol())
     std::invalid_argument("xbal and xspread does not match");
-  if (prob.length() != N)
+  if (N != (size_t)prob.length())
     std::invalid_argument("prob and x does not match");
 
   Cube cube(
@@ -52,9 +57,10 @@ Rcpp::IntegerVector lcube_cpp(
     eps,
     REAL(xspread),
     pspread,
-    bucketSize,
-    method
+    treeBucketSize,
+    treeMethod
   );
+
   cube.Run();
 
   Rcpp::IntegerVector sample(cube.sample.begin(), cube.sample.end());

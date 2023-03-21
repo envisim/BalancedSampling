@@ -1,10 +1,12 @@
 #ifndef REDUCEDROWECHELONFORM_HEADER
 #define REDUCEDROWECHELONFORM_HEADER
 
+#include <stddef.h>
+
 void ReducedRowEchelonForm(
   double *mat,
-  const int rowCount,
-  const int colCount
+  const size_t rowCount,
+  const size_t colCount
 );
 
 #endif
