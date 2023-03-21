@@ -47,8 +47,6 @@ Lpm::Lpm(
 
       if (Probability1(probabilities[i], eps))
         AddUnitToSample(i);
-
-      continue;
     }
   }
 
@@ -81,6 +79,7 @@ Lpm::Lpm(
 
   idx = new IndexList(N);
   idx->Fill();
+  // iprobabilities.resize(0);
   iprobabilities.resize(N, t_probn);
 
   _Run = &Lpm::Run_int;
@@ -197,7 +196,7 @@ void Lpm::Draw_lpm1() {
     // If there are still units in candidates, we select randomly amongst these
     // candidates, and return. Otherwise, we continue looking.
     if (len > 0) {
-      pair[1] = candidates[intuniform(len)];
+      pair[1] = candidates[sizeuniform(len)];
       return;
     }
   }
@@ -206,7 +205,7 @@ void Lpm::Draw_lpm1() {
 void Lpm::Draw_lpm2() {
   pair[0] = idx->Draw();
   tree->FindNeighbours(store, pair[0]);
-  pair[1] = store->neighbours[intuniform(store->GetSize())];
+  pair[1] = store->neighbours[sizeuniform(store->GetSize())];
 
   return;
 }
@@ -248,7 +247,7 @@ void Lpm::Draw_lpm1search() {
       bool found = false;
 
       // Check if any of these are the history-unit
-      for (int j = 0; j < tlen; j++) {
+      for (size_t j = 0; j < tlen; j++) {
         if (store->neighbours[j] == pair[0]) {
           found = true;
           break;
@@ -270,7 +269,7 @@ void Lpm::Draw_lpm1search() {
 
     // If we found one or more mutual neighbours, we select one at random
     if (len > 0) {
-      pair[1] = candidates[intuniform(len)];
+      pair[1] = candidates[sizeuniform(len)];
       return;
     }
 
@@ -286,7 +285,8 @@ void Lpm::Draw_lpm1search() {
 
     // We select a unit at random to become the next history unit, and traverse
     // one step further.
-    history.push_back(candidates[intuniform(candidates.size())]);
+    size_t k = sizeuniform(candidates.size());
+    history.push_back(candidates[k]);
   }
 }
 
@@ -296,7 +296,7 @@ void Lpm::Draw_rpm() {
   // If unit i == j, then set j = N
   pair[0] = idx->Draw();
   size_t len = idx->Length() - 1;
-  pair[1] = idx->Get(intuniform(len));
+  pair[1] = idx->Get(sizeuniform(len));
 
   if (pair[0] == pair[1])
     pair[1] = idx->Get(len);
@@ -380,7 +380,7 @@ void Lpm::Run_double() {
   }
 
   if (idx->Length() == 1) {
-    int id1 = idx->Get(0);
+    size_t id1 = idx->Get(0);
 
     if (stduniform() < probabilities[id1])
       AddUnitToSample(id1);
@@ -402,7 +402,7 @@ void Lpm::Run_int() {
     size_t psum = *p1 + *p2;
 
     if (psum > N) {
-      if (N - *p2 > intuniform(2 * N - psum)) {
+      if (N - *p2 > sizeuniform(2 * N - psum)) {
         *p1 = N;
         *p2 = psum - N;
       } else {
@@ -410,7 +410,7 @@ void Lpm::Run_int() {
         *p2 = N;
       }
     } else {
-      if (*p2 > intuniform(psum)) {
+      if (*p2 > sizeuniform(psum)) {
         *p1 = 0;
         *p2 = psum;
       } else {
@@ -435,9 +435,9 @@ void Lpm::Run_int() {
   }
 
   if (idx->Length() == 1) {
-    int id1 = idx->Get(0);
+    size_t id1 = idx->Get(0);
 
-    if (intuniform(N) < iprobabilities[id1])
+    if (sizeuniform(N) < iprobabilities[id1])
       AddUnitToSample(id1);
 
     EraseUnit(id1);

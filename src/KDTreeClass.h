@@ -59,6 +59,12 @@ private:
   void TraverseNodesForNeighbours(KDStore*, const size_t, const double*, KDNode*);
   void SearchNodeForNeighbour1(KDStore*, const size_t, const double*, KDNode*);
   void SearchNodeForNeighbours(KDStore*, const size_t, const double*, KDNode*);
+
+public:
+  void FindNeighboursCps(KDStore*, const std::vector<double>&, const size_t);
+private:
+  void TraverseNodesForNeighboursCps(KDStore*, const std::vector<double>&, const size_t, const double*, KDNode*, double*);
+  void SearchNodeForNeighboursCps(KDStore*, const std::vector<double>&, const size_t, const double*, KDNode*, double*);
 };
 
 #endif

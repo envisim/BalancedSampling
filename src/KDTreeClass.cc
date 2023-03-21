@@ -658,3 +658,158 @@ void KDTree::SearchNodeForNeighbours(
   store->neighbours.resize(i);
   return;
 }
+
+void KDTree::FindNeighboursCps(
+  KDStore* store,
+  const std::vector<double>& probabilities,
+  const size_t id
+) {
+  store->Reset();
+
+  if (topNode == nullptr) {
+    std::runtime_error("(FindNeighbours) topNode is nullptr");
+    return;
+  }
+
+  double* unit = data + id * p;
+  double totalWeight = 0.0;
+
+  TraverseNodesForNeighboursCps(store, probabilities, id, unit, topNode, &totalWeight);
+  return;
+}
+
+void KDTree::TraverseNodesForNeighboursCps(
+  KDStore* store,
+  const std::vector<double>& probabilities,
+  const size_t id,
+  const double* unit,
+  KDNode* node,
+  double* totalWeight
+) {
+  if (node == nullptr) {
+    std::runtime_error("(TraverseNodesForNeighbours) nullptr");
+    return;
+  }
+
+  if (node->IsTerminal()) {
+    SearchNodeForNeighboursCps(store, probabilities, id, unit, node, totalWeight);
+    return;
+  }
+
+  double distance = unit[node->split] - node->value;
+  KDNode* nextNode = distance <= 0.0 ? node->cleft : node->cright;
+
+  TraverseNodesForNeighboursCps(store, probabilities, id, unit, nextNode, totalWeight);
+
+  // We only need to look at the wrong side of the tree if
+  // (A) we have too few units
+  // (B) the ball around the unit includes the other node
+  if (*totalWeight < 1.0 || distance * distance <= store->MaximumDistance()) {
+    TraverseNodesForNeighboursCps(store, probabilities, id, unit, nextNode->GetSibling(), totalWeight);
+  }
+
+  return;
+}
+
+void KDTree::SearchNodeForNeighboursCps(
+  KDStore* store,
+  const std::vector<double>& probabilities,
+  const size_t id,
+  const double* unit,
+  KDNode* node,
+  double* totalWeight
+) {
+  size_t nodeSize = node->GetSize();
+  // Node is empty, we can skip
+  if (nodeSize == 0)
+    return;
+
+  size_t originalSize = store->GetSize();
+  bool originalFulfilled = *totalWeight >= 1.0;
+  double currentMaximum = store->MaximumDistance();
+  double nodeMinimum = DBL_MAX;
+  // If we're full, set the nodeMax to currentMax, as we don't need to consider
+  // units with larger distances. Otherwise, we set the nodeMax to 0.0
+  double nodeMaximum = originalFulfilled ? currentMaximum : 0.0;
+  double nodeWeight = *totalWeight;
+
+  // Search through all units in the node, and store the distances
+  for (size_t i = 0; i < nodeSize; i++) {
+    size_t tid = node->units[i];
+    // Skip if it is the same unit
+    if (tid == id)
+      continue;
+
+    double distance = DistanceBetweenPointers(unit, data + tid * p);
+
+    // If we have a unit with distance larger than the nodeMax,
+    // we continue if we're full,
+    // if we're not full, we will add this unit and set the nodeMax to this new
+    // distance.
+    // If we were full before starting, we will just skip any units that are not
+    // of interest. If we were not full before starting, we will add the first
+    // units to fill up the size, after that we will only add units which are
+    // smaller than the largest unit of these first added.
+    if (distance > nodeMaximum) {
+      if (nodeWeight >= 1.0)
+        continue;
+      else
+        nodeMaximum = distance;
+    }
+
+    double weight = ((probabilities[id] + probabilities[tid]) <= 1.0)
+      ? probabilities[tid] / (1.0 - probabilities[id])
+      : (1.0 - probabilities[tid]) / probabilities[id];
+    nodeWeight += weight;
+
+    store->SetDistance(tid, distance);
+    store->SetWeight(tid, weight);
+    store->AddUnit(tid);
+
+
+    if (distance < nodeMinimum)
+      nodeMinimum = distance;
+  }
+
+  size_t storeSize = store->GetSize();
+
+  // If we didn't add any units from this node, we have nothing to process
+  if (storeSize == originalSize)
+    return;
+
+  // We now have two possibilities
+  // - The node minimum is smaller than the current minimum
+  // - The node minimum is larger than the current maximum
+  // - The node minimum is somewhere inbetween
+  size_t i;
+  if (originalSize == 0 || nodeMinimum < store->MinimumDistance()) {
+    i = 0;
+    *totalWeight = 0.0;
+  // } else if (nodeMinDistance >= currentMaxDistance) {
+  //   i = originalSize;
+  } else {
+    for (i = originalSize; i-- > 0;) {
+      if (nodeMinimum >= store->GetDistance(i))
+        break;
+
+      *totalWeight -= store->GetWeight(i);
+    }
+
+    i += 1;
+  }
+
+  // Sort the range [i, neighbours.size())
+  store->SortNeighboursByDistance(i, storeSize);
+
+  // When this loop breaks, we have an i that is at least as large as needed
+  // 'i' will then be the smallest unit that is not to be included
+  for(i += 1; i < storeSize; i++) {
+    if (*totalWeight >= 1.0 && store->GetDistance(i - 1) < store->GetDistance(i))
+      break;
+
+    *totalWeight += store->GetWeight(i);
+  }
+
+  store->neighbours.resize(i);
+  return;
+}

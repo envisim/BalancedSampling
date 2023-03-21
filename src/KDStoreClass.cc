@@ -29,6 +29,12 @@ void KDStore::Set(const size_t t_N, const size_t t_maxSize) {
   distances.resize(N);
 
   Reset();
+  return;
+}
+
+void KDStore::PrepareWeights() {
+  weights.resize(N);
+  return;
 }
 
 void KDStore::Reset() {
@@ -67,6 +73,15 @@ void KDStore::SetDistance(const size_t id, const double distance) {
   return;
 }
 
+double KDStore::GetWeight(const size_t i) {
+  return weights[neighbours.at(i)];
+}
+
+void KDStore::SetWeight(const size_t id, const double weight) {
+  weights[id] = weight;
+  return;
+}
+
 void KDStore::AddUnit(const size_t id) {
   neighbours.push_back(id);
 }
@@ -78,7 +93,7 @@ void KDStore::AddUnitAndReset(const size_t id) {
 
 void KDStore::SortNeighboursByDistance(const size_t from, const size_t to) {
   size_t size = GetSize();
-  if (from < 0 || to <= from || size < to) {
+  if (to <= from || size < to) {
     std::range_error("(SortNeighboursByDistance) bad input");
     return;
   }
@@ -88,6 +103,23 @@ void KDStore::SortNeighboursByDistance(const size_t from, const size_t to) {
     tn + from,
     tn + to,
     [this](size_t a, size_t b) { return distances[a] < distances[b]; }
+  );
+
+  return;
+}
+
+void KDStore::SortNeighboursByWeight(const size_t from, const size_t to) {
+  size_t size = GetSize();
+  if (to <= from || size < to) {
+    std::range_error("(SortNeighboursByDistance) bad input");
+    return;
+  }
+
+  size_t* tn = neighbours.data();
+  std::sort(
+    tn + from,
+    tn + to,
+    [this](size_t a, size_t b) { return weights[a] < weights[b]; }
   );
 
   return;

@@ -70,23 +70,6 @@ public:
     const size_t t_treeBucketSize,
     const int t_treeMethod
     );
-  // DOUBLE PRE
-  // Lpm(
-  //   double* t_probabilities,
-  //   KDTree* t_tree,
-  //   IndexList* t_idx,
-  //   const int t_N,
-  //   const LpmMethod lpMethod,
-  //   const double t_eps
-  // );
-  // // INT PRE
-  // Lpm(
-  //   int* t_probabilities,
-  //   KDTree* t_tree,
-  //   IndexList* t_idx,
-  //   const int t_N,
-  //   const LpmMethod lpMethod
-  // );
 
   void Init(
     double* xx,

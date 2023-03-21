@@ -74,7 +74,7 @@ void IndexList::Resize(const size_t t_len) {
 
 void IndexList::Shuffle() {
   for (size_t i = 0; i < len - 1; i++) {
-    size_t k = i + intuniform(len - i);
+    size_t k = i + sizeuniform(len - i);
     if (i == k)
       continue;
 

@@ -1,5 +1,8 @@
+#include <stddef.h>
+
 #include <Rcpp.h>
-#include "cps-internal.h"
+
+#include "CpsClass.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -11,8 +14,8 @@ Rcpp::IntegerVector cps_cpp(
   int cpsMethod,
   Rcpp::NumericVector &prob,
   Rcpp::NumericMatrix &x,
-  int bucketSize,
-  int method,
+  size_t treeBucketSize,
+  int treeMethod,
   double eps
 ) {
   int N = x.ncol();
@@ -21,10 +24,20 @@ Rcpp::IntegerVector cps_cpp(
   if (prob.length() != N)
     std::invalid_argument("prob an x does not match");
 
-  Cps cps(REAL(prob), REAL(x), nullptr, N, p, intToCpsMethod(cpsMethod), bucketSize, method, eps);
-  cps.run();
+  Cps cps(
+    IntToCpsMethod(cpsMethod),
+    REAL(prob),
+    REAL(x),
+    N,
+    p,
+    eps,
+    treeBucketSize,
+    treeMethod
+  );
 
-  Rcpp::IntegerVector sample(cps.sample, cps.sample + cps.sampleSize);
+  cps.Run();
+
+  Rcpp::IntegerVector sample(cps.sample.begin(), cps.sample.end());
 
   return sample;
 }
@@ -34,8 +47,8 @@ Rcpp::IntegerVector cps_random_cpp(
   Rcpp::NumericVector &prob,
   Rcpp::NumericMatrix &x,
   Rcpp::NumericVector &random,
-  int bucketSize,
-  int method,
+  size_t treeBucketSize,
+  int treeMethod,
   double eps
 ) {
   int N = x.ncol();
@@ -47,19 +60,21 @@ Rcpp::IntegerVector cps_random_cpp(
     std::invalid_argument("random an x does not match");
 
   Cps cps(
+    CpsMethod::scpscoord,
     REAL(prob),
     REAL(x),
-    REAL(random),
     N,
     p,
-    CpsMethod::scpscoord,
-    bucketSize,
-    method,
-    eps
+    eps,
+    treeBucketSize,
+    treeMethod
   );
-  cps.run();
 
-  Rcpp::IntegerVector sample(cps.sample, cps.sample + cps.sampleSize);
+  cps.SetRandomArr(REAL(random));
+
+  cps.Run();
+
+  Rcpp::IntegerVector sample(cps.sample.begin(), cps.sample.end());
 
   return sample;
 }
