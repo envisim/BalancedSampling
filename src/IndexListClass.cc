@@ -132,7 +132,7 @@ void IndexList::Erase(const size_t id) {
     return;
   }
 
-  int k = reverse[id];
+  size_t k = reverse[id];
 
   if (k >= len) {
     throw std::range_error("(erase, 2) Inadmissible value of id, k");

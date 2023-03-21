@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <vector>
 #include <stddef.h>
+
 #include "KDStoreClass.h"
 
 KDStore::KDStore() {}

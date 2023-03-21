@@ -1,6 +1,10 @@
 #include <algorithm>
+#include <stddef.h>
+
 #include <Rcpp.h>
-#include "kdtree.h"
+
+#include "KDStoreClass.h"
+#include "KDTreeClass.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -12,46 +16,45 @@ double sb_voronoi_cpp(
   Rcpp::NumericVector &prob,
   Rcpp::NumericMatrix &x,
   Rcpp::IntegerVector &sample,
-  int bucketSize,
-  int method
+  size_t treeBucketSize,
+  int treeMethod
 ) {
-  int N = x.ncol();
-  int n = sample.length();
-  int p = x.nrow();
-  double *xx = REAL(x);
-  double *xs = new double[n*p];
-  double *incl = new double[n];
-  int *neighbours = new int[n];
+  size_t N = x.ncol();
+  size_t p = x.nrow();
+  size_t n = sample.length();
+  double* xx = REAL(x);
+  double* xs = new double[n * p];
+  double* incl = new double[n];
 
-  for (int i = 0; i < n; i++) {
-    if (sample[i] < 1 || sample[i] > N)
+  for (size_t i = 0; i < n; i++) {
+    if (sample[i] < 1 || sample[i] > (int)N)
       Rcpp::stop("'sample' must contain unit indices");
 
     std::copy_n(xx + (sample[i] - 1) * p, p, xs + i * p);
     incl[i] = 0.0;
   }
 
-  KDTree *tree = new KDTree(xs, n, p, bucketSize, method);
-  tree->init();
+  KDTree tree(xs, n, p, treeBucketSize, IntToKDTreeSplitMethod(treeMethod));
+  KDStore store(n, 1);
 
-  for (int i = 0; i < N; i++) {
-    int len = tree->findClosest(neighbours, n, xx + i * p);
+  for (size_t i = 0; i < N; i++) {
+    double* unit = xx + i * p;
+    tree.FindNeighbours(&store, unit);
+    size_t len = store.GetSize();
 
-    double ppart = len == 1 ? prob[i] : prob[i] / (double)len;
-    for (int j = 0; j < len; j++)
-      incl[neighbours[j]] += ppart;
+    double ppart = len == (size_t)1 ? prob[i] : prob[i] / (double)len;
+    for (size_t j = 0; j < len; j++)
+      incl[store.neighbours[j]] += ppart;
   }
 
   double result = 0.0;
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     double temp = incl[i] - 1.0;
     result += temp * temp;
   }
 
   delete[] xs;
   delete[] incl;
-  delete[] neighbours;
-  delete tree;
 
   return result / (double)n;
 }

@@ -11,34 +11,34 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // cps_cpp
-Rcpp::IntegerVector cps_cpp(int cpsMethod, Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, int bucketSize, int method, double eps);
-RcppExport SEXP _BalancedSampling_cps_cpp(SEXP cpsMethodSEXP, SEXP probSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+Rcpp::IntegerVector cps_cpp(int cpsMethod, Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, size_t treeBucketSize, int treeMethod, double eps);
+RcppExport SEXP _BalancedSampling_cps_cpp(SEXP cpsMethodSEXP, SEXP probSEXP, SEXP xSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type cpsMethod(cpsMethodSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(cps_cpp(cpsMethod, prob, x, bucketSize, method, eps));
+    rcpp_result_gen = Rcpp::wrap(cps_cpp(cpsMethod, prob, x, treeBucketSize, treeMethod, eps));
     return rcpp_result_gen;
 END_RCPP
 }
 // cps_random_cpp
-Rcpp::IntegerVector cps_random_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::NumericVector& random, int bucketSize, int method, double eps);
-RcppExport SEXP _BalancedSampling_cps_random_cpp(SEXP probSEXP, SEXP xSEXP, SEXP randomSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+Rcpp::IntegerVector cps_random_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::NumericVector& random, size_t treeBucketSize, int treeMethod, double eps);
+RcppExport SEXP _BalancedSampling_cps_random_cpp(SEXP probSEXP, SEXP xSEXP, SEXP randomSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type random(randomSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(cps_random_cpp(prob, x, random, bucketSize, method, eps));
+    rcpp_result_gen = Rcpp::wrap(cps_random_cpp(prob, x, random, treeBucketSize, treeMethod, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -56,18 +56,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // lcube_cpp
-Rcpp::IntegerVector lcube_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& xbal, Rcpp::NumericMatrix& xspread, int bucketSize, int method, double eps);
-RcppExport SEXP _BalancedSampling_lcube_cpp(SEXP probSEXP, SEXP xbalSEXP, SEXP xspreadSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+Rcpp::IntegerVector lcube_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& xbal, Rcpp::NumericMatrix& xspread, size_t treeBucketSize, int treeMethod, double eps);
+RcppExport SEXP _BalancedSampling_lcube_cpp(SEXP probSEXP, SEXP xbalSEXP, SEXP xspreadSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xbal(xbalSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xspread(xspreadSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(lcube_cpp(prob, xbal, xspread, bucketSize, method, eps));
+    rcpp_result_gen = Rcpp::wrap(lcube_cpp(prob, xbal, xspread, treeBucketSize, treeMethod, eps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -86,7 +86,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // lcube_stratified_cpp
-Rcpp::IntegerVector lcube_stratified_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& xbalance, Rcpp::NumericMatrix& xspread, Rcpp::IntegerVector& strata, const int bucketSize, const int method, const double eps);
+Rcpp::IntegerVector lcube_stratified_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& xbalance, Rcpp::NumericMatrix& xspread, Rcpp::IntegerVector& strata, const size_t bucketSize, const int method, const double eps);
 RcppExport SEXP _BalancedSampling_lcube_stratified_cpp(SEXP probSEXP, SEXP xbalanceSEXP, SEXP xspreadSEXP, SEXP strataSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -95,7 +95,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xbalance(xbalanceSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xspread(xspreadSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type strata(strataSEXP);
-    Rcpp::traits::input_parameter< const int >::type bucketSize(bucketSizeSEXP);
+    Rcpp::traits::input_parameter< const size_t >::type bucketSize(bucketSizeSEXP);
     Rcpp::traits::input_parameter< const int >::type method(methodSEXP);
     Rcpp::traits::input_parameter< const double >::type eps(epsSEXP);
     rcpp_result_gen = Rcpp::wrap(lcube_stratified_cpp(prob, xbalance, xspread, strata, bucketSize, method, eps));
@@ -103,61 +103,61 @@ BEGIN_RCPP
 END_RCPP
 }
 // getpps_cpp
-Rcpp::NumericVector getpps_cpp(Rcpp::NumericVector& x, int n);
+Rcpp::NumericVector getpps_cpp(Rcpp::NumericVector& x, size_t n);
 RcppExport SEXP _BalancedSampling_getpps_cpp(SEXP xSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     rcpp_result_gen = Rcpp::wrap(getpps_cpp(x, n));
     return rcpp_result_gen;
 END_RCPP
 }
-// hlpm2_cpp
-Rcpp::IntegerMatrix hlpm2_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sizes, int bucketSize, int method, double eps);
-RcppExport SEXP _BalancedSampling_hlpm2_cpp(SEXP probSEXP, SEXP xSEXP, SEXP sizesSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+// hlpm2_cpp2
+Rcpp::IntegerMatrix hlpm2_cpp2(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sizes, size_t treeBucketSize, int treeMethod, double eps);
+RcppExport SEXP _BalancedSampling_hlpm2_cpp2(SEXP probSEXP, SEXP xSEXP, SEXP sizesSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type sizes(sizesSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(hlpm2_cpp(prob, x, sizes, bucketSize, method, eps));
+    rcpp_result_gen = Rcpp::wrap(hlpm2_cpp2(prob, x, sizes, treeBucketSize, treeMethod, eps));
     return rcpp_result_gen;
 END_RCPP
 }
 // lpm_cpp
-Rcpp::IntegerVector lpm_cpp(int lpMethod, Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, int bucketSize, int method, double eps);
-RcppExport SEXP _BalancedSampling_lpm_cpp(SEXP lpMethodSEXP, SEXP probSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP, SEXP epsSEXP) {
+Rcpp::IntegerVector lpm_cpp(int lpMethod, Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, size_t treeBucketSize, int treeMethod, double eps);
+RcppExport SEXP _BalancedSampling_lpm_cpp(SEXP lpMethodSEXP, SEXP probSEXP, SEXP xSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP, SEXP epsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type lpMethod(lpMethodSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
-    rcpp_result_gen = Rcpp::wrap(lpm_cpp(lpMethod, prob, x, bucketSize, method, eps));
+    rcpp_result_gen = Rcpp::wrap(lpm_cpp(lpMethod, prob, x, treeBucketSize, treeMethod, eps));
     return rcpp_result_gen;
 END_RCPP
 }
 // lpm_int_cpp
-Rcpp::IntegerVector lpm_int_cpp(int lpMethod, int n, Rcpp::NumericMatrix& x, int bucketSize, int method);
-RcppExport SEXP _BalancedSampling_lpm_int_cpp(SEXP lpMethodSEXP, SEXP nSEXP, SEXP xSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
+Rcpp::IntegerVector lpm_int_cpp(int lpMethod, size_t n, Rcpp::NumericMatrix& x, size_t treeBucketSize, int treeMethod);
+RcppExport SEXP _BalancedSampling_lpm_int_cpp(SEXP lpMethodSEXP, SEXP nSEXP, SEXP xSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type lpMethod(lpMethodSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(lpm_int_cpp(lpMethod, n, x, bucketSize, method));
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
+    rcpp_result_gen = Rcpp::wrap(lpm_int_cpp(lpMethod, n, x, treeBucketSize, treeMethod));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -186,62 +186,62 @@ BEGIN_RCPP
 END_RCPP
 }
 // sb_sumofsquares_cpp
-double sb_sumofsquares_cpp(Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sample, int bucketSize, int method);
-RcppExport SEXP _BalancedSampling_sb_sumofsquares_cpp(SEXP xSEXP, SEXP sampleSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
+double sb_sumofsquares_cpp(Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sample, size_t treeBucketSize, size_t treeMethod);
+RcppExport SEXP _BalancedSampling_sb_sumofsquares_cpp(SEXP xSEXP, SEXP sampleSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(sb_sumofsquares_cpp(x, sample, bucketSize, method));
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< size_t >::type treeMethod(treeMethodSEXP);
+    rcpp_result_gen = Rcpp::wrap(sb_sumofsquares_cpp(x, sample, treeBucketSize, treeMethod));
     return rcpp_result_gen;
 END_RCPP
 }
 // sb_voronoi_cpp
-double sb_voronoi_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sample, int bucketSize, int method);
-RcppExport SEXP _BalancedSampling_sb_voronoi_cpp(SEXP probSEXP, SEXP xSEXP, SEXP sampleSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
+double sb_voronoi_cpp(Rcpp::NumericVector& prob, Rcpp::NumericMatrix& x, Rcpp::IntegerVector& sample, size_t treeBucketSize, int treeMethod);
+RcppExport SEXP _BalancedSampling_sb_voronoi_cpp(SEXP probSEXP, SEXP xSEXP, SEXP sampleSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type prob(probSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(sb_voronoi_cpp(prob, x, sample, bucketSize, method));
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
+    rcpp_result_gen = Rcpp::wrap(sb_voronoi_cpp(prob, x, sample, treeBucketSize, treeMethod));
     return rcpp_result_gen;
 END_RCPP
 }
 // vsb0_cpp
-double vsb0_cpp(Rcpp::NumericVector& probs, Rcpp::NumericVector& ys, Rcpp::NumericMatrix& xs, int bucketSize, int method);
-RcppExport SEXP _BalancedSampling_vsb0_cpp(SEXP probsSEXP, SEXP ysSEXP, SEXP xsSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
+double vsb0_cpp(Rcpp::NumericVector& probs, Rcpp::NumericVector& ys, Rcpp::NumericMatrix& xs, size_t treeBucketSize, int treeMethod);
+RcppExport SEXP _BalancedSampling_vsb0_cpp(SEXP probsSEXP, SEXP ysSEXP, SEXP xsSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type probs(probsSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type ys(ysSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xs(xsSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(vsb0_cpp(probs, ys, xs, bucketSize, method));
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
+    rcpp_result_gen = Rcpp::wrap(vsb0_cpp(probs, ys, xs, treeBucketSize, treeMethod));
     return rcpp_result_gen;
 END_RCPP
 }
 // vsbn_cpp
-double vsbn_cpp(Rcpp::NumericVector& probs, Rcpp::NumericVector& ys, Rcpp::NumericMatrix& xs, int n, int bucketSize, int method);
-RcppExport SEXP _BalancedSampling_vsbn_cpp(SEXP probsSEXP, SEXP ysSEXP, SEXP xsSEXP, SEXP nSEXP, SEXP bucketSizeSEXP, SEXP methodSEXP) {
+double vsbn_cpp(Rcpp::NumericVector& probs, Rcpp::NumericVector& ys, Rcpp::NumericMatrix& xs, size_t n, size_t treeBucketSize, int treeMethod);
+RcppExport SEXP _BalancedSampling_vsbn_cpp(SEXP probsSEXP, SEXP ysSEXP, SEXP xsSEXP, SEXP nSEXP, SEXP treeBucketSizeSEXP, SEXP treeMethodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type probs(probsSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type ys(ysSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericMatrix& >::type xs(xsSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type bucketSize(bucketSizeSEXP);
-    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(vsbn_cpp(probs, ys, xs, n, bucketSize, method));
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    Rcpp::traits::input_parameter< size_t >::type treeBucketSize(treeBucketSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type treeMethod(treeMethodSEXP);
+    rcpp_result_gen = Rcpp::wrap(vsbn_cpp(probs, ys, xs, n, treeBucketSize, treeMethod));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -254,7 +254,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_cube_stratified_cpp", (DL_FUNC) &_BalancedSampling_cube_stratified_cpp, 4},
     {"_BalancedSampling_lcube_stratified_cpp", (DL_FUNC) &_BalancedSampling_lcube_stratified_cpp, 7},
     {"_BalancedSampling_getpps_cpp", (DL_FUNC) &_BalancedSampling_getpps_cpp, 2},
-    {"_BalancedSampling_hlpm2_cpp", (DL_FUNC) &_BalancedSampling_hlpm2_cpp, 6},
+    {"_BalancedSampling_hlpm2_cpp2", (DL_FUNC) &_BalancedSampling_hlpm2_cpp2, 6},
     {"_BalancedSampling_lpm_cpp", (DL_FUNC) &_BalancedSampling_lpm_cpp, 6},
     {"_BalancedSampling_lpm_int_cpp", (DL_FUNC) &_BalancedSampling_lpm_int_cpp, 5},
     {"_BalancedSampling_rpm_cpp", (DL_FUNC) &_BalancedSampling_rpm_cpp, 2},
