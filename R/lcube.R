@@ -52,7 +52,8 @@
 #' n = 100;
 #' prob = rep(n/N, N);
 #' x = matrix(runif(N * 2), ncol = 2);
-#' s = lcube(prob, x, prob);
+#' xspr = matrix(runif(N * 2), ncol = 2);
+#' s = lcube(prob, xspr, cbind(prob, x,));
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
@@ -61,8 +62,9 @@
 #' n = 100;
 #' prob = rep(n/N, N);
 #' x = matrix(runif(N * 2), ncol = 2);
+#' xspr = matrix(runif(N * 2), ncol = 2);
 #' strata = c(rep(1L, 100), rep(2L, 200), rep(3L, 300), rep(4L, 400));
-#' s = lcubestratified(prob, x, prob, strata);
+#' s = lcubestratified(prob, spr, x, strata);
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
@@ -70,10 +72,11 @@
 #' prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
 #' N = length(prob);
 #' x = matrix(runif(N * 2), ncol = 2);
+#' xspr = matrix(runif(N * 2), ncol = 2);
 #' ep = rep(0L, N);
 #' r = 10000L;
 #' for (i in seq_len(r)) {
-#'   s = lcube(prob, cbind(prob, x), prob);
+#'   s = lcube(prob, xspr, cbind(prob, x));
 #'   ep[s] = ep[s] + 1L;
 #' }
 #' print(ep / r);
