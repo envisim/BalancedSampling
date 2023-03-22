@@ -77,7 +77,7 @@
 #' @examples
 #' \dontrun{
 #' set.seed(12345);
-#' x = genpopPoisson(70, 50, , 2L);
+#' x = genpopUniform(120, 2L);
 #' N = nrow(x);
 #' n = 60;
 #' prob = rep(n / N, N);
@@ -107,7 +107,7 @@ genpopUniform = function(size, dims = 2L, from = 0.0, to = 1.0) {
 #' @examples
 #' \dontrun{
 #' set.seed(12345);
-#' x = genpopPoisson(70, 50, , 2L);
+#' x = genpopPoisson(70, 50, 2L);
 #' N = nrow(x);
 #' n = 60;
 #' prob = rep(n / N, N);
