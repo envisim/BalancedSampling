@@ -33,7 +33,7 @@ Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
 \item{eps}{A small value used to determine when an updated probability is
 close enough to 0.0 or 1.0.}
 
-\item{strata}{An integer vector of length N with stratum numbers.}
+\item{integerStrata}{An integer vector of length N with stratum numbers.}
 }
 \value{
 A vector of selected indices in 1,2,...,N.

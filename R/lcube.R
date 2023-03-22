@@ -26,7 +26,7 @@
 #' @template x_template
 #' @template probs_template
 #'
-#' @param strata An integer vector of length N with stratum numbers.
+#' @param integerStrata An integer vector of length N with stratum numbers.
 #'
 #' @references
 #' Deville, J. C. and Tillé, Y. (2004).
