@@ -28,10 +28,10 @@ The variance estimate.
 Variance estimator of HT estimator of population total.
 }
 \details{
-If \code{n = 0L}, the variance estimate is constructed by using all units that
+If \code{k = 0L}, the variance estimate is constructed by using all units that
 have the minimum distance.
 
-If \code{n > 0L}, the variance estimate is constructed by using the \code{n} closest
+If \code{k > 0L}, the variance estimate is constructed by using the \code{k} closest
 units. If multiple units are located on the border, all are used.
 }
 \section{k-d-trees}{

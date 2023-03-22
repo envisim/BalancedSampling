@@ -11,10 +11,10 @@
 #' Variance estimator of HT estimator of population total.
 #'
 #' @details
-#' If `n = 0L`, the variance estimate is constructed by using all units that
+#' If `k = 0L`, the variance estimate is constructed by using all units that
 #' have the minimum distance.
 #'
-#' If `n > 0L`, the variance estimate is constructed by using the `n` closest
+#' If `k > 0L`, the variance estimate is constructed by using the `k` closest
 #' units. If multiple units are located on the border, all are used.
 #'
 #' @template kdtrees_template
