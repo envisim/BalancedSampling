@@ -99,7 +99,7 @@ x = matrix(runif(N * 2), ncol = 2);
 ep = rep(0L, N);
 r = 10000L;
 for (i in seq_len(r)) {
-  s = lcube(prob, x, prob);
+  s = lcube(prob, cbind(prob, x), prob);
   ep[s] = ep[s] + 1L;
 }
 print(ep / r);

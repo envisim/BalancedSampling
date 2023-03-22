@@ -70,7 +70,7 @@ x = matrix(runif(N * 2), ncol = 2);
 ep = rep(0L, N);
 r = 10000L;
 for (i in seq_len(r)) {
-  s = cube(prob, x);
+  s = cube(prob, cbind(prob, x));
   ep[s] = ep[s] + 1L;
 }
 print(ep / r);
