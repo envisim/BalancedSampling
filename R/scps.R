@@ -14,12 +14,17 @@
 #' The implementation uses the maximal weight strategy, as specified in
 #' Grafström (2012).
 #'
-#' # Coordinated SCPS
+#' ## Coordinated SCPS
 #' If `rand` is supplied, coordinated SCPS will be performed.
 #' The algorithm for coordinated SCPS differs from the SCPS algorithm, as
 #' uncoordinated SCPS chooses a unit to update randomly, whereas coordinated SCPS
 #' traverses the units in the supplied order.
 #' This has a small impact on the efficiency of the algorithm for coordinated SCPS.
+#'
+#' ## Locally Correlated Poisson Sampling (LCPS)
+#' The method differs from SCPS as LPM1 differs from LPM2. In each step of the
+#' algorithm, the unit with the smallest updating distance is chosen as the
+#' deciding unit.
 #'
 #' @templateVar xspread x
 #' @templateVar integerprob TRUE
@@ -44,6 +49,10 @@
 #' Grafström, A. (2012).
 #' Spatially correlated Poisson sampling.
 #' Journal of Statistical Planning and Inference, 142(1), 139-147.
+#'
+#' Prentius, W. (2023).
+#' Locally correlated Poisson sampling.
+#' Manuscript.
 #'
 #' @examples
 #' \dontrun{
@@ -97,6 +106,34 @@ scps = function(
   } else {
     result = .cps_cpp(2L, prob, x, bucketSize, method, eps);
   }
+
+  return(result);
+}
+
+#' Locally Correlated Poisson Sampling
+#'
+#' @describeIn scps
+#'
+lcps = function(
+  prob,
+  x,
+  type = "kdtree2",
+  bucketSize = 50,
+  eps = 1e-12
+) {
+  if (!is.matrix(x)) {
+    x = t(as.matrix(x));
+  } else {
+    x = t(x);
+  }
+
+  N = dim(x)[2L];
+  method = .kdtree_method_check(type, bucketSize);
+  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  .eps_check(eps);
+  prob = .prob_expand(prob, N);
+
+  result = .cps_cpp(1L, prob, x, bucketSize, method, eps);
 
   return(result);
 }

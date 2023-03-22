@@ -2,9 +2,12 @@
 % Please edit documentation in R/cube.R
 \name{cube}
 \alias{cube}
+\alias{cubestratified}
 \title{The Cube method}
 \usage{
 cube(prob, x, eps = 1e-12)
+
+cubestratified(prob, x, strata, eps = 1e-12)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
@@ -13,18 +16,32 @@ cube(prob, x, eps = 1e-12)
 
 \item{eps}{A small value used to determine when an updated probability is
 close enough to 0.0 or 1.0.}
+
+\item{strata}{An integer vector of length N with stratum numbers.}
 }
 \value{
 A vector of selected indices in 1,2,...,N.
 }
 \description{
 Selects balanced samples with prescribed inclusion probabilities
-from a finite population using the Cube Method.
+from a finite population using the fast flight Cube Method.
 }
 \details{
 If \code{prob} sum to an integer n, and \code{prob} is included as the first
 balancing variable, a fixed sized sample (n) will be produced.
+\subsection{Stratified cube}{
+
+For \code{cubestratified}, \code{prob} is automatically inserted as a balancing variable.
+
+The stratified version uses the fast flight Cube method and pooling of
+landing phases.
 }
+}
+\section{Functions}{
+\itemize{
+\item \code{cubestratified()}: 
+
+}}
 \examples{
 \dontrun{
 set.seed(12345);
@@ -33,6 +50,16 @@ n = 100;
 prob = rep(n/N, N);
 x = matrix(runif(N * 2), ncol = 2);
 s = cube(prob, x);
+plot(x[, 1], x[, 2]);
+points(x[s, 1], x[s, 2], pch = 19);
+
+set.seed(12345);
+N = 1000;
+n = 100;
+prob = rep(n/N, N);
+x = matrix(runif(N * 2), ncol = 2);
+strata = c(rep(1L, 100), rep(2L, 200), rep(3L, 300), rep(4L, 400));
+s = cubestratified(prob, x, strata);
 plot(x[, 1], x[, 2]);
 points(x[s, 1], x[s, 2], pch = 19);
 
@@ -58,19 +85,16 @@ Biometrika, 91(4), 893-912.
 Chauvet, G. and Tillé, Y. (2006).
 A fast algorithm for balanced sampling.
 Computational Statistics, 21(1), 53-62.
+
+Chauvet, G. (2009).
+Stratified balanced sampling.
+Survey Methodology, 35, 115-119.
 }
 \seealso{
 Other sampling: 
-\code{\link{cubestratified}()},
 \code{\link{hlpm2}()},
-\code{\link{lcps}()},
-\code{\link{lcubestratified}()},
 \code{\link{lcube}()},
-\code{\link{lpm1search}()},
-\code{\link{lpm1}()},
-\code{\link{lpm2}()},
-\code{\link{rpm}()},
-\code{\link{scps}()},
-\code{\link{spm}()}
+\code{\link{lpm}()},
+\code{\link{scps}()}
 }
 \concept{sampling}

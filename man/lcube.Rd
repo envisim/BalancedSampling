@@ -2,9 +2,20 @@
 % Please edit documentation in R/lcube.R
 \name{lcube}
 \alias{lcube}
+\alias{lcubestratified}
 \title{The Local Cube method}
 \usage{
 lcube(prob, Xspread, Xbal, type = "kdtree2", bucketSize = 50, eps = 1e-12)
+
+lcubestratified(
+  prob,
+  Xspread,
+  Xbal,
+  strata,
+  type = "kdtree2",
+  bucketSize = 50,
+  eps = 1e-12
+)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
@@ -21,6 +32,8 @@ Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
 
 \item{eps}{A small value used to determine when an updated probability is
 close enough to 0.0 or 1.0.}
+
+\item{strata}{An integer vector of length N with stratum numbers.}
 }
 \value{
 A vector of selected indices in 1,2,...,N.
@@ -32,7 +45,19 @@ from a finite population using the Local Cube method.
 \details{
 If \code{prob} sum to an integer n, and \code{prob} is included as the first
 balancing variable, a fixed sized sample (n) will be produced.
+\subsection{Stratified lcube}{
+
+For \code{lcubestratified}, \code{prob} is automatically inserted as a balancing variable.
+
+The stratified version uses the fast flight Cube method and pooling of
+landing phases.
 }
+}
+\section{Functions}{
+\itemize{
+\item \code{lcubestratified()}: 
+
+}}
 \section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
@@ -54,6 +79,16 @@ n = 100;
 prob = rep(n/N, N);
 x = matrix(runif(N * 2), ncol = 2);
 s = lcube(prob, x, prob);
+plot(x[, 1], x[, 2]);
+points(x[s, 1], x[s, 2], pch = 19);
+
+set.seed(12345);
+N = 1000;
+n = 100;
+prob = rep(n/N, N);
+x = matrix(runif(N * 2), ncol = 2);
+strata = c(rep(1L, 100), rep(2L, 200), rep(3L, 300), rep(4L, 400));
+s = lcubestratified(prob, x, prob, strata);
 plot(x[, 1], x[, 2]);
 points(x[s, 1], x[s, 2], pch = 19);
 
@@ -80,22 +115,19 @@ Chauvet, G. and Tillé, Y. (2006).
 A fast algorithm for balanced sampling.
 Computational Statistics, 21(1), 53-62.
 
+Chauvet, G. (2009).
+Stratified balanced sampling.
+Survey Methodology, 35, 115-119.
+
 Grafström, A. and Tillé, Y. (2013).
 Doubly balanced spatial sampling with spreading and restitution of auxiliary totals.
 Environmetrics, 24(2), 120-131
 }
 \seealso{
 Other sampling: 
-\code{\link{cubestratified}()},
 \code{\link{cube}()},
 \code{\link{hlpm2}()},
-\code{\link{lcps}()},
-\code{\link{lcubestratified}()},
-\code{\link{lpm1search}()},
-\code{\link{lpm1}()},
-\code{\link{lpm2}()},
-\code{\link{rpm}()},
-\code{\link{scps}()},
-\code{\link{spm}()}
+\code{\link{lpm}()},
+\code{\link{scps}()}
 }
 \concept{sampling}

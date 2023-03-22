@@ -2,9 +2,12 @@
 % Please edit documentation in R/scps.R
 \name{scps}
 \alias{scps}
+\alias{lcps}
 \title{Spatially Correlated Poisson Sampling}
 \usage{
 scps(prob, x, rand = NULL, type = "kdtree2", bucketSize = 50, eps = 1e-12)
+
+lcps(prob, x, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
@@ -35,8 +38,8 @@ from a finite population using Spatially Correlated Poisson Sampling (SCPS).
 If \code{prob} sum to an integer n, a fixed sized sample (n) will be produced.
 The implementation uses the maximal weight strategy, as specified in
 Grafström (2012).
-}
-\section{Coordinated SCPS}{
+\subsection{Coordinated SCPS}{
+
 If \code{rand} is supplied, coordinated SCPS will be performed.
 The algorithm for coordinated SCPS differs from the SCPS algorithm, as
 uncoordinated SCPS chooses a unit to update randomly, whereas coordinated SCPS
@@ -44,6 +47,18 @@ traverses the units in the supplied order.
 This has a small impact on the efficiency of the algorithm for coordinated SCPS.
 }
 
+\subsection{Locally Correlated Poisson Sampling (LCPS)}{
+
+The method differs from SCPS as LPM1 differs from LPM2. In each step of the
+algorithm, the unit with the smallest updating distance is chosen as the
+deciding unit.
+}
+}
+\section{Functions}{
+\itemize{
+\item \code{lcps()}: 
+
+}}
 \section{k-d-trees}{
 
 The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
@@ -94,19 +109,16 @@ In Center for geometric computing 4th annual workshop on computational geometry 
 Grafström, A. (2012).
 Spatially correlated Poisson sampling.
 Journal of Statistical Planning and Inference, 142(1), 139-147.
+
+Prentius, W. (2023).
+Locally correlated Poisson sampling.
+Manuscript.
 }
 \seealso{
 Other sampling: 
-\code{\link{cubestratified}()},
 \code{\link{cube}()},
 \code{\link{hlpm2}()},
-\code{\link{lcps}()},
-\code{\link{lcubestratified}()},
 \code{\link{lcube}()},
-\code{\link{lpm1search}()},
-\code{\link{lpm1}()},
-\code{\link{lpm2}()},
-\code{\link{rpm}()},
-\code{\link{spm}()}
+\code{\link{lpm}()}
 }
 \concept{sampling}

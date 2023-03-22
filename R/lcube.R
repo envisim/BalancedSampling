@@ -13,12 +13,20 @@
 #' If \code{prob} sum to an integer n, and \code{prob} is included as the first
 #' balancing variable, a fixed sized sample (n) will be produced.
 #'
+#' ## Stratified lcube
+#' For `lcubestratified`, `prob` is automatically inserted as a balancing variable.
+#'
+#' The stratified version uses the fast flight Cube method and pooling of
+#' landing phases.
+#'
 #' @templateVar xbal Xbal
 #' @templateVar xspread Xspread
 #' @template sampling_template
 #' @template kdtrees_template
 #' @template x_template
 #' @template probs_template
+#'
+#' @param strata An integer vector of length N with stratum numbers.
 #'
 #' @references
 #' Deville, J. C. and Tillé, Y. (2004).
@@ -28,6 +36,10 @@
 #' Chauvet, G. and Tillé, Y. (2006).
 #' A fast algorithm for balanced sampling.
 #' Computational Statistics, 21(1), 53-62.
+#'
+#' Chauvet, G. (2009).
+#' Stratified balanced sampling.
+#' Survey Methodology, 35, 115-119.
 #'
 #' Grafström, A. and Tillé, Y. (2013).
 #' Doubly balanced spatial sampling with spreading and restitution of auxiliary totals.
@@ -41,6 +53,16 @@
 #' prob = rep(n/N, N);
 #' x = matrix(runif(N * 2), ncol = 2);
 #' s = lcube(prob, x, prob);
+#' plot(x[, 1], x[, 2]);
+#' points(x[s, 1], x[s, 2], pch = 19);
+#'
+#' set.seed(12345);
+#' N = 1000;
+#' n = 100;
+#' prob = rep(n/N, N);
+#' x = matrix(runif(N * 2), ncol = 2);
+#' strata = c(rep(1L, 100), rep(2L, 200), rep(3L, 300), rep(4L, 400));
+#' s = lcubestratified(prob, x, prob, strata);
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
@@ -85,6 +107,44 @@ lcube = function(
     stop("the size of 'Xbal' and 'Xspread' does not match");
 
   result = .lcube_cpp(prob, Xbal, Xspread, bucketSize, method, eps);
+
+  return(result);
+}
+
+#' Stratified Local Cube method
+#'
+#' @describeIn lcube
+#'
+lcubestratified = function(
+  prob,
+  Xspread,
+  Xbal,
+  strata,
+  type = "kdtree2",
+  bucketSize = 50,
+  eps = 1e-12
+) {
+  if (!is.matrix(Xbal)) {
+    Xbal = as.matrix(Xbal);
+  }
+
+  if (!is.matrix(Xspread)) {
+    Xspread = t(as.matrix(Xspread));
+  } else {
+    Xspread = t(Xspread);
+  }
+
+  N = dim(Xbal)[1L];
+  method = .kdtree_method_check(type, bucketSize);
+  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  .eps_check(eps);
+  prob = .prob_check(prob, N);
+  strata = .strata_check(strata, N);
+
+  if (N != dim(Xspread)[2L])
+    stop("the size of 'Xbal' and 'Xspread' does not match");
+
+  result = .lcube_stratified_cpp(prob, Xbal, Xspread, strata, bucketSize, method, eps);
 
   return(result);
 }

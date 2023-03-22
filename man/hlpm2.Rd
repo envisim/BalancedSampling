@@ -68,10 +68,6 @@ points(x[s, 1], x[s, 2], pch = 19);
 
 }
 \references{
-Grafström, A., Lundström, N.L.P. & Schelin, L. (2012).
-Spatially balanced sampling through the Pivotal method.
-Biometrics 68(2), 514-520.
-
 Friedman, J. H., Bentley, J. L., & Finkel, R. A. (1977).
 An algorithm for finding best matches in logarithmic expected time.
 ACM Transactions on Mathematical Software (TOMS), 3(3), 209-226.
@@ -80,22 +76,19 @@ Maneewongvatana, S., & Mount, D. M. (1999, December).
 It’s okay to be skinny, if your friends are fat.
 In Center for geometric computing 4th annual workshop on computational geometry (Vol. 2, pp. 1-8).
 
+Grafström, A., Lundström, N.L.P. & Schelin, L. (2012).
+Spatially balanced sampling through the Pivotal method.
+Biometrics 68(2), 514-520.
+
 Lisic, J. J., & Cruze, N. B. (2016, June).
 Local pivotal methods for large surveys.
 In Proceedings of the Fifth International Conference on Establishment Surveys.
 }
 \seealso{
 Other sampling: 
-\code{\link{cubestratified}()},
 \code{\link{cube}()},
-\code{\link{lcps}()},
-\code{\link{lcubestratified}()},
 \code{\link{lcube}()},
-\code{\link{lpm1search}()},
-\code{\link{lpm1}()},
-\code{\link{lpm2}()},
-\code{\link{rpm}()},
-\code{\link{scps}()},
-\code{\link{spm}()}
+\code{\link{lpm}()},
+\code{\link{scps}()}
 }
 \concept{sampling}
