@@ -21,7 +21,7 @@ Rcpp::IntegerMatrix hlpm2_cpp2(
   size_t p = x.nrow();
 
   if (N != (size_t)prob.length())
-    std::invalid_argument("prob an x does not match");
+    throw std::invalid_argument("prob an x does not match");
 
   Lpm lpm(
     LpmMethod::lpm2,

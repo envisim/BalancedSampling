@@ -26,7 +26,7 @@ double sb_sumofsquares_cpp(
 
   for (size_t i = 0; i < n; i++) {
     if (sample[i] < 1 || sample[i] > N)
-      Rcpp::stop("'sample' must contain unit indices");
+      throw std::range_error("'sample' must contain unit indices");
 
     std::copy_n(xx + (sample[i] - 1) * p, p, xs + i * p);
   }

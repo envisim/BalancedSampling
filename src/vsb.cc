@@ -60,7 +60,7 @@ double vsbn_cpp(
   int treeMethod
 ) {
   if (n == (size_t)0)
-    std::range_error("n must be >= 1");
+    throw std::range_error("n must be >= 1");
 
   size_t N = xs.ncol();
   size_t p = xs.nrow();

@@ -20,7 +20,7 @@ Rcpp::IntegerVector cube_cpp(
   size_t p = x.ncol();
 
   if (N != (size_t)prob.length())
-    std::invalid_argument("prob and x does not match");
+    throw std::invalid_argument("prob and x does not match");
 
   Cube cube(REAL(prob), REAL(x), N, p, eps);
 
@@ -45,9 +45,9 @@ Rcpp::IntegerVector lcube_cpp(
   size_t pspread = xspread.nrow();
 
   if (N != (size_t)xspread.ncol())
-    std::invalid_argument("xbal and xspread does not match");
+    throw std::invalid_argument("xbal and xspread does not match");
   if (N != (size_t)prob.length())
-    std::invalid_argument("prob and x does not match");
+    throw std::invalid_argument("prob and x does not match");
 
   Cube cube(
     REAL(prob),

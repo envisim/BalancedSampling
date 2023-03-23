@@ -23,7 +23,7 @@ Rcpp::IntegerVector lpm_cpp(
   size_t p = x.nrow();
 
   if (N != (size_t)prob.length())
-    std::invalid_argument("prob an x does not match");
+    throw std::invalid_argument("prob an x does not match");
 
   Lpm lpm(
     IntToLpmMethod(lpMethod),

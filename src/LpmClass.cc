@@ -15,7 +15,7 @@ LpmMethod IntToLpmMethod(const int i) {
   if (1 <= i && i <= 5)
     return static_cast<LpmMethod>(i);
 
-  std::invalid_argument("lpm-method does not exist");
+  throw std::invalid_argument("lpm-method does not exist");
   return LpmMethod::err;
 }
 
@@ -118,7 +118,7 @@ void Lpm::Init(
     _Draw = &Lpm::Draw_spm;
     break;
   default:
-    std::invalid_argument("(Lpm::Init) no such LpmMethod");
+    throw std::invalid_argument("(Lpm::Init) no such LpmMethod");
     return;
   }
 
@@ -315,7 +315,7 @@ void Lpm::Draw_spm() {
       pair[0] += 1;
 
       if (pair[0] >= N)
-        std::range_error("invalid value of pair 0");
+        throw std::range_error("invalid value of pair 0");
     }
   }
 
@@ -330,7 +330,7 @@ void Lpm::Draw_spm() {
   if (!idx->Exists(pair[1])) {
     pair[1] += 1;
     if (pair[1] >= N)
-      std::range_error("invalid value of pair 1");
+      throw std::range_error("invalid value of pair 1");
   }
 
   return;
@@ -453,9 +453,9 @@ void Lpm::Draw() {
 
 void Lpm::Run() {
   if (!set_run)
-    std::runtime_error("_run is nullptr");
+    throw std::runtime_error("_run is nullptr");
   if (!set_draw)
-    std::runtime_error("_draw is nullptr");
+    throw std::runtime_error("_draw is nullptr");
 
   (this->*_Run)();
 

@@ -13,7 +13,7 @@ KDTreeSplitMethod IntToKDTreeSplitMethod(const int i) {
   if (0 <= i && i <= 2)
     return static_cast<KDTreeSplitMethod>(i);
 
-  std::invalid_argument("split method does not exist");
+  throw std::invalid_argument("split method does not exist");
   return KDTreeSplitMethod::midpointSlide;
 }
 
@@ -28,15 +28,15 @@ KDTree::KDTree(
 
   N = t_N;
   if (N < 1)
-    std::invalid_argument("(init) N to small");
+    throw std::invalid_argument("(init) N to small");
 
   p = t_p;
   if (p < 1)
-    std::invalid_argument("(init) p to small");
+    throw std::invalid_argument("(init) p to small");
 
   bucketSize = t_bucketSize;
   if (bucketSize < 1)
-    std::invalid_argument("(init) bucketSize to small");
+    throw std::invalid_argument("(init) bucketSize to small");
 
   method = t_method;
 
@@ -51,7 +51,7 @@ KDTree::KDTree(
     SplitFindSplitUnit = &KDTree::SplitByMidpointSlide;
     break;
   default:
-    std::invalid_argument("split method does not exist");
+    throw std::invalid_argument("split method does not exist");
     return;
   }
 
@@ -130,7 +130,7 @@ void KDTree::SplitNode(KDNode* node, size_t* splitUnits, const size_t n) {
 
   // Sanity check
   if (m > n) {
-    std::range_error("(SplitNodes) m > n");
+    throw std::range_error("(SplitNodes) m > n");
     return;
   }
 
@@ -369,7 +369,7 @@ size_t KDTree::SplitByMidpointSlide(KDNode* node, size_t* splitUnits, const size
   }
 
   // If we managed to come here, something has went horribly worng
-  std::runtime_error("(SplitByMidpointSlide) something went wrong in splitting");
+  throw std::runtime_error("(SplitByMidpointSlide) something went wrong in splitting");
   return 0;
 }
 
@@ -443,7 +443,7 @@ bool KDTree::UnitExists(const size_t id) {
   KDNode* node = FindNode(id);
 
   if (node == nullptr) {
-    std::runtime_error("(UnitExists) node error");
+    throw std::runtime_error("(UnitExists) node error");
     return false;
   }
 
@@ -454,7 +454,7 @@ void KDTree::RemoveUnit(const size_t id) {
   KDNode* node = FindNode(id);
 
   if (node == nullptr) {
-    std::runtime_error("(RemoveExists) node error");
+    throw std::runtime_error("(RemoveExists) node error");
     return;
   }
 
@@ -481,7 +481,7 @@ void KDTree::FindNeighbours(KDStore* store, const size_t id) {
   store->Reset();
 
   if (topNode == nullptr) {
-    std::runtime_error("(FindNeighbours) topNode is nullptr");
+    throw std::runtime_error("(FindNeighbours) topNode is nullptr");
     return;
   }
 
@@ -495,7 +495,7 @@ void KDTree::FindNeighbours(KDStore* store, const double* unit) {
   store->Reset();
 
   if (topNode == nullptr) {
-    std::runtime_error("(FindNeighbours) topNode is nullptr");
+    throw std::runtime_error("(FindNeighbours) topNode is nullptr");
     return;
   }
 
@@ -510,7 +510,7 @@ void KDTree::TraverseNodesForNeighbours(
   KDNode* node
 ) {
   if (node == nullptr) {
-    std::runtime_error("(TraverseNodesForNeighbours) nullptr");
+    throw std::runtime_error("(TraverseNodesForNeighbours) nullptr");
     return;
   }
 
@@ -667,7 +667,7 @@ void KDTree::FindNeighboursCps(
   store->Reset();
 
   if (topNode == nullptr) {
-    std::runtime_error("(FindNeighbours) topNode is nullptr");
+    throw std::runtime_error("(FindNeighbours) topNode is nullptr");
     return;
   }
 
@@ -687,7 +687,7 @@ void KDTree::TraverseNodesForNeighboursCps(
   double* totalWeight
 ) {
   if (node == nullptr) {
-    std::runtime_error("(TraverseNodesForNeighbours) nullptr");
+    throw std::runtime_error("(TraverseNodesForNeighbours) nullptr");
     return;
   }
 

@@ -20,7 +20,7 @@ Rcpp::NumericVector getpps_cpp(
   double xsum = 0.0;
   for (size_t i = 0; i < N; i++) {
     if (x[i] < 0.0)
-      std::range_error("elements in x must be >= 0.0");
+      throw std::range_error("elements in x must be >= 0.0");
 
     xsum += x[i];
   }

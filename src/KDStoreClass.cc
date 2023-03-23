@@ -14,12 +14,12 @@ KDStore::~KDStore() {}
 
 void KDStore::Set(const size_t t_N, const size_t t_maxSize) {
   if (t_maxSize == 0) {
-    std::range_error("(Set) size must be > 0");
+    throw std::range_error("(Set) size must be > 0");
     return;
   }
 
   if (t_N == 0) {
-    std::range_error("(Set) N must be > 0");
+    throw std::range_error("(Set) N must be > 0");
     return;
   }
 
@@ -95,7 +95,7 @@ void KDStore::AddUnitAndReset(const size_t id) {
 void KDStore::SortNeighboursByDistance(const size_t from, const size_t to) {
   size_t size = GetSize();
   if (to <= from || size < to) {
-    std::range_error("(SortNeighboursByDistance) bad input");
+    throw std::range_error("(SortNeighboursByDistance) bad input");
     return;
   }
 
@@ -112,7 +112,7 @@ void KDStore::SortNeighboursByDistance(const size_t from, const size_t to) {
 void KDStore::SortNeighboursByWeight(const size_t from, const size_t to) {
   size_t size = GetSize();
   if (to <= from || size < to) {
-    std::range_error("(SortNeighboursByDistance) bad input");
+    throw std::range_error("(SortNeighboursByDistance) bad input");
     return;
   }
 

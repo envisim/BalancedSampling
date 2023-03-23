@@ -22,7 +22,7 @@ CubeMethod IntToCubeMethod(const int i) {
   if (1 <= i && i <= 2)
     return static_cast<CubeMethod>(i);
 
-  std::invalid_argument("cube-method does not exist");
+  throw std::invalid_argument("cube-method does not exist");
   return CubeMethod::err;
 }
 
@@ -133,7 +133,7 @@ void Cube::InitIndirect(
     store = new KDStore(N, pbalance);
     break;
   default:
-    std::invalid_argument("cubeMethod does not exist");
+    throw std::invalid_argument("cubeMethod does not exist");
     break;
   }
 
@@ -201,7 +201,7 @@ void Cube::Draw_lcube() {
   }
 
   if (size < maxSize) {
-    std::runtime_error("(Draw_lcube) size < maxSize - 1");
+    throw std::runtime_error("(Draw_lcube) size < maxSize - 1");
     return;
   }
 
@@ -283,7 +283,7 @@ void Cube::RunUpdate() {
 
 void Cube::RunFlight() {
   if (!set_draw)
-    std::runtime_error("_Draw is nullptr");
+    throw std::runtime_error("_Draw is nullptr");
 
   // Cases:
   // - choose from tree and all
@@ -309,10 +309,10 @@ void Cube::RunFlight() {
 
 void Cube::RunLanding() {
   if (!set_draw)
-    std::runtime_error("_Draw is nullptr");
+    throw std::runtime_error("_Draw is nullptr");
 
   if (idx->Length() >= pbalance + 1)
-    std::range_error("landingphase committed early");
+    throw std::range_error("landingphase committed early");
 
   while (idx->Length() > 1) {
     size_t maxSize = idx->Length();

@@ -16,7 +16,7 @@ CpsMethod IntToCpsMethod(const int i) {
   if (1 <= i && i <= 3)
     return static_cast<CpsMethod>(i);
 
-  std::invalid_argument("cps-method does not exist");
+  throw std::invalid_argument("cps-method does not exist");
   return CpsMethod::err;
 }
 
@@ -61,7 +61,7 @@ Cps::Cps(
     _Draw = &Cps::Draw_scpscoord;
     break;
   default:
-    std::invalid_argument("(Lpm::Init) no such LpmMethod");
+    throw std::invalid_argument("(Lpm::Init) no such LpmMethod");
     return;
   }
 
@@ -133,31 +133,31 @@ size_t Cps::Draw_lcps() {
     if (idx->Length() == 1)
       return idx->Get(0);
     if (idx->Length() == 0)
-      std::range_error("trying to find index in empty list");
+      throw std::range_error("trying to find index in empty list");
   }
 
   double mindist = DBL_MAX;
   candidates.resize(0);
 
   // Loop through all remaining units.
-  // Put the smallest distances in idxarr
+  // Put the smallest distances in candidates
   for (size_t i = 0; i < idx->Length(); i++) {
-    tree->FindNeighboursCps(store, probabilities, idx->Get(i));
+    size_t id = idx->Get(i);
+    tree->FindNeighboursCps(store, probabilities, id);
     double dist = store->MaximumDistance();
 
     if (dist < mindist) {
       candidates.resize(1);
-      candidates[0] = i;
+      candidates[0] = id;
       mindist = dist;
     } else if (dist == mindist) {
-      candidates.push_back(i);
+      candidates.push_back(id);
     }
   }
 
-  // Choose randomly from the units in idxarr
+  // Choose randomly from the units in candidates
   size_t k = sizeuniform(candidates.size());
-  return idx->Get(candidates[k]);
-
+  return candidates[k];
 }
 
 size_t Cps::Draw_scps() {
@@ -191,9 +191,9 @@ double Cps::Random(const size_t id) {
 
 void Cps::Run() {
   if (!set_draw)
-    std::runtime_error("_Draw is nullptr");
+    throw std::runtime_error("_Draw is nullptr");
   if (!set_random)
-    std::runtime_error("_Random is nullptr");
+    throw std::runtime_error("_Random is nullptr");
 
   while (idx->Length() > 1) {
     size_t id1 = Draw();
