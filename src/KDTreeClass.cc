@@ -176,6 +176,7 @@ size_t KDTree::SplitByVariable(KDNode* node, size_t* splitUnits, const size_t n)
   // n >> 1 tries to split the units by the median
   size_t m = SplitUnitsById(splitUnits, n, n >> 1, node->split);
   node->value = data[MatrixIdxRow(splitUnits[m - 1], node->split, p)];
+
   return m;
 }
 
@@ -424,7 +425,7 @@ size_t KDTree::SplitUnitsById(size_t* splitUnits, const size_t n, const size_t i
   if (id < l)
     return SplitUnitsById(splitUnits, l, id, k);
   if (id >= m)
-    return SplitUnitsById(splitUnits + m, n - m, id - m, k);
+    return m + SplitUnitsById(splitUnits + m, n - m, id - m, k);
 
   return m;
 }
