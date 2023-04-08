@@ -283,14 +283,20 @@ size_t KDTree::SplitByMidpointSlide(KDNode* node, size_t* splitUnits, const size
     if (temp < node->value) {
       l += 1;
 
-      if (temp > lbig)
+      if (temp > lbig) {
         lbig = temp;
+        // If we know there are small units, we don't need to track the big
+        rsmall = -DBL_MAX;
+      }
     } else {
       r -= 1;
       std::swap(splitUnits[l], splitUnits[r]);
 
-      if (temp < rsmall)
+      if (temp < rsmall) {
         rsmall = temp;
+        // If we know there are big units, we don't need to track the small
+        lbig = DBL_MAX;
+      }
     }
   }
 
