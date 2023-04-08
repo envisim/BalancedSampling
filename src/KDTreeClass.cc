@@ -378,57 +378,51 @@ size_t KDTree::SplitUnitsById(size_t* splitUnits, const size_t n, const size_t i
   size_t* tunits = new size_t[n];
   double* dt = data + k;
   size_t l = 0;
+  size_t m = 0;
   size_t r = n;
   double value = *(dt + splitUnits[id] * p); // Proposed splitting value
 
-  // Split units so that unit such that
+  // Split units so that we get
   // x < value is in range [0, l)
   // x > value is in range [r, n)
+  // x = value in tunits
   // where value is of the proposed index id
-  for (size_t i = 0; i < n; i++) {
+  for (size_t i = 0; i < r;) {
     double temp = *(dt + splitUnits[i] * p);
     if (temp < value) {
-      tunits[l] = splitUnits[i];
+      if (i != l)
+        splitUnits[l] = splitUnits[i];
+      i += 1;
       l += 1;
     } else if (temp > value) {
       r -= 1;
-      tunits[r] = splitUnits[i];
-    }
-  }
-
-  // Fill tunits with the equals as well
-  size_t m = l;
-  for (size_t i = 0; i < n; i++) {
-    double temp = *(dt + splitUnits[i] * p);
-    if (temp == value) {
+      std::swap(splitUnits[i], splitUnits[r]);
+    } else {
       tunits[m] = splitUnits[i];
+      i += 1;
       m += 1;
     }
   }
 
-  // Now we have groups
-  // x < value in range [0, l)
-  // x == value in range [l, m)
-  // x > value in range [m, n)
-  // where m == r
-  // where value is of the proposed split at id
+  // Put back mid units into splitUnits
+  for (size_t i = 0; i < m; i++)
+    splitUnits[l + i] = tunits[i];
 
-  // Put back into splitUnits, and remove tunits
-  for (size_t i = 0; i < n; i++)
-    splitUnits[i] = tunits[i];
   delete[] tunits;
 
+  // l + m = r
   // If the proposed id exists in [0, l), we need to sort this part further
-  // If the proposed id exists in [m, n), we need to sort this part further
-  // If the proposed id exists in [l, m), we are fine with choosing m
-  // 0, ..., l, ..., m, ..., n
+  // If the proposed id exists in [r, n), we need to sort this part further
+  // If the proposed id exists in [l, r), we are fine with choosing r
+  // 0, ..., l, ..., r, ..., n
   if (id < l)
     return SplitUnitsById(splitUnits, l, id, k);
-  if (id >= m)
-    return m + SplitUnitsById(splitUnits + m, n - m, id - m, k);
+  if (id >= r)
+    return r + SplitUnitsById(splitUnits + r, n - r, id - r, k);
 
-  return m;
+  return r;
 }
+
 
 KDNode* KDTree::FindNode(const size_t id) {
   double* unit = data + id * p;
