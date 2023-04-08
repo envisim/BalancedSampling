@@ -2,6 +2,7 @@
 #include <float.h>
 #include <stddef.h>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include "KDNodeClass.h"
@@ -267,29 +268,26 @@ size_t KDTree::SplitByMidpointSlide(KDNode* node, size_t* splitUnits, const size
   if (spread == 0.0)
     return 0;
 
-  size_t* tunits = new size_t[n];
   double* dt = data + node->split;
   size_t l = 0;
   size_t r = n;
   double lbig = -DBL_MAX;
   double rsmall = DBL_MAX;
 
-
-  // Split units so that unit such that
+  // Sort splitUnits so that we have
   // x <= value is in range [0, l)
   // x > value is in range [r, n)
   // where value is the proposed split
-  for (size_t i = 0; i < n; i++) {
-    double temp = *(dt + splitUnits[i] * p);
-    if (temp <= node->value) {
-      tunits[l] = splitUnits[i];
+  while (l < r) {
+    double temp = *(dt + splitUnits[l] * p);
+    if (temp < node->value) {
       l += 1;
 
       if (temp > lbig)
         lbig = temp;
     } else {
       r -= 1;
-      tunits[r] = splitUnits[i];
+      std::swap(splitUnits[l], splitUnits[r]);
 
       if (temp < rsmall)
         rsmall = temp;
@@ -298,15 +296,8 @@ size_t KDTree::SplitByMidpointSlide(KDNode* node, size_t* splitUnits, const size
 
   // If there exists units on both sides of the splitting value
   // we can be satisfied with the proposed split
-  if (l > 0 && r < n) {
-    for (size_t i = 0; i < n; i++)
-      splitUnits[i] = tunits[i];
-
-    delete[] tunits;
+  if (l > 0 && r < n)
     return l;
-  }
-
-  delete[] tunits;
 
   // Now we have two cases: either
   // (1) all units are <= than the proposed splitting value, or
@@ -318,11 +309,8 @@ size_t KDTree::SplitByMidpointSlide(KDNode* node, size_t* splitUnits, const size
     for (size_t i = 0; i < n; i++) {
       double temp = *(dt + splitUnits[i] * p);
       if (temp == rsmall) {
-        if (i != l) {
-          size_t t = splitUnits[l];
-          splitUnits[l] = splitUnits[i];
-          splitUnits[i] = t;
-        }
+        if (i != l)
+          std::swap(splitUnits[i], splitUnits[l]);
 
         l += 1;
       }
@@ -348,11 +336,9 @@ size_t KDTree::SplitByMidpointSlide(KDNode* node, size_t* splitUnits, const size
       double temp = *(dt + splitUnits[i] * p);
       if (temp == lbig) {
         r -= 1;
-        if (i != r) {
-          int t = splitUnits[r];
-          splitUnits[r] = splitUnits[i];
-          splitUnits[i] = t;
-        }
+
+        if (i != r)
+          std::swap(splitUnits[i], splitUnits[r]);
       } else {
         if (temp > rsmall)
           rsmall = temp;
