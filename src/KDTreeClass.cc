@@ -769,7 +769,7 @@ void KDTree::SearchNodeForNeighboursCps(
   // - The node minimum is larger than the current maximum
   // - The node minimum is somewhere inbetween
   size_t i;
-  if (originalSize == 0 || nodeMinimum < store->MinimumDistance()) {
+  if (originalSize == 0 || nodeMinimum < store->GetDistance(0)) {
     i = 0;
     *totalWeight = 0.0;
   // } else if (nodeMinDistance >= currentMaxDistance) {
@@ -783,6 +783,9 @@ void KDTree::SearchNodeForNeighboursCps(
     }
 
     i += 1;
+    // "i" is now pointing to the biggest unit removed from totalWeight
+    // Remember that the loop must have been break:ed, since otherwise
+    // it would have chosen the other if-else path
   }
 
   // Sort the range [i, neighbours.size())
@@ -790,11 +793,15 @@ void KDTree::SearchNodeForNeighboursCps(
 
   // When this loop breaks, we have an i that is at least as large as needed
   // 'i' will then be the smallest unit that is not to be included
-  for(i += 1; i < storeSize; i++) {
-    if (*totalWeight >= 1.0 && store->GetDistance(i - 1) < store->GetDistance(i))
+  double prevDist = i == 0 ? -1.0 : store->GetDistance(i - 1);
+  while(i < storeSize) {
+    double thisDist = store->GetDistance(i);
+    if (*totalWeight >= 1.0 && prevDist < thisDist)
       break;
 
+    prevDist = thisDist;
     *totalWeight += store->GetWeight(i);
+    i += 1;
   }
 
   store->neighbours.resize(i);
