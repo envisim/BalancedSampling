@@ -33,6 +33,7 @@ void ReducedRowEchelonForm(
     if (i != r) {
       double *bi = mat + MatrixIdx(i, (size_t)0, colCount);
 
+      // Swap rows
       for (size_t k = 0; k < colCount; k++) {
         double temp = bi[k];
         bi[k] = br[k];
@@ -40,19 +41,23 @@ void ReducedRowEchelonForm(
       }
     }
 
-    if (br[lead] != 0.0) {
+    // Divide by lead, assuming all is 0 before lead
+    /*if (br[lead] != 0.0)*/ {
       double temp = br[lead];
-      for (size_t k = 0; k < colCount; k++) {
+      br[lead] = 1.0;
+      for (size_t k = lead + 1; k < colCount; k++) {
         br[k] /= temp;
       }
     }
 
+    // Remove row r from all outher rows
     for (size_t j = 0; j < rowCount; j++) {
       if (j == r)
         continue;
 
       double temp = mat[MatrixIdx(j, lead, colCount)];
-      for (size_t k = 0; k < colCount; k++) {
+      mat[MatrixIdx(j, lead, colCount)] = 0.0;
+      for (size_t k = lead + 1; k < colCount; k++) {
         mat[MatrixIdx(j, k, colCount)] -= br[k] * temp;
       }
     }
