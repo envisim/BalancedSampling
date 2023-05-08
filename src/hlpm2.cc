@@ -7,8 +7,8 @@
 #include "KDTreeClass.h"
 #include "LpmClass.h"
 
-// [[Rcpp::export(.hlpm2_cpp2)]]
-Rcpp::IntegerMatrix hlpm2_cpp2(
+// [[Rcpp::export(.hlpm2_cpp)]]
+Rcpp::IntegerMatrix hlpm2_cpp(
   Rcpp::NumericVector &prob,
   Rcpp::NumericMatrix &x,
   Rcpp::IntegerVector &sizes,

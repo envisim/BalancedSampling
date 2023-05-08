@@ -98,7 +98,7 @@ cube = function(
 cubestratified = function(
   prob,
   x,
-  strata,
+  integerStrata,
   eps = 1e-12
 ) {
   if (!is.matrix(x)) {

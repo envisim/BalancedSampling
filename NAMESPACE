@@ -2,4 +2,7 @@
 
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp,evalCpp)
+importFrom(stats,rnorm)
+importFrom(stats,rpois)
+importFrom(stats,runif)
 useDynLib(BalancedSampling)

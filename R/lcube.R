@@ -122,7 +122,7 @@ lcubestratified = function(
   prob,
   Xspread,
   Xbal,
-  strata,
+  integerStrata,
   type = "kdtree2",
   bucketSize = 50,
   eps = 1e-12

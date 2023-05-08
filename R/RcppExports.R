@@ -29,8 +29,8 @@
     .Call('_BalancedSampling_getpps_cpp', PACKAGE = 'BalancedSampling', x, n)
 }
 
-.hlpm2_cpp2 <- function(prob, x, sizes, treeBucketSize, treeMethod, eps) {
-    .Call('_BalancedSampling_hlpm2_cpp2', PACKAGE = 'BalancedSampling', prob, x, sizes, treeBucketSize, treeMethod, eps)
+.hlpm2_cpp <- function(prob, x, sizes, treeBucketSize, treeMethod, eps) {
+    .Call('_BalancedSampling_hlpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, sizes, treeBucketSize, treeMethod, eps)
 }
 
 .lpm_cpp <- function(lpMethod, prob, x, treeBucketSize, treeMethod, eps) {

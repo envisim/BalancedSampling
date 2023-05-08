@@ -7,7 +7,7 @@
 \usage{
 cube(prob, x, eps = 1e-12)
 
-cubestratified(prob, x, strata, eps = 1e-12)
+cubestratified(prob, x, integerStrata, eps = 1e-12)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}

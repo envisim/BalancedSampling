@@ -61,6 +61,7 @@
 
 #' Generate populations
 #'
+#' @importFrom stats rnorm rpois runif
 #' @description
 #' Generate uniform and poisson cluster process populations
 #'
