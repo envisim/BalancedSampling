@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 #include "uniform.h"
@@ -128,14 +129,21 @@ size_t IndexList::Draw() {
 
 void IndexList::Erase(const size_t id) {
   if (id >= capacity) {
-    throw std::range_error("(erase, 1) Inadmissible value of id");
+    throw std::range_error(
+      "(erase, 1) Inadmissible value of id: " + std::to_string(id) +
+      ", len: " + std::to_string(len)
+    );
     return;
   }
 
   size_t k = reverse[id];
 
   if (k >= len) {
-    throw std::range_error("(erase, 2) Inadmissible value of id, k");
+    throw std::range_error(
+      "(erase, 2) Inadmissible value of id: " + std::to_string(id) +
+      ", k: " + std::to_string(k) +
+      ", len: " + std::to_string(len)
+    );
     return;
   }
 
