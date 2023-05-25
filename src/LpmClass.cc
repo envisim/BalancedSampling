@@ -69,18 +69,16 @@ Lpm::Lpm(
 
   if (N == 0 || t_probn == 0) {
     idx = new IndexList(0);
-    return;
   } else if (t_probn == N) {
     idx = new IndexList(0);
     for (size_t i = 0; i < N; i++)
       AddUnitToSample(i);
-    return;
+  } else {
+    idx = new IndexList(N);
+    idx->Fill();
+    // iprobabilities.resize(0);
+    iprobabilities.resize(N, t_probn);
   }
-
-  idx = new IndexList(N);
-  idx->Fill();
-  // iprobabilities.resize(0);
-  iprobabilities.resize(N, t_probn);
 
   _Run = &Lpm::Run_int;
   set_run = true;
@@ -205,8 +203,8 @@ void Lpm::Draw_lpm1() {
 void Lpm::Draw_lpm2() {
   pair[0] = idx->Draw();
   tree->FindNeighbours(store, pair[0]);
-  pair[1] = store->neighbours[sizeuniform(store->GetSize())];
-
+  size_t k = sizeuniform(store->GetSize());
+  pair[1] = store->neighbours[k];
   return;
 }
 
@@ -311,24 +309,19 @@ void Lpm::Draw_spm() {
     pair[0] = pair[1];
 
     // If the second unit also doesn't exist, increment by 1
-    if (!idx->Exists(pair[0])) {
+    while (!idx->Exists(pair[0])) {
       pair[0] += 1;
 
       if (pair[0] >= N)
         throw std::range_error("invalid value of pair 0");
     }
-  }
 
-  // If we have changed the first unit to be something bigger than the second,
-  // we set the second to be one above the first.
-  if (pair[0] >= pair[1]) {
     pair[1] = pair[0] + 1;
-    return;
   }
 
-  // If the second does no longer exist, increment by 1
-  if (!idx->Exists(pair[1])) {
+  while (!idx->Exists(pair[1])) {
     pair[1] += 1;
+
     if (pair[1] >= N)
       throw std::range_error("invalid value of pair 1");
   }

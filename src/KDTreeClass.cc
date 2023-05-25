@@ -280,7 +280,7 @@ size_t KDTree::SplitByMidpointSlide(KDNode* node, size_t* splitUnits, const size
   // where value is the proposed split
   while (l < r) {
     double temp = *(dt + splitUnits[l] * p);
-    if (temp < node->value) {
+    if (temp <= node->value) {
       l += 1;
 
       if (temp > lbig) {
