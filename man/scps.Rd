@@ -112,7 +112,7 @@ Journal of Statistical Planning and Inference, 142(1), 139-147.
 
 Prentius, W. (2023).
 Locally correlated Poisson sampling.
-Manuscript.
+Environmetrics, e2832.
 }
 \seealso{
 Other sampling: 

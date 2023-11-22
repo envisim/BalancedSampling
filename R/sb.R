@@ -81,8 +81,9 @@ sb = function(
 }
 
 #' @family measure
-#' @describeIn sb Spatial balance using the sum of squares
-sbss = function(
+#' @describeIn sb Spatial balance using local balance
+sblb = function(
+  prob,
   x,
   sample,
   type = "kdtree2",
@@ -97,11 +98,12 @@ sbss = function(
   N = dim(x)[2L];
   method = .kdtree_method_check(type, bucketSize);
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  prob = .prob_expand(prob, N);
 
   if (N < length(sample))
     stop("'sample' must be a vector of unique indices");
 
-  result = .sb_sumofsquares_cpp(x, sample, bucketSize, method);
+  result = .sb_localbalance_cpp(prob, x, sample, bucketSize, method);
 
   return(result);
 }
