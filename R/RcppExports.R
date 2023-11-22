@@ -49,8 +49,8 @@
     .Call('_BalancedSampling_spm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
 }
 
-.sb_sumofsquares_cpp <- function(x, sample, treeBucketSize, treeMethod) {
-    .Call('_BalancedSampling_sb_sumofsquares_cpp', PACKAGE = 'BalancedSampling', x, sample, treeBucketSize, treeMethod)
+.sb_localbalance_cpp <- function(prob, x, sample, treeBucketSize, treeMethod) {
+    .Call('_BalancedSampling_sb_localbalance_cpp', PACKAGE = 'BalancedSampling', prob, x, sample, treeBucketSize, treeMethod)
 }
 
 .sb_voronoi_cpp <- function(prob, x, sample, treeBucketSize, treeMethod) {

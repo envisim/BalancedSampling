@@ -2,7 +2,7 @@ Package: BalancedSampling
 Type: Package
 Title: Balanced and Spatially Balanced Sampling
 Version: 2.0.0
-Date: 2022-06-28
+Date: 2023-11-22
 Author: Anton Grafström, Jonathan Lisic, Wilmer Prentius
 Maintainer: Anton Grafström <anton.grafstrom@gmail.com>
 Description: Select balanced and spatially balanced probability samples in multi-dimensional spaces
@@ -13,10 +13,15 @@ Description: Select balanced and spatially balanced probability samples in multi
     the local cube method (for doubly balanced sampling) are included, see Grafström and Tillé (2013)
     <doi:10.1002/env.2194>.
 License: GPL (>=2)
-Imports: Rcpp (>= 1.0.8)
-LinkingTo: Rcpp
+Imports:
+    Rcpp (>= 1.0.11)
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
 Encoding: UTF-8
-URL: https://www.envisim.se/balancedsampling/, https://github.com/envisim/BalancedSampling/
+URL:
+    https://www.envisim.se/balancedsampling/,
+    https://github.com/envisim/BalancedSampling/
 NeedsCompilation: yes
 SystemRequirements: C++11
 RoxygenNote: 7.2.3

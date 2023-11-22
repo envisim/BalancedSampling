@@ -2,12 +2,12 @@
 % Please edit documentation in R/sb.R
 \name{sb}
 \alias{sb}
-\alias{sbss}
+\alias{sblb}
 \title{Spatial balance}
 \usage{
 sb(prob, x, sample, type = "kdtree2", bucketSize = 10)
 
-sbss(x, sample, type = "kdtree2", bucketSize = 10)
+sblb(prob, x, sample, type = "kdtree2", bucketSize = 10)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
@@ -33,7 +33,7 @@ About voronoi and sumofsquares
 }
 \section{Functions}{
 \itemize{
-\item \code{sbss()}: Spatial balance using the sum of squares
+\item \code{sblb()}: Spatial balance using local balance
 
 }}
 \section{k-d-trees}{

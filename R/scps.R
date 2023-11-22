@@ -52,7 +52,7 @@
 #'
 #' Prentius, W. (2023).
 #' Locally correlated Poisson sampling.
-#' Manuscript.
+#' Environmetrics, e2832.
 #'
 #' @examples
 #' \dontrun{
