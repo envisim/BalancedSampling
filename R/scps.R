@@ -98,7 +98,7 @@ scps = function(
   .eps_check(eps);
   prob = .prob_expand(prob, N);
 
-  if (rand != FALSE && is.vector(rand)) {
+  if (!is.null(rand) && is.vector(rand)) {
     if (length(rand) != N)
       stop("the size of 'rand' and 'x' does not match");
 
