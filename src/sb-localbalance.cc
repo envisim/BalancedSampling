@@ -35,7 +35,7 @@ double sb_localbalance_cpp(
   arma::mat qq(p1, p1, arma::fill::zeros);
 
   for (size_t i = 0; i < n; i++) {
-    if (sample[i] < 1 || sample[i] > (int)N)
+    if (sample[i] < (size_t)1 || sample[i] > (size_t)N)
       throw std::range_error("'sample' must contain unit indices");
 
     size_t idx = sample[i] - 1;

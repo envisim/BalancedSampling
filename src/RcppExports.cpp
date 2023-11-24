@@ -103,15 +103,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// getpps_cpp
-Rcpp::NumericVector getpps_cpp(Rcpp::NumericVector& x, size_t n);
-RcppExport SEXP _BalancedSampling_getpps_cpp(SEXP xSEXP, SEXP nSEXP) {
+// getpips_cpp
+Rcpp::NumericVector getpips_cpp(Rcpp::NumericVector& x, size_t n);
+RcppExport SEXP _BalancedSampling_getpips_cpp(SEXP xSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type x(xSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(getpps_cpp(x, n));
+    rcpp_result_gen = Rcpp::wrap(getpips_cpp(x, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -255,7 +255,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BalancedSampling_lcube_cpp", (DL_FUNC) &_BalancedSampling_lcube_cpp, 6},
     {"_BalancedSampling_cube_stratified_cpp", (DL_FUNC) &_BalancedSampling_cube_stratified_cpp, 4},
     {"_BalancedSampling_lcube_stratified_cpp", (DL_FUNC) &_BalancedSampling_lcube_stratified_cpp, 7},
-    {"_BalancedSampling_getpps_cpp", (DL_FUNC) &_BalancedSampling_getpps_cpp, 2},
+    {"_BalancedSampling_getpips_cpp", (DL_FUNC) &_BalancedSampling_getpips_cpp, 2},
     {"_BalancedSampling_hlpm2_cpp", (DL_FUNC) &_BalancedSampling_hlpm2_cpp, 6},
     {"_BalancedSampling_lpm_cpp", (DL_FUNC) &_BalancedSampling_lpm_cpp, 6},
     {"_BalancedSampling_lpm_int_cpp", (DL_FUNC) &_BalancedSampling_lpm_int_cpp, 5},

@@ -22,13 +22,13 @@
 #' N = 1000;
 #' n = 100;
 #' x = matrix(runif(N * 2), ncol = 2);
-#' prob = getpps(x[, 1], n);
+#' prob = getPips(x[, 1], n);
 #' s = lpm2(prob, x);
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #' }
 #'
-getpps = function(
+getPips = function(
   x,
   n
 ) {
@@ -43,7 +43,7 @@ getpps = function(
   if (n == 0)
     return(rep(0.0, N));
 
-  result = .getpps_cpp(x, n);
+  result = .getpips_cpp(x, n);
 
   return(result);
 }

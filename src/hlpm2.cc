@@ -75,7 +75,7 @@ Rcpp::IntegerMatrix hlpm2_cpp(
 
     // Remove all selected unit from orgTree and orgIdx, and set their subsample
     for (size_t j = 0, k = 0; j < orgSampleSize && k < lpm.sample.size(); j++) {
-      if (sample(j, 0) != lpm.sample[k])
+      if ((size_t)sample(j, 0) != lpm.sample[k])
         continue;
 
       size_t id = lpm.sample[k] - 1;

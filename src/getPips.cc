@@ -2,8 +2,8 @@
 
 #include <Rcpp.h>
 
-// [[Rcpp::export(.getpps_cpp)]]
-Rcpp::NumericVector getpps_cpp(
+// [[Rcpp::export(.getpips_cpp)]]
+Rcpp::NumericVector getpips_cpp(
   Rcpp::NumericVector &x,
   size_t n
 ) {

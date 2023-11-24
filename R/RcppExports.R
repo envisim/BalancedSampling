@@ -25,8 +25,8 @@
     .Call('_BalancedSampling_lcube_stratified_cpp', PACKAGE = 'BalancedSampling', prob, xbalance, xspread, strata, bucketSize, method, eps)
 }
 
-.getpps_cpp <- function(x, n) {
-    .Call('_BalancedSampling_getpps_cpp', PACKAGE = 'BalancedSampling', x, n)
+.getpips_cpp <- function(x, n) {
+    .Call('_BalancedSampling_getpips_cpp', PACKAGE = 'BalancedSampling', x, n)
 }
 
 .hlpm2_cpp <- function(prob, x, sizes, treeBucketSize, treeMethod, eps) {
