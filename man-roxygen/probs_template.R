@@ -1,0 +1,1 @@
+#' @param prob <%=ifelse(exists("integerprob") && integerprob, "A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.", "A vector of length N with inclusion probabilities.") %>
