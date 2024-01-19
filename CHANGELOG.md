@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2024-01-19
+Updated Rcpp dependency to 1.0.12.
+
 ## [2.0.0] - 2023-11-24
 All functions have been rewritten, thus seeds are not respected between this version and previous versions.
 
