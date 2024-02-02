@@ -1,0 +1,10 @@
+.gitignore
+
+aux$
+log$
+out$
+png$
+
+^CHANGELOG\.md$
+^man-roxygen/
+

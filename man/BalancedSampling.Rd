@@ -11,12 +11,12 @@ spaces with any prescribed inclusion probabilities.
 It contains fast (C++ via Rcpp) implementations of the included sampling methods.
 
 You can access the project website at
-\url{https://envisim.se/balancedsampling}.
+\url{https://envisim.se}.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://www.envisim.se/balancedsampling/}
+  \item \url{https://www.envisim.se/}
   \item \url{https://github.com/envisim/BalancedSampling/}
 }
 

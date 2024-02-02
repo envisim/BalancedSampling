@@ -1,8 +1,8 @@
 Package: BalancedSampling
 Type: Package
 Title: Balanced and Spatially Balanced Sampling
-Version: 2.0.1
-Date: 2024-01-19
+Version: 2.0.2
+Date: 2024-02-02
 Author: Anton Grafström, Jonathan Lisic, Wilmer Prentius
 Maintainer: Anton Grafström <anton.grafstrom@gmail.com>
 Description: Select balanced and spatially balanced probability samples in multi-dimensional spaces
@@ -20,9 +20,8 @@ LinkingTo:
     RcppArmadillo
 Encoding: UTF-8
 URL:
-    https://www.envisim.se/balancedsampling/,
+    https://www.envisim.se/,
     https://github.com/envisim/BalancedSampling/
 NeedsCompilation: yes
-SystemRequirements: C++11
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
