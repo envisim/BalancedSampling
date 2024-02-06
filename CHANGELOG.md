@@ -8,12 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.3] - 2024-02-06
+- Bugfixes
+
 ## [2.0.2] - 2024-02-02
 - Removed SystemRequirements
 - Added .Rbuildignore
 
 ## [2.0.1] - 2024-01-19
-Updated Rcpp dependency to 1.0.12.
+- Updated Rcpp dependency to 1.0.12.
 
 ## [2.0.0] - 2023-11-24
 All functions have been rewritten, thus seeds are not respected between this version and previous versions.
@@ -85,4 +88,4 @@ All functions have been rewritten, thus seeds are not respected between this ver
 - Improved the speed of scps.
 
 ## [1.0.0] - 2014-03-19
-First release of version 1.0
+- First release of version 1.0

@@ -54,7 +54,7 @@ Rcpp::IntegerVector lcube_stratified_cpp(
     throw std::invalid_argument("prob and x does not match");
   if (N != (size_t)strata.length())
     throw std::range_error("strata and x does not match");
-  if (N != (size_t)xspread.length())
+  if (N != (size_t)xspread.ncol())
     throw std::range_error("xspread and xbal does not match");
 
   CubeStratified cube(
