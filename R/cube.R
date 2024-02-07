@@ -108,7 +108,7 @@ cubestratified = function(
   N = dim(x)[1L];
   .eps_check(eps);
   prob = .prob_check(prob, N);
-  strata = .strata_check(strata, N);
+  strata = .strata_check(integerStrata, N);
 
   result = .cube_stratified_cpp(prob, x, strata, eps);
 

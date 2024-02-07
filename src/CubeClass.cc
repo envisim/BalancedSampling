@@ -55,9 +55,9 @@ Cube::Cube(
 ) {
   set_direct = true;
   cubeMethod = CubeMethod::lcube;
-  Init(t_probabilities, xxbalance, t_N, t_pbalance, t_eps);
+  tree = new KDTree(xxspread, t_N, t_pspread, t_treeBucketSize, IntToKDTreeSplitMethod(t_treeMethod));
 
-  tree = new KDTree(xxspread, N, t_pspread, t_treeBucketSize, IntToKDTreeSplitMethod(t_treeMethod));
+  Init(t_probabilities, xxbalance, t_N, t_pbalance, t_eps);
 }
 
 // INDIRECT CUBE

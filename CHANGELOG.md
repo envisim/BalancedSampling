@@ -8,8 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.4] - 2024-02-07
+### Fixed
+- `cubestratified`, `lcubestratified`, breaking error
+- `lcube`, bug impacting cases when initial probabilities were <= 0 or >= 1
+
 ## [2.0.3] - 2024-02-06
-- Bugfixes
+### Fixed
+- Bugfixes (`lcubestratified`)
 
 ## [2.0.2] - 2024-02-02
 - Removed SystemRequirements

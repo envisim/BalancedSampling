@@ -53,7 +53,7 @@
 #' prob = rep(n/N, N);
 #' x = matrix(runif(N * 2), ncol = 2);
 #' xspr = matrix(runif(N * 2), ncol = 2);
-#' s = lcube(prob, xspr, cbind(prob, x,));
+#' s = lcube(prob, xspr, cbind(prob, x));
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
@@ -64,7 +64,7 @@
 #' x = matrix(runif(N * 2), ncol = 2);
 #' xspr = matrix(runif(N * 2), ncol = 2);
 #' strata = c(rep(1L, 100), rep(2L, 200), rep(3L, 300), rep(4L, 400));
-#' s = lcubestratified(prob, spr, x, strata);
+#' s = lcubestratified(prob, xspr, x, strata);
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
@@ -142,7 +142,7 @@ lcubestratified = function(
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
   .eps_check(eps);
   prob = .prob_check(prob, N);
-  strata = .strata_check(strata, N);
+  strata = .strata_check(integerStrata, N);
 
   if (N != dim(Xspread)[2L])
     stop("the size of 'Xbal' and 'Xspread' does not match");
