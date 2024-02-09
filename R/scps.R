@@ -76,6 +76,14 @@
 #'   ep[s] = ep[s] + 1L;
 #' }
 #' print(ep / r);
+#'
+#' set.seed(12345);
+#' N = 1000;
+#' n = 100;
+#' prob = rep(n/N, N);
+#' x = matrix(runif(N * 2), ncol = 2);
+#' scps(prob, x);
+#' lcps(prob, x);
 #' }
 #'
 scps = function(

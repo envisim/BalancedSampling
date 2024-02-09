@@ -62,7 +62,7 @@ vsb = function(
   N = dim(xs)[2L];
   method = .kdtree_method_check(type, bucketSize);
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
-  probs = .prob_check(probs);
+  probs = .prob_check(probs, N);
 
   if (length(ys) != N)
     stop("the size of 'ys' and 'xs' does not match");

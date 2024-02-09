@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.5] - 2024-02-09
+### Added
+- Examples for `lpm1, rpm, spm, lcps`.
+
+### Fixed
+- Bugfixes (`vsb`)
+
 ## [2.0.4] - 2024-02-07
 ### Fixed
 - `cubestratified`, `lcubestratified`, breaking error
