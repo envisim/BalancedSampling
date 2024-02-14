@@ -18,6 +18,7 @@ KDTreeSplitMethod IntToKDTreeSplitMethod(const int i) {
   return KDTreeSplitMethod::midpointSlide;
 }
 
+// General constructor for KDTree
 KDTree::KDTree(
   double* t_dt,
   const size_t t_N,
@@ -25,39 +26,7 @@ KDTree::KDTree(
   const size_t t_bucketSize,
   const KDTreeSplitMethod t_method
 ) {
-  data = t_dt;
-
-  N = t_N;
-  if (N < 1)
-    throw std::invalid_argument("(init) N to small");
-
-  p = t_p;
-  if (p < 1)
-    throw std::invalid_argument("(init) p to small");
-
-  bucketSize = t_bucketSize;
-  if (bucketSize < 1)
-    throw std::invalid_argument("(init) bucketSize to small");
-
-  method = t_method;
-
-  switch(method) {
-  case KDTreeSplitMethod::variable:
-    SplitFindSplitUnit = &KDTree::SplitByVariable;
-    break;
-  case KDTreeSplitMethod::maximalSpread:
-    SplitFindSplitUnit = &KDTree::SplitByMaximalSpread;
-    break;
-  case KDTreeSplitMethod::midpointSlide:
-    SplitFindSplitUnit = &KDTree::SplitByMidpointSlide;
-    break;
-  default:
-    throw std::invalid_argument("split method does not exist");
-    return;
-  }
-
-  liml.resize(p, DBL_MAX);
-  limr.resize(p, -DBL_MAX);
+  Init(t_dt, t_N, t_p, t_bucketSize, t_method);
 
   size_t* splitUnits = new size_t[N];
   double* dt = data;
@@ -86,6 +55,87 @@ KDTree::KDTree(
   SplitNode(topNode, splitUnits, N);
 
   delete[] splitUnits;
+}
+
+// Constructor for custom indices
+KDTree::KDTree(
+  double* t_dt,
+  const size_t t_N,
+  const size_t t_p,
+  const size_t t_bucketSize,
+  const KDTreeSplitMethod t_method,
+  size_t* splitUnits,
+  size_t splitUnitsN
+) {
+  Init(t_dt, t_N, t_p, t_bucketSize, t_method);
+
+  // Set limits of current data
+  for (size_t i = 0; i < splitUnitsN; i++) {
+    double* dt = data + splitUnits[i] * p;
+
+    for (size_t k = 0; k < p; k++, dt++) {
+      if (*dt < liml[k])
+        liml[k] = *dt;
+      if (*dt > limr[k])
+        limr[k] = *dt;
+    }
+  }
+
+  // If all existing units fits in a bucket, we're done before we started ...
+  if (N <= bucketSize) {
+    topNode = new KDNode(nullptr, true);
+    topNode->ReplaceUnits(splitUnits, splitUnitsN);
+    return;
+  }
+
+  // ... otherwise, we need to start splitting
+  topNode = new KDNode(nullptr, false);
+  SplitNode(topNode, splitUnits, splitUnitsN);
+
+  // delete[] splitUnits left for the caller
+}
+
+// Common initializers
+void KDTree::Init(
+  double* t_dt,
+  const size_t t_N,
+  const size_t t_p,
+  const size_t t_bucketSize,
+  const KDTreeSplitMethod t_method
+) {
+  data = t_dt;
+
+  N = t_N;
+  if (N < 1)
+    throw std::invalid_argument("(init) N to small");
+
+  p = t_p;
+  if (p < 1)
+    throw std::invalid_argument("(init) p to small");
+
+  liml.resize(p, DBL_MAX);
+  limr.resize(p, -DBL_MAX);
+
+  bucketSize = t_bucketSize;
+  if (bucketSize < 1)
+    throw std::invalid_argument("(init) bucketSize to small");
+
+  method = t_method;
+
+  switch(method) {
+  case KDTreeSplitMethod::variable:
+    SplitFindSplitUnit = &KDTree::SplitByVariable;
+    break;
+  case KDTreeSplitMethod::maximalSpread:
+    SplitFindSplitUnit = &KDTree::SplitByMaximalSpread;
+    break;
+  case KDTreeSplitMethod::midpointSlide:
+    SplitFindSplitUnit = &KDTree::SplitByMidpointSlide;
+    break;
+  default:
+    throw std::invalid_argument("split method does not exist");
+    return;
+  }
 }
 
 // Protected

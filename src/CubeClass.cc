@@ -13,6 +13,8 @@
 #include "uniform.h"
 #include "utils.h"
 
+#include <Rcpp.h>
+
 //**********************************************
 // Author: Wilmer Prentius
 // Licence: GPL (>=2)
@@ -238,6 +240,12 @@ void Cube::RunUpdate() {
   size_t maxSize = MaxSize();
   ReducedRowEchelonForm(&bmat[0], maxSize - 1, maxSize);
 
+  if (idx->Length() == 8) {
+    Rcpp::Rcout << maxSize << " " << idx->Length() << " " << pbalance + 1 << std::endl;
+    Rcpp::NumericMatrix a(maxSize, maxSize - 1, bmat.begin());
+    Rcpp::Rcout << a << std::endl;
+  }
+
   double lambda1 = DBL_MAX;
   double lambda2 = DBL_MAX;
 
@@ -264,6 +272,11 @@ void Cube::RunUpdate() {
     }
   }
 
+  if (idx->Length() == 8) {
+    Rcpp::NumericVector a(uvec.begin(), uvec.end());
+    Rcpp::Rcout << a << std::endl;
+  }
+
   double lambda = stduniform(lambda1 + lambda2) < lambda2 ? lambda1 : -lambda2;
 
   for (size_t i = 0; i < maxSize; i++) {
@@ -284,6 +297,9 @@ void Cube::RunUpdate() {
 void Cube::RunFlight() {
   if (!set_draw)
     throw std::runtime_error("_Draw is nullptr");
+
+  if (idx->Length() < pbalance + 1)
+    return;
 
   // Cases:
   // - choose from tree and all
