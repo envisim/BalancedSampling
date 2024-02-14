@@ -99,7 +99,7 @@ void Cube::Init(
     }
 
     for (size_t k = 0; k < pbalance; k++)
-      amat[MatrixIdxCM(k, i, N)] =
+      amat[MatrixIdxCM(i, k, N)] =
         xxbalance[MatrixIdxCM(i, k, pbalance)] / probabilities[i];
   }
 
@@ -282,6 +282,9 @@ void Cube::RunUpdate() {
 void Cube::RunFlight() {
   if (!set_draw)
     throw std::runtime_error("_Draw is nullptr");
+
+  if (idx->Length() < pbalance + 1)
+    return;
 
   // Cases:
   // - choose from tree and all

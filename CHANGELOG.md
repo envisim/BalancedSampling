@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - `cube, lcube, cubestratified, lcubestratified` error regarding calculation of vectors in null space.
+- `cubestratified, lcubestratified` now slightly more time-efficient for large data sets.
 
 ## [2.0.5] - 2024-02-09
 ### Added

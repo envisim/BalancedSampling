@@ -1,3 +1,4 @@
 .Rhistory
 src/*.o
 src/*.so
+local-testing/
