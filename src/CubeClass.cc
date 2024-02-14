@@ -6,14 +6,14 @@
 #include <vector>
 
 #include "CubeClass.h"
+#include "CubeVectorInNullSpace.h"
 #include "IndexListClass.h"
 #include "KDStoreClass.h"
 #include "KDTreeClass.h"
 #include "ReducedRowEchelonForm.h"
 #include "uniform.h"
 #include "utils.h"
-
-#include <Rcpp.h>
+#include "utils-matrix.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -99,8 +99,8 @@ void Cube::Init(
     }
 
     for (size_t k = 0; k < pbalance; k++)
-      amat[MatrixIdxRow(k, i, N)] =
-        xxbalance[MatrixIdxCol(i, k, pbalance)] / probabilities[i];
+      amat[MatrixIdxCM(i, k, N)] =
+        xxbalance[MatrixIdxCM(i, k, pbalance)] / probabilities[i];
   }
 
   return;
@@ -238,24 +238,14 @@ void Cube::Draw() {
 
 void Cube::RunUpdate() {
   size_t maxSize = MaxSize();
+  // bmat is transposed, and rref'ed
   ReducedRowEchelonForm(&bmat[0], maxSize - 1, maxSize);
-
-  if (idx->Length() == 8) {
-    Rcpp::Rcout << maxSize << " " << idx->Length() << " " << pbalance + 1 << std::endl;
-    Rcpp::NumericMatrix a(maxSize, maxSize - 1, bmat.begin());
-    Rcpp::Rcout << a << std::endl;
-  }
+  CubeVectorInNullSpace(&uvec[0], &bmat[0], maxSize);
 
   double lambda1 = DBL_MAX;
   double lambda2 = DBL_MAX;
 
   for (size_t i = 0; i < maxSize; i++) {
-    if (i == maxSize - 1) {
-      uvec[i] = 1.0;
-    } else {
-      uvec[i] = -bmat[MatrixIdxRow(i, maxSize - 1, maxSize)];
-    }
-
     double lval1 = std::abs(probabilities[candidates[i]] / uvec[i]);
     double lval2 = std::abs((1.0 - probabilities[candidates[i]]) / uvec[i]);
 
@@ -270,11 +260,6 @@ void Cube::RunUpdate() {
       if (lambda2 > lval2)
         lambda2 = lval2;
     }
-  }
-
-  if (idx->Length() == 8) {
-    Rcpp::NumericVector a(uvec.begin(), uvec.end());
-    Rcpp::Rcout << a << std::endl;
   }
 
   double lambda = stduniform(lambda1 + lambda2) < lambda2 ? lambda1 : -lambda2;
@@ -311,9 +296,10 @@ void Cube::RunFlight() {
     Draw();
 
     // Prepare bmat
+    // bmat is stored in Column Major order, but transposed and used in RM.
     for (size_t i = 0; i < maxSize; i++) {
       for (size_t k = 0; k < maxSize - 1; k++) {
-        bmat[MatrixIdxRow(k, i, maxSize)] = amat[MatrixIdxRow(k, candidates[i], N)];
+        bmat[MatrixIdxCM(i, k, maxSize)] = amat[MatrixIdxCM(candidates[i], k, N)];
       }
     }
 
@@ -339,7 +325,7 @@ void Cube::RunLanding() {
       candidates.push_back(id);
 
       for (size_t k = 0; k < maxSize - 1; k++) {
-        bmat[MatrixIdxRow(k, i, maxSize)] = amat[MatrixIdxRow(k, id, N)];
+        bmat[MatrixIdxCM(i, k, maxSize)] = amat[MatrixIdxCM(id, k, N)];
       }
     }
 

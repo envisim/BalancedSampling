@@ -7,8 +7,8 @@
 
 #include "KDNodeClass.h"
 #include "KDStoreClass.h"
-#include "utils.h"
 #include "KDTreeClass.h"
+#include "utils-matrix.h"
 
 KDTreeSplitMethod IntToKDTreeSplitMethod(const int i) {
   if (0 <= i && i <= 2)
@@ -226,7 +226,7 @@ size_t KDTree::SplitByVariable(KDNode* node, size_t* splitUnits, const size_t n)
 
   // n >> 1 tries to split the units by the median
   size_t m = SplitUnitsById(splitUnits, n, n >> 1, node->split);
-  node->value = data[MatrixIdxRow(splitUnits[m - 1], node->split, p)];
+  node->value = data[MatrixIdxRM(splitUnits[m - 1], node->split, p)];
 
   return m;
 }
@@ -273,7 +273,7 @@ size_t KDTree::SplitByMaximalSpread(KDNode* node, size_t* splitUnits, const size
 
   // Find the median unit for splitting
   size_t m = SplitUnitsById(splitUnits, n, n >> 1, node->split);
-  node->value = data[MatrixIdxRow(splitUnits[m - 1], node->split, p)];
+  node->value = data[MatrixIdxRM(splitUnits[m - 1], node->split, p)];
   return m;
 }
 

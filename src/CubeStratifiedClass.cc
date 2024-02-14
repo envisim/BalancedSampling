@@ -7,8 +7,7 @@
 #include "IndexListClass.h"
 #include "KDTreeClass.h"
 #include "utils.h"
-
-#include <Rcpp.h>
+#include "utils-matrix.h"
 
 // CUBE
 CubeStratified::CubeStratified(
@@ -122,14 +121,14 @@ void CubeStratified::Init(
 }
 
 void CubeStratified::PrepareAmat(const size_t id) {
-  cube_->amat[MatrixIdxRow((size_t)0, id, N_)] = 1.0;
+  cube_->amat[MatrixIdxCM(id, (size_t)0, N_)] = 1.0;
   PrepareAmatAux(id, 1);
 }
 
 void CubeStratified::PrepareAmatAux(const size_t id, const size_t offset) {
   for (size_t k = 0; k < p_balance_; k++)
-    cube_->amat[MatrixIdxRow(k + offset, id, N_)] =
-      rptr_xbalance_[MatrixIdxCol(id, k, N_)] / rptr_probabilities_[id];
+    cube_->amat[MatrixIdxCM(id, k + offset, N_)] =
+      rptr_xbalance_[MatrixIdxCM(id, k, N_)] / rptr_probabilities_[id];
 }
 
 void CubeStratified::RunFlightPerStratum() {
@@ -176,15 +175,10 @@ void CubeStratified::RunFlightPerStratum() {
       it->second = tidx->Length();
       stratum_arr_.push_back(it->first);
 
-      Rcpp::Rcout << "(" << it->first << ", " << it->second <<  ") ";
-
       // Add back any undecided units, i.e. units still in the tidx list.
       for (size_t i = 0, tn = tidx->Length(); i < tn; i++) {
-        Rcpp::Rcout << tidx->Get(i) << "{"<< cube_->probabilities[tidx->Get(i)] <<"} ";
         idx_->Add(tidx->Get(i));
       }
-
-      Rcpp::Rcout << "[" << idx_->Length() << "]";
 
       ++it;
     }
@@ -192,18 +186,12 @@ void CubeStratified::RunFlightPerStratum() {
     cube_->idx = nullptr;
     delete tidx;
   }
-  Rcpp::Rcout << std::endl;
 }
 
 void CubeStratified::RunFlightOnFull() {
   size_t stratum_size = stratum_map_.size();
   size_t max_competitors = p_balance_ + 1 + stratum_size; // p + 1 + pi per stratum
   cube_->idx = idx_;
-
-  Rcpp::Rcout << idx_->Length() << " " << max_competitors << std::endl;
-  for (size_t i = 0, in = idx_->Length(); i <in; i++)
-    Rcpp::Rcout << idx_->Get(i) << " ";
-  Rcpp::Rcout << std::endl;
 
   // If we don't have enough units to run a flight step, skip it
   if (idx_->Length() < max_competitors)
@@ -216,7 +204,7 @@ void CubeStratified::RunFlightOnFull() {
     size_t id = idx_->Get(i);
 
     for (size_t k = 0; k < stratum_size; k++)
-      cube_->amat[MatrixIdxRow(k, id, N_)] = (rptr_strata_[id] == stratum_arr_[k]) ? 1.0 : 0.0;
+      cube_->amat[MatrixIdxCM(id, k, N_)] = (rptr_strata_[id] == stratum_arr_[k]) ? 1.0 : 0.0;
 
     PrepareAmatAux(id, stratum_size);
   }
@@ -274,62 +262,8 @@ void CubeStratified::RunLandingPerStratum() {
 
 void CubeStratified::Run() {
   RunFlightPerStratum();
-
-  StratumMap sm;
-  std::sort(cube_->sample.begin(), cube_->sample.end());
-  Rcpp::Rcout << "FPS: " << std::endl;
-  for (size_t i = 0; i < cube_->sample.size(); i++) {
-    int t = rptr_strata_[cube_->sample[i] - 1];
-    if (sm.count(t) == 0)
-      sm[t] = 1;
-    else
-      sm[t] += 1;
-    Rcpp::Rcout << (cube_->sample[i] - 1) << " ";
-  }
-  Rcpp::Rcout << std::endl;
-
-  for (StratumMap::iterator it = sm.begin(); it != sm.end(); ++it)
-    Rcpp::Rcout << it->first << ": " << it->second << std::endl;
-  sm.clear();
-
   RunFlightOnFull();
-
-  std::sort(cube_->sample.begin(), cube_->sample.end());
-  Rcpp::Rcout << "FOF: " << std::endl;
-  for (size_t i = 0; i < cube_->sample.size(); i++) {
-    int t = rptr_strata_[cube_->sample[i] - 1];
-    if (sm.count(t) == 0)
-      sm[t] = 1;
-    else
-      sm[t] += 1;
-  }
-
-  for (size_t i = 0, in = idx_->Length(); i<in; i++)
-    Rcpp::Rcout << idx_->Get(i) << "(" << cube_->probabilities[idx_->Get(i)] << ", " << rptr_strata_[idx_->Get(i)] << ") ";
-  Rcpp::Rcout << std::endl;
-
-  for (StratumMap::iterator it = sm.begin(); it != sm.end(); ++it)
-    Rcpp::Rcout << it->first << ": " << it->second << std::endl;
-  sm.clear();
-
   RunLandingPerStratum();
-
-  for (size_t i = 0; i < cube_->sample.size(); i++) {
-    int t = rptr_strata_[cube_->sample[i] - 1];
-    if (sm.count(t) == 0)
-      sm[t] = 1;
-    else
-      sm[t] += 1;
-  }
-
-  Rcpp::Rcout << "LPS: " << std::endl;
-  for (size_t i = 0, in = idx_->Length(); i<in; i++)
-    Rcpp::Rcout << idx_->Get(i) << "(" << cube_->probabilities[idx_->Get(i)] << ", " << rptr_strata_[idx_->Get(i)] << ") ";
-  Rcpp::Rcout << std::endl;
-
-  for (StratumMap::iterator it = sm.begin(); it != sm.end(); ++it)
-    Rcpp::Rcout << it->first << ": " << it->second << std::endl;
-  sm.clear();
 
   sample_ = cube_->sample;
   std::sort(sample_.begin(), sample_.end());
