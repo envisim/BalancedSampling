@@ -12,6 +12,7 @@
 #include "ReducedRowEchelonForm.h"
 #include "uniform.h"
 #include "utils.h"
+#include "utils-matrix.h"
 
 //**********************************************
 // Author: Wilmer Prentius
@@ -97,8 +98,8 @@ void Cube::Init(
     }
 
     for (size_t k = 0; k < pbalance; k++)
-      amat[MatrixIdxRow(k, i, N)] =
-        xxbalance[MatrixIdxCol(i, k, pbalance)] / probabilities[i];
+      amat[MatrixIdxRM(k, i, N)] =
+        xxbalance[MatrixIdxCM(i, k, pbalance)] / probabilities[i];
   }
 
   return;
@@ -245,7 +246,7 @@ void Cube::RunUpdate() {
     if (i == maxSize - 1) {
       uvec[i] = 1.0;
     } else {
-      uvec[i] = -bmat[MatrixIdxRow(i, maxSize - 1, maxSize)];
+      uvec[i] = -bmat[MatrixIdxRM(i, maxSize - 1, maxSize)];
     }
 
     double lval1 = std::abs(probabilities[candidates[i]] / uvec[i]);
@@ -297,7 +298,7 @@ void Cube::RunFlight() {
     // Prepare bmat
     for (size_t i = 0; i < maxSize; i++) {
       for (size_t k = 0; k < maxSize - 1; k++) {
-        bmat[MatrixIdxRow(k, i, maxSize)] = amat[MatrixIdxRow(k, candidates[i], N)];
+        bmat[MatrixIdxRM(k, i, maxSize)] = amat[MatrixIdxRM(k, candidates[i], N)];
       }
     }
 
@@ -323,7 +324,7 @@ void Cube::RunLanding() {
       candidates.push_back(id);
 
       for (size_t k = 0; k < maxSize - 1; k++) {
-        bmat[MatrixIdxRow(k, i, maxSize)] = amat[MatrixIdxRow(k, id, N)];
+        bmat[MatrixIdxRM(k, i, maxSize)] = amat[MatrixIdxRM(k, id, N)];
       }
     }
 
