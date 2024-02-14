@@ -155,10 +155,10 @@ void CubeStratified::RunFlightPerStratum() {
 
       cube.probabilities[indexSize] = r_prob[id];
 
-      cube.amat[MatrixIdxRM((size_t)0, indexSize, it->second)] = 1.0;
+      cube.amat[MatrixIdxCM(indexSize, (size_t)0, it->second)] = 1.0;
 
       for (size_t k = 0; k < pbalance; k++)
-        cube.amat[MatrixIdxRM(k + 1, indexSize, it->second)] =
+        cube.amat[MatrixIdxCM(indexSize, k + 1, it->second)] =
           r_xbalance[MatrixIdxCM(id, k, N)] / r_prob[id];
 
       if (cubeMethod == CubeMethod::lcube) {
@@ -232,10 +232,10 @@ void CubeStratified::RunFlightOnFull() {
     cube.probabilities[indexSize] = probabilities[id];
 
     for (size_t k = 0; k < strsize; k++)
-      cube.amat[MatrixIdxRM(k, indexSize, idxlen)] = (r_strata[id] == stratumArr[k]) ? 1.0 : 0.0;
+      cube.amat[MatrixIdxCM(indexSize, k, idxlen)] = (r_strata[id] == stratumArr[k]) ? 1.0 : 0.0;
 
     for (size_t k = 0; k < pbalance; k++)
-      cube.amat[MatrixIdxRM(strsize + k, indexSize, idxlen)]
+      cube.amat[MatrixIdxCM(indexSize, strsize + k, idxlen)]
         = r_xbalance[MatrixIdxCM(id, k, N)] / r_prob[id];
 
     if (cubeMethod == CubeMethod::lcube) {
@@ -298,10 +298,10 @@ void CubeStratified::RunLandingPerStratum() {
       tidx->Set(indexSize);
       cube.probabilities[indexSize] = probabilities[id];
 
-      cube.amat[MatrixIdxRM((size_t)0, indexSize, it->second)] = 1.0;
+      cube.amat[MatrixIdxCM(indexSize, (size_t)0, it->second)] = 1.0;
 
       for (size_t k = 0; k < pbalance; k++)
-        cube.amat[MatrixIdxRM(k + 1, indexSize, it->second)] =
+        cube.amat[MatrixIdxCM(indexSize, k + 1, it->second)] =
           r_xbalance[MatrixIdxCM(id, k, N)] / probabilities[id];
     }
 
