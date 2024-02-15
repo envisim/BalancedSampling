@@ -1,8 +1,8 @@
 Package: BalancedSampling
 Type: Package
 Title: Balanced and Spatially Balanced Sampling
-Version: 2.0.5
-Date: 2024-02-09
+Version: 2.0.6
+Date: 2024-02-15
 Author: Anton Grafström, Jonathan Lisic, Wilmer Prentius
 Maintainer: Anton Grafström <anton.grafstrom@gmail.com>
 Description: Select balanced and spatially balanced probability samples in multi-dimensional spaces

@@ -5,6 +5,7 @@ log$
 out$
 png$
 
-^CHANGELOG\.md$
-^man-roxygen/
+CHANGELOG\.md$
+man-roxygen/
+local-testing/
 
