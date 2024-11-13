@@ -71,11 +71,6 @@ void IndexList::Fill() {
   return;
 }
 
-void IndexList::Reset() {
-  len = capacity;
-  return;
-}
-
 void IndexList::Resize(const size_t t_len) {
   if (t_len > capacity) {
     throw std::range_error("(resize) Inadmissable value of len");

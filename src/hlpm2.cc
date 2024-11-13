@@ -41,7 +41,7 @@ Rcpp::IntegerMatrix hlpm2_cpp(
   // Run the algorithm to get a base sample
   lpm.Run();
 
-  orgIdx->Reset();
+  orgIdx->Fill();
   delete lpm.tree;
 
   // Set the return matrix

@@ -20,7 +20,6 @@ public:
   size_t Length();
   size_t Capacity();
   void Fill();
-  void Reset();
   void Resize(const size_t);
   void Shuffle();
 
