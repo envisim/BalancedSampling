@@ -2,8 +2,8 @@
 % Please edit documentation in R/BalancedSampling-package.R
 \docType{package}
 \name{BalancedSampling}
-\alias{BalancedSampling}
 \alias{BalancedSampling-package}
+\alias{BalancedSampling}
 \title{BalancedSampling: Balanced and Spatially Balanced Sampling}
 \description{
 Select balanced and spatially balanced probability samples in multi-dimensional

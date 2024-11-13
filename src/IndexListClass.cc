@@ -57,6 +57,10 @@ size_t IndexList::Length() {
   return len;
 }
 
+size_t IndexList::Capacity() {
+  return capacity;
+}
+
 void IndexList::Fill() {
   for (size_t i = 0; i < capacity; i++) {
     list[i] = i;
@@ -75,7 +79,6 @@ void IndexList::Reset() {
 void IndexList::Resize(const size_t t_len) {
   if (t_len > capacity) {
     throw std::range_error("(resize) Inadmissable value of len");
-    return;
   }
 
   len = t_len;
@@ -99,7 +102,6 @@ void IndexList::Shuffle() {
 void IndexList::Set(const size_t id) {
   if (id >= capacity) {
     throw std::range_error("(set) Inadmissible value of id");
-    return;
   }
 
   list[id] = id;
@@ -109,7 +111,6 @@ void IndexList::Set(const size_t id) {
 void IndexList::Add(const size_t id) {
   if (id >= capacity) {
     throw std::range_error("(add) Inadmissible value of id");
-    return;
   }
 
   // k must not be smaller then len, or it already exists
@@ -125,7 +126,6 @@ void IndexList::Add(const size_t id) {
 size_t IndexList::Get(const size_t k) {
   if (k >= len) {
     throw std::range_error("(get) Inadmissible value of k");
-    // return SIZE_MAX;
   }
 
   return list[k];
@@ -166,7 +166,6 @@ void IndexList::Erase(const size_t id) {
       "(erase, 1) Inadmissible value of id: " + std::to_string(id) +
       ", len: " + std::to_string(len)
     );
-    return;
   }
 
   size_t k = reverse[id];
@@ -177,18 +176,18 @@ void IndexList::Erase(const size_t id) {
       ", k: " + std::to_string(k) +
       ", len: " + std::to_string(len)
     );
-    return;
   }
 
   len -= 1;
+  reverse[id] = capacity;
 
   // Early return, no need to swap
-  if (k == len)
+  if (k == len) {
     return;
+  }
 
-  std::swap(list[k], list[len]);
+  list[k] = list[len];
   reverse[list[k]] = k;
-  reverse[list[len]] = len;
 
   return;
 }

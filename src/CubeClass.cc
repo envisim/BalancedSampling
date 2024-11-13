@@ -100,7 +100,7 @@ void Cube::Init(
 
     for (size_t k = 0; k < pbalance; k++)
       amat[MatrixIdxCM(i, k, N)] =
-        xxbalance[MatrixIdxCM(i, k, pbalance)] / probabilities[i];
+        xxbalance[MatrixIdxCM(i, k, N)] / probabilities[i];
   }
 
   return;
