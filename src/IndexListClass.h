@@ -18,6 +18,7 @@ public:
   size_t* CopyList();
 
   size_t Length();
+  size_t Capacity();
   void Fill();
   void Reset();
   void Resize(const size_t);
