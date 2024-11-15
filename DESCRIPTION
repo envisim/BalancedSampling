@@ -1,9 +1,17 @@
 Package: BalancedSampling
 Type: Package
 Title: Balanced and Spatially Balanced Sampling
-Version: 2.0.7
-Date: 2024-11-13
-Author: Anton Grafström, Jonathan Lisic, Wilmer Prentius
+Version: 2.1.0
+Date: 2024-11-15
+Authors@R: c(
+    person("Anton", "Grafström", email = "anton.grafstrom@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4345-4024")),
+    person("Wilmer", "Prentius", email = "wilmer.prentius@slu.se", role = c("aut"), comment = c(ORCID = "0000-0002-3561-290X")),
+    person("Jonathan", "Lisic", role = c("ctb"))
+    )
+Author:
+    Anton Grafström [aut, cre],
+    Wilmer Prentius [aut],
+    Jonathan Lisic [ctb]
 Maintainer: Anton Grafström <anton.grafstrom@gmail.com>
 Description: Select balanced and spatially balanced probability samples in multi-dimensional spaces
     with any prescribed inclusion probabilities. It contains fast (C++ via Rcpp) implementations of
@@ -12,7 +20,7 @@ Description: Select balanced and spatially balanced probability samples in multi
     <doi:10.1016/j.jspi.2011.07.003> are included. Also the cube method (for balanced sampling) and
     the local cube method (for doubly balanced sampling) are included, see Grafström and Tillé (2013)
     <doi:10.1002/env.2194>.
-License: GPL (>=2)
+License: AGPL-3
 Imports:
     Rcpp (>= 1.0.13)
 LinkingTo:
