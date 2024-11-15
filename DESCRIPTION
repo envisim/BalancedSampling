@@ -1,7 +1,7 @@
 Package: BalancedSampling
 Type: Package
 Title: Balanced and Spatially Balanced Sampling
-Version: 2.1.0
+Version: 2.1.1
 Date: 2024-11-15
 Authors@R: c(
     person("Anton", "Grafström", email = "anton.grafstrom@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4345-4024")),
@@ -9,8 +9,8 @@ Authors@R: c(
     person("Jonathan", "Lisic", role = c("ctb"))
     )
 Author:
-    Anton Grafström [aut, cre],
-    Wilmer Prentius [aut],
+    Anton Grafström [aut, cre] (ORCID: <https://orcid.org/0000-0002-4345-4024>),
+    Wilmer Prentius [aut] (ORCID: <https://orcid.org/0000-0002-3561-290X>),
     Jonathan Lisic [ctb]
 Maintainer: Anton Grafström <anton.grafstrom@gmail.com>
 Description: Select balanced and spatially balanced probability samples in multi-dimensional spaces
