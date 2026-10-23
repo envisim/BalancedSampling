@@ -4,7 +4,7 @@
 \alias{hlpm2}
 \title{Hierarchical Local Pivotal Method 2}
 \usage{
-hlpm2(prob, x, sizes, type = "kdtree2", bucketSize = 50, eps = 1e-12)
+hlpm2(prob, x, sizes, type = "kdtree2", bucketSize = 50L, eps = 1e-10)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
@@ -14,9 +14,7 @@ hlpm2(prob, x, sizes, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 \item{sizes}{A vector of integers containing the sizes of the subsamples.
 \code{sum(sizes) = sum(prob)} must hold.}
 
-\item{type}{The method used in finding nearest neighbours.
-Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
-\code{"notree"}.}
+\item{type}{Deprecated.}
 
 \item{bucketSize}{The maximum size of the terminal nodes in the k-d-trees.}
 
@@ -40,31 +38,16 @@ the combination (i.e. the union of all subsamples), is spatially balanced.
 The inclusion probabilities \code{prob} \emph{must} sum to an integer n.
 The sizes of the subsamples \code{sum(sizes)} \emph{must} sum to the same integer n.
 }
-\section{k-d-trees}{
-
-The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
-according to \code{bucketSize}.
-
-\itemize{
-\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-\item{"notree"} does a naive search for the nearest neighbour.
-}
-}
-
 \examples{
-\dontrun{
 set.seed(12345);
 N = 1000;
 n = 100;
 prob = rep(n/N, N);
 x = matrix(runif(N * 2), ncol = 2);
-sizes = c(10, 20, 30, 40);
+sizes = c(10L, 20L, 30L, 40L);
 s = hlpm2(prob, x, sizes);
 plot(x[, 1], x[, 2]);
 points(x[s, 1], x[s, 2], pch = 19);
-}
 
 }
 \references{
@@ -85,10 +68,10 @@ Local pivotal methods for large surveys.
 In Proceedings of the Fifth International Conference on Establishment Surveys.
 }
 \seealso{
-Other sampling: 
-\code{\link{cube}()},
-\code{\link{lcube}()},
-\code{\link{lpm}()},
-\code{\link{scps}()}
+Other sampling:
+\code{\link[=cube]{cube()}},
+\code{\link[=lcube]{lcube()}},
+\code{\link[=lpm]{lpm()}},
+\code{\link[=scps]{scps()}}
 }
 \concept{sampling}

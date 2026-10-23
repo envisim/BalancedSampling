@@ -55,7 +55,6 @@
 #' Environmetrics, e2832.
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' N = 1000;
 #' n = 100;
@@ -65,6 +64,7 @@
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
+#' \donttest{
 #' set.seed(12345);
 #' prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
 #' N = length(prob);
@@ -76,6 +76,7 @@
 #'   ep[s] = ep[s] + 1L;
 #' }
 #' print(ep / r);
+#' }
 #'
 #' set.seed(12345);
 #' N = 1000;
@@ -84,15 +85,14 @@
 #' x = matrix(runif(N * 2), ncol = 2);
 #' scps(prob, x);
 #' lcps(prob, x);
-#' }
 #'
 scps = function(
   prob,
   x,
   rand = NULL,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
   if (!is.matrix(x)) {
     x = t(as.matrix(x));
@@ -118,16 +118,14 @@ scps = function(
   return(result);
 }
 
-#' Locally Correlated Poisson Sampling
-#'
-#' @describeIn scps
+#' @describeIn scps Locally Correlated Poisson Sampling
 #'
 lcps = function(
   prob,
   x,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
   if (!is.matrix(x)) {
     x = t(as.matrix(x));

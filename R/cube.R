@@ -40,7 +40,6 @@
 #' Survey Methodology, 35, 115-119.
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' N = 1000;
 #' n = 100;
@@ -60,6 +59,7 @@
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
+#' \donttest{
 #' set.seed(12345);
 #' prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
 #' N = length(prob);
@@ -76,7 +76,7 @@
 cube = function(
   prob,
   x,
-  eps = 1e-12
+  eps = 1e-10
 ) {
   if (!is.matrix(x)) {
     x = as.matrix(x);
@@ -86,20 +86,16 @@ cube = function(
   .eps_check(eps);
   prob = .prob_check(prob, N);
 
-  result = .cube_cpp(prob, x, eps);
-
-  return(result);
+  rsamplr::cube(prob, x, eps = eps)
 }
 
-#' Stratified Cube method
-#'
-#' @describeIn cube
+#' @describeIn cube Stratified Cube method
 #'
 cubestratified = function(
   prob,
   x,
   integerStrata,
-  eps = 1e-12
+  eps = 1e-10
 ) {
   if (!is.matrix(x)) {
     x = as.matrix(x);
@@ -110,7 +106,5 @@ cubestratified = function(
   prob = .prob_check(prob, N);
   strata = .strata_check(integerStrata, N);
 
-  result = .cube_stratified_cpp(prob, x, strata, eps);
-
-  return(result);
+  rsamplr::cube_stratified(prob, x, strata, eps = eps)
 }

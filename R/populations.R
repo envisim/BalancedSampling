@@ -76,7 +76,6 @@
 #' @param to A number or a vector of size `dims` with the maximum values
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' x = genpopUniform(120, 2L);
 #' N = nrow(x);
@@ -84,7 +83,6 @@
 #' prob = rep(n / N, N);
 #' s = lpm2(prob, x);
 #' b = sb(prob, x, s);
-#' }
 #'
 genpopUniform = function(size, dims = 2L, from = 0.0, to = 1.0) {
   population = matrix(
@@ -106,7 +104,6 @@ genpopUniform = function(size, dims = 2L, from = 0.0, to = 1.0) {
 #' @param mirror If `TRUE`, the population is mirrored to be inside `from` and `to`.
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' x = genpopPoisson(70, 50, 2L);
 #' N = nrow(x);
@@ -114,7 +111,6 @@ genpopUniform = function(size, dims = 2L, from = 0.0, to = 1.0) {
 #' prob = rep(n / N, N);
 #' s = lpm2(prob, x);
 #' b = sb(prob, x, s);
-#' }
 #'
 genpopPoisson = function(
   parents,

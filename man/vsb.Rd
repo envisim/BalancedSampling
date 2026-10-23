@@ -4,7 +4,7 @@
 \alias{vsb}
 \title{Variance estimator for spatially balanced samples}
 \usage{
-vsb(probs, ys, xs, k = 3L, type = "kdtree2", bucketSize = 40)
+vsb(probs, ys, xs, k = 3L, type = "kdtree2", bucketSize = 40L)
 }
 \arguments{
 \item{probs}{A vector of length n with inclusion probabilities.}
@@ -15,9 +15,7 @@ vsb(probs, ys, xs, k = 3L, type = "kdtree2", bucketSize = 40)
 
 \item{k}{The number of neighbours to construct the means around.}
 
-\item{type}{The method used in finding nearest neighbours.
-Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
-\code{"notree"}.}
+\item{type}{Deprecated.}
 
 \item{bucketSize}{The maximum size of the terminal nodes in the k-d-trees.}
 }
@@ -34,21 +32,7 @@ have the minimum distance.
 If \code{k > 0L}, the variance estimate is constructed by using the \code{k} closest
 units. If multiple units are located on the border, all are used.
 }
-\section{k-d-trees}{
-
-The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
-according to \code{bucketSize}.
-
-\itemize{
-\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-\item{"notree"} does a naive search for the nearest neighbour.
-}
-}
-
 \examples{
-\dontrun{
 set.seed(12345);
 N = 1000;
 n = 100;
@@ -58,7 +42,6 @@ y = runif(N);
 s = lpm2(prob, x);
 vsb(prob[s], y[s], x[s, ]);
 vsb(prob[s], y[s], x[s, ], 0L);
-}
 
 }
 \references{
@@ -67,7 +50,7 @@ How to select representative samples.
 Scandinavian Journal of Statistics, 41(2), 277-290.
 }
 \seealso{
-Other measure: 
-\code{\link{sb}()}
+Other measure:
+\code{\link[=sb]{sb()}}
 }
 \concept{measure}

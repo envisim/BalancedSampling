@@ -17,7 +17,6 @@
 #' @return A vector of inclusion probabilities proportional-to-size
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' N = 1000;
 #' n = 100;
@@ -26,7 +25,6 @@
 #' s = lpm2(prob, x);
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
-#' }
 #'
 getPips = function(
   x,
@@ -43,7 +41,5 @@ getPips = function(
   if (n == 0)
     return(rep(0.0, N));
 
-  result = .getpips_cpp(x, n);
-
-  return(result);
+  rsamplr::pips_from_vector(x, n)
 }

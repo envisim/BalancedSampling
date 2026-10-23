@@ -40,11 +40,11 @@
 #' Spatially balanced sampling through the Pivotal method.
 #' Biometrics 68(2), 514-520.
 #'
-#' Prentius, W, & Grafström A. (2023).
-#' Manuscript.
+#' Prentius, W., & Grafström, A. (2024).
+#' How to find the best sampling design: A new measure of spatial balance.
+#' Environmetrics, 35(7), e2878.
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' N = 500;
 #' n = 70;
@@ -52,32 +52,25 @@
 #' x = matrix(runif(N * 2), ncol = 2);
 #' s = lpm2(prob, x);
 #' b = sb(prob, x, s);
-#' }
-
+#'
 sb = function(
   prob,
   x,
   sample,
   type = "kdtree2",
-  bucketSize = 10
+  bucketSize = 10L
 ) {
   if (!is.matrix(x)) {
-    x = t(as.matrix(x));
-  } else {
-    x = t(x);
+    x = as.matrix(x);
   }
 
-  N = dim(x)[2L];
-  method = .kdtree_method_check(type, bucketSize);
-  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  N = dim(x)[1L];
   prob = .prob_expand(prob, N);
 
   if (N < length(sample))
     stop("'sample' must be a vector of unique indices");
 
-  result = .sb_voronoi_cpp(prob, x, sample, bucketSize, method);
-
-  return(result);
+  rsamplr::spatial_balance_voronoi(sample, prob, x)
 }
 
 #' @family measure
@@ -87,23 +80,17 @@ sblb = function(
   x,
   sample,
   type = "kdtree2",
-  bucketSize = 10
+  bucketSize = 10L
 ) {
   if (!is.matrix(x)) {
-    x = t(as.matrix(x));
-  } else {
-    x = t(x);
+    x = as.matrix(x);
   }
 
-  N = dim(x)[2L];
-  method = .kdtree_method_check(type, bucketSize);
-  bucketSize = .kdtree_bucket_check(N, type, bucketSize);
+  N = dim(x)[1L];
   prob = .prob_expand(prob, N);
 
   if (N < length(sample))
     stop("'sample' must be a vector of unique indices");
 
-  result = .sb_localbalance_cpp(prob, x, sample, bucketSize, method);
-
-  return(result);
+  rsamplr::spatial_balance_local(sample, prob, x, TRUE)
 }

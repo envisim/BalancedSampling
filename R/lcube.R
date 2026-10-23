@@ -46,7 +46,6 @@
 #' Environmetrics, 24(2), 120-131
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' N = 1000;
 #' n = 100;
@@ -68,6 +67,7 @@
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
+#' \donttest{
 #' set.seed(12345);
 #' prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
 #' N = length(prob);
@@ -87,36 +87,29 @@ lcube = function(
   Xspread,
   Xbal,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
   if (!is.matrix(Xbal)) {
     Xbal = as.matrix(Xbal);
   }
 
   if (!is.matrix(Xspread)) {
-    Xspread = t(as.matrix(Xspread));
-  } else {
-    Xspread = t(Xspread);
+    Xspread = as.matrix(Xspread);
   }
 
   N = dim(Xbal)[1L];
-  method = .kdtree_method_check(type, bucketSize);
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
   .eps_check(eps);
   prob = .prob_check(prob, N);
 
-  if (N != dim(Xspread)[2L])
+  if (N != dim(Xspread)[1L])
     stop("the size of 'Xbal' and 'Xspread' does not match");
 
-  result = .lcube_cpp(prob, Xbal, Xspread, bucketSize, method, eps);
-
-  return(result);
+  rsamplr::local_cube(prob, Xspread, Xbal, bucket_size = bucketSize, eps = eps)
 }
 
-#' Stratified Local Cube method
-#'
-#' @describeIn lcube
+#' @describeIn lcube Stratified Local Cube method
 #'
 lcubestratified = function(
   prob,
@@ -124,30 +117,25 @@ lcubestratified = function(
   Xbal,
   integerStrata,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
   if (!is.matrix(Xbal)) {
     Xbal = as.matrix(Xbal);
   }
 
   if (!is.matrix(Xspread)) {
-    Xspread = t(as.matrix(Xspread));
-  } else {
-    Xspread = t(Xspread);
+    Xspread = as.matrix(Xspread);
   }
 
   N = dim(Xbal)[1L];
-  method = .kdtree_method_check(type, bucketSize);
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
   .eps_check(eps);
   prob = .prob_check(prob, N);
   strata = .strata_check(integerStrata, N);
 
-  if (N != dim(Xspread)[2L])
+  if (N != dim(Xspread)[1L])
     stop("the size of 'Xbal' and 'Xspread' does not match");
 
-  result = .lcube_stratified_cpp(prob, Xbal, Xspread, strata, bucketSize, method, eps);
-
-  return(result);
+  rsamplr::local_cube_stratified(prob, Xspread, Xbal, strata, bucket_size = bucketSize, eps = eps)
 }
