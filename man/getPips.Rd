@@ -19,7 +19,6 @@ Computes the first-order inclusion probabilties from a vector of positive number
 for a probabilitiy proportional-to-size design.
 }
 \examples{
-\dontrun{
 set.seed(12345);
 N = 1000;
 n = 100;
@@ -28,7 +27,6 @@ prob = getPips(x[, 1], n);
 s = lpm2(prob, x);
 plot(x[, 1], x[, 2]);
 points(x[s, 1], x[s, 2], pch = 19);
-}
 
 }
 \concept{utils}

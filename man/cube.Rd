@@ -5,9 +5,9 @@
 \alias{cubestratified}
 \title{The Cube method}
 \usage{
-cube(prob, x, eps = 1e-12)
+cube(prob, x, eps = 1e-10)
 
-cubestratified(prob, x, integerStrata, eps = 1e-12)
+cubestratified(prob, x, integerStrata, eps = 1e-10)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities.}
@@ -39,11 +39,10 @@ landing phases.
 }
 \section{Functions}{
 \itemize{
-\item \code{cubestratified()}: 
+\item \code{cubestratified()}: Stratified Cube method
 
 }}
 \examples{
-\dontrun{
 set.seed(12345);
 N = 1000;
 n = 100;
@@ -63,6 +62,7 @@ s = cubestratified(prob, x, strata);
 plot(x[, 1], x[, 2]);
 points(x[s, 1], x[s, 2], pch = 19);
 
+\donttest{
 set.seed(12345);
 prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
 N = length(prob);
@@ -91,10 +91,10 @@ Stratified balanced sampling.
 Survey Methodology, 35, 115-119.
 }
 \seealso{
-Other sampling: 
-\code{\link{hlpm2}()},
-\code{\link{lcube}()},
-\code{\link{lpm}()},
-\code{\link{scps}()}
+Other sampling:
+\code{\link[=hlpm2]{hlpm2()}},
+\code{\link[=lcube]{lcube()}},
+\code{\link[=lpm]{lpm()}},
+\code{\link[=scps]{scps()}}
 }
 \concept{sampling}

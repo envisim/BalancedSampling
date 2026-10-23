@@ -50,7 +50,6 @@ values of the uniform distribution.
 
 }}
 \examples{
-\dontrun{
 set.seed(12345);
 x = genpopUniform(120, 2L);
 N = nrow(x);
@@ -58,9 +57,7 @@ n = 60;
 prob = rep(n / N, N);
 s = lpm2(prob, x);
 b = sb(prob, x, s);
-}
 
-\dontrun{
 set.seed(12345);
 x = genpopPoisson(70, 50, 2L);
 N = nrow(x);
@@ -68,6 +65,5 @@ n = 60;
 prob = rep(n / N, N);
 s = lpm2(prob, x);
 b = sb(prob, x, s);
-}
 
 }

@@ -1,8 +1,8 @@
 Package: BalancedSampling
 Type: Package
 Title: Balanced and Spatially Balanced Sampling
-Version: 2.1.1
-Date: 2024-11-15
+Version: 2.2.0
+Date: 2026-10-23
 Authors@R: c(
     person("Anton", "Grafström", email = "anton.grafstrom@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4345-4024")),
     person("Wilmer", "Prentius", email = "wilmer.prentius@slu.se", role = c("aut"), comment = c(ORCID = "0000-0002-3561-290X")),
@@ -14,22 +14,17 @@ Author:
     Jonathan Lisic [ctb]
 Maintainer: Anton Grafström <anton.grafstrom@gmail.com>
 Description: Select balanced and spatially balanced probability samples in multi-dimensional spaces
-    with any prescribed inclusion probabilities. It contains fast (C++ via Rcpp) implementations of
-    the included sampling methods. The local pivotal method by Grafström, Lundström and Schelin (2012)
-    <doi:10.1111/j.1541-0420.2011.01699.x> and spatially correlated Poisson sampling by Grafström (2012)
-    <doi:10.1016/j.jspi.2011.07.003> are included. Also the cube method (for balanced sampling) and
-    the local cube method (for doubly balanced sampling) are included, see Grafström and Tillé (2013)
-    <doi:10.1002/env.2194>.
+    with any prescribed inclusion probabilities. Since version 2.2.0, it exists as a legacy package, forwarding it''s calls to rsamplr.
 License: AGPL-3
 Imports:
+    rsamplr (>= 0.2.0),
     Rcpp (>= 1.0.13)
 LinkingTo:
-    Rcpp,
-    RcppArmadillo
+    Rcpp
 Encoding: UTF-8
 URL:
     https://www.envisim.se/,
     https://github.com/envisim/BalancedSampling/
 NeedsCompilation: yes
-RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.0.0

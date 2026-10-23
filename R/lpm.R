@@ -70,7 +70,6 @@
 #' Manuscript.
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' N = 1000;
 #' n = 100;
@@ -80,6 +79,7 @@
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
 #'
+#' \donttest{
 #' set.seed(12345);
 #' prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
 #' N = length(prob);
@@ -91,6 +91,7 @@
 #'   ep[s] = ep[s] + 1L;
 #' }
 #' print(ep / r);
+#' }
 #'
 #' set.seed(12345);
 #' N = 1000;
@@ -102,120 +103,100 @@
 #' lpm1s(prob, x);
 #' spm(prob);
 #' rpm(prob);
-#' }
+#'
 lpm = function(
   prob,
   x,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
-  lpm2(prob, x, type, bucketSize, eps);
+  lpm2(prob, x, type, bucketSize, eps)
 }
 
-#' Local Pivotal Method 1 (LPM1)
-#'
-#' @describeIn lpm
+#' @describeIn lpm Local Pivotal Method 1 (LPM1)
 #'
 lpm1 = function(
   prob,
   x,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
   if (!is.matrix(x)) {
-    x = t(as.matrix(x));
-  } else {
-    x = t(x);
+    x = as.matrix(x);
   }
 
-  N = dim(x)[2L];
-  method = .kdtree_method_check(type, bucketSize);
+  N = dim(x)[1L];
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
   .eps_check(eps);
 
   if (.prob_integer_test(prob, N)) {
-    result = .lpm_int_cpp(1, prob, x, bucketSize, method);
+    prob = prob / N;
   } else {
     prob = .prob_check(prob, N);
-    result = .lpm_cpp(1, prob, x, bucketSize, method, eps);
   }
 
-  return(result);
+  rsamplr::lpm_1(prob, x, bucket_size = bucketSize, eps = eps)
 }
 
-#' Local Pivotal Method 2 (LPM2)
-#'
-#' @describeIn lpm
+#' @describeIn lpm Local Pivotal Method 2 (LPM2)
 #'
 lpm2 = function(
   prob,
   x,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
   if (!is.matrix(x)) {
-    x = t(as.matrix(x));
-  } else {
-    x = t(x);
+    x = as.matrix(x);
   }
 
-  N = dim(x)[2L];
-  method = .kdtree_method_check(type, bucketSize);
+  N = dim(x)[1L];
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
   .eps_check(eps);
 
   if (.prob_integer_test(prob, N)) {
-    result = .lpm_int_cpp(2, prob, x, bucketSize, method);
+    prob = prob / N;
   } else {
     prob = .prob_check(prob, N);
-    result = .lpm_cpp(2, prob, x, bucketSize, method, eps);
   }
 
-  return(result);
+  rsamplr::lpm_2(prob, x, bucket_size = bucketSize, eps = eps)
 }
 
-#' Local Pivotal Method 1 search (LPM1s)
-#'
-#' @describeIn lpm
+#' @describeIn lpm Local Pivotal Method 1 fast search (LPM1S)
 #'
 lpm1s = function(
   prob,
   x,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
   if (!is.matrix(x)) {
-    x = t(as.matrix(x));
-  } else {
-    x = t(x);
+    x = as.matrix(x);
   }
 
-  N = dim(x)[2L];
-  method = .kdtree_method_check(type, bucketSize);
+  N = dim(x)[1L];
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
   .eps_check(eps);
 
   if (.prob_integer_test(prob, N)) {
-    result = .lpm_int_cpp(3, prob, x, bucketSize, method);
+    prob = prob / N;
   } else {
     prob = .prob_check(prob, N);
-    result = .lpm_cpp(3, prob, x, bucketSize, method, eps);
   }
 
-  return(result);
+  rsamplr::lpm_1s(prob, x, bucket_size = bucketSize, eps = eps)
 }
 
-#' Sequential Pivotal Method (SPM)
-#'
-#' @describeIn lpm
+#' @describeIn lpm Sequential Pivotal Method (SPM)
 #'
 spm = function(
   prob,
-  eps = 1e-12
+  eps = 1e-10
 ) {
   if (length(prob) == 1)
     stop("'prob' must be a vector of probabilities");
@@ -223,18 +204,14 @@ spm = function(
   prob = as.numeric(prob);
   .eps_check(eps);
 
-  result = .spm_cpp(prob, eps);
-
-  return(result);
+  rsamplr::spm(prob, eps = eps)
 }
 
-#' Random Pivotal Method (RPM)
-#'
-#' @describeIn lpm
+#' @describeIn lpm Random Pivotal Method (RPM)
 #'
 rpm = function(
   prob,
-  eps = 1e-12
+  eps = 1e-10
 ) {
   if (length(prob) == 1)
     stop("'prob' must be a vector of probabilities");
@@ -242,7 +219,5 @@ rpm = function(
   prob = as.numeric(prob);
   .eps_check(eps);
 
-  result = .rpm_cpp(prob, eps);
-
-  return(result);
+  rsamplr::rpm(prob, eps = eps)
 }

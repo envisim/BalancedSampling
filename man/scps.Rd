@@ -5,9 +5,9 @@
 \alias{lcps}
 \title{Spatially Correlated Poisson Sampling}
 \usage{
-scps(prob, x, rand = NULL, type = "kdtree2", bucketSize = 50, eps = 1e-12)
+scps(prob, x, rand = NULL, type = "kdtree2", bucketSize = 50L, eps = 1e-10)
 
-lcps(prob, x, type = "kdtree2", bucketSize = 50, eps = 1e-12)
+lcps(prob, x, type = "kdtree2", bucketSize = 50L, eps = 1e-10)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
@@ -18,9 +18,7 @@ lcps(prob, x, type = "kdtree2", bucketSize = 50, eps = 1e-12)
 If this is supplied, the decision of each unit is taken with the corresponding
 random number. This makes it possible to coordinate the samples.}
 
-\item{type}{The method used in finding nearest neighbours.
-Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
-\code{"notree"}.}
+\item{type}{Deprecated.}
 
 \item{bucketSize}{The maximum size of the terminal nodes in the k-d-trees.}
 
@@ -56,24 +54,10 @@ deciding unit.
 }
 \section{Functions}{
 \itemize{
-\item \code{lcps()}: 
+\item \code{lcps()}: Locally Correlated Poisson Sampling
 
 }}
-\section{k-d-trees}{
-
-The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
-according to \code{bucketSize}.
-
-\itemize{
-\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-\item{"notree"} does a naive search for the nearest neighbour.
-}
-}
-
 \examples{
-\dontrun{
 set.seed(12345);
 N = 1000;
 n = 100;
@@ -83,6 +67,7 @@ s = scps(prob, x);
 plot(x[, 1], x[, 2]);
 points(x[s, 1], x[s, 2], pch = 19);
 
+\donttest{
 set.seed(12345);
 prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
 N = length(prob);
@@ -94,6 +79,7 @@ for (i in seq_len(r)) {
   ep[s] = ep[s] + 1L;
 }
 print(ep / r);
+}
 
 set.seed(12345);
 N = 1000;
@@ -102,7 +88,6 @@ prob = rep(n/N, N);
 x = matrix(runif(N * 2), ncol = 2);
 scps(prob, x);
 lcps(prob, x);
-}
 
 }
 \references{
@@ -123,10 +108,10 @@ Locally correlated Poisson sampling.
 Environmetrics, e2832.
 }
 \seealso{
-Other sampling: 
-\code{\link{cube}()},
-\code{\link{hlpm2}()},
-\code{\link{lcube}()},
-\code{\link{lpm}()}
+Other sampling:
+\code{\link[=cube]{cube()}},
+\code{\link[=hlpm2]{hlpm2()}},
+\code{\link[=lcube]{lcube()}},
+\code{\link[=lpm]{lpm()}}
 }
 \concept{sampling}

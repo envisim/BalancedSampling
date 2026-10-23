@@ -46,34 +46,29 @@
 #' In Proceedings of the Fifth International Conference on Establishment Surveys.
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' N = 1000;
 #' n = 100;
 #' prob = rep(n/N, N);
 #' x = matrix(runif(N * 2), ncol = 2);
-#' sizes = c(10, 20, 30, 40);
+#' sizes = c(10L, 20L, 30L, 40L);
 #' s = hlpm2(prob, x, sizes);
 #' plot(x[, 1], x[, 2]);
 #' points(x[s, 1], x[s, 2], pch = 19);
-#' }
 #'
 hlpm2 = function(
   prob,
   x,
   sizes,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 ) {
   if (!is.matrix(x)) {
-    x = t(as.matrix(x));
-  } else {
-    x = t(x);
+    x = as.matrix(x);
   }
 
-  N = dim(x)[2L];
-  method = .kdtree_method_check(type, bucketSize);
+  N = dim(x)[1L];
   bucketSize = .kdtree_bucket_check(N, type, bucketSize);
   .eps_check(eps);
   prob = .prob_check(prob, N);
@@ -86,7 +81,5 @@ hlpm2 = function(
   if (probsum != sum(sizes))
     stop("'sizes' must sum to an integer same as the sum of 'prob'");
 
-  result = .hlpm2_cpp(prob, x, sizes, bucketSize, method, eps);
-
-  return(result);
+  rsamplr::lpm_2_hierarchical(prob, x, sizes, bucket_size = bucketSize, eps = eps)
 }

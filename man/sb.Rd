@@ -5,9 +5,9 @@
 \alias{sblb}
 \title{Spatial balance}
 \usage{
-sb(prob, x, sample, type = "kdtree2", bucketSize = 10)
+sb(prob, x, sample, type = "kdtree2", bucketSize = 10L)
 
-sblb(prob, x, sample, type = "kdtree2", bucketSize = 10)
+sblb(prob, x, sample, type = "kdtree2", bucketSize = 10L)
 }
 \arguments{
 \item{prob}{A vector of length N with inclusion probabilities, or an integer > 1. If an integer n, then the sample will be drawn with equal probabilities n / N.}
@@ -16,9 +16,7 @@ sblb(prob, x, sample, type = "kdtree2", bucketSize = 10)
 
 \item{sample}{A vector of sample indices.}
 
-\item{type}{The method used in finding nearest neighbours.
-Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
-\code{"notree"}.}
+\item{type}{Deprecated.}
 
 \item{bucketSize}{The maximum size of the terminal nodes in the k-d-trees.}
 }
@@ -36,21 +34,7 @@ About voronoi and sumofsquares
 \item \code{sblb()}: Spatial balance using local balance
 
 }}
-\section{k-d-trees}{
-
-The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
-according to \code{bucketSize}.
-
-\itemize{
-\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-\item{"notree"} does a naive search for the nearest neighbour.
-}
-}
-
 \examples{
-\dontrun{
 set.seed(12345);
 N = 500;
 n = 70;
@@ -58,7 +42,7 @@ prob = rep(n / N, N);
 x = matrix(runif(N * 2), ncol = 2);
 s = lpm2(prob, x);
 b = sb(prob, x, s);
-}
+
 }
 \references{
 Friedman, J. H., Bentley, J. L., & Finkel, R. A. (1977).
@@ -77,14 +61,12 @@ Grafström, A., Lundström, N.L.P. & Schelin, L. (2012).
 Spatially balanced sampling through the Pivotal method.
 Biometrics 68(2), 514-520.
 
-Prentius, W, & Grafström A. (2023).
-Manuscript.
+Prentius, W., & Grafström, A. (2024).
+How to find the best sampling design: A new measure of spatial balance.
+Environmetrics, 35(7), e2878.
 }
 \seealso{
-Other measure: 
-\code{\link{vsb}()}
-
-Other measure: 
-\code{\link{vsb}()}
+Other measure:
+\code{\link[=vsb]{vsb()}}
 }
 \concept{measure}

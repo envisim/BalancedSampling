@@ -9,54 +9,6 @@
     .Call('_BalancedSampling_cps_random_cpp', PACKAGE = 'BalancedSampling', prob, x, random, treeBucketSize, treeMethod, eps)
 }
 
-.cube_cpp <- function(prob, x, eps) {
-    .Call('_BalancedSampling_cube_cpp', PACKAGE = 'BalancedSampling', prob, x, eps)
-}
-
-.lcube_cpp <- function(prob, xbal, xspread, treeBucketSize, treeMethod, eps) {
-    .Call('_BalancedSampling_lcube_cpp', PACKAGE = 'BalancedSampling', prob, xbal, xspread, treeBucketSize, treeMethod, eps)
-}
-
-.cube_stratified_cpp <- function(prob, x, strata, eps) {
-    .Call('_BalancedSampling_cube_stratified_cpp', PACKAGE = 'BalancedSampling', prob, x, strata, eps)
-}
-
-.lcube_stratified_cpp <- function(prob, xbalance, xspread, strata, bucketSize, method, eps) {
-    .Call('_BalancedSampling_lcube_stratified_cpp', PACKAGE = 'BalancedSampling', prob, xbalance, xspread, strata, bucketSize, method, eps)
-}
-
-.getpips_cpp <- function(x, n) {
-    .Call('_BalancedSampling_getpips_cpp', PACKAGE = 'BalancedSampling', x, n)
-}
-
-.hlpm2_cpp <- function(prob, x, sizes, treeBucketSize, treeMethod, eps) {
-    .Call('_BalancedSampling_hlpm2_cpp', PACKAGE = 'BalancedSampling', prob, x, sizes, treeBucketSize, treeMethod, eps)
-}
-
-.lpm_cpp <- function(lpMethod, prob, x, treeBucketSize, treeMethod, eps) {
-    .Call('_BalancedSampling_lpm_cpp', PACKAGE = 'BalancedSampling', lpMethod, prob, x, treeBucketSize, treeMethod, eps)
-}
-
-.lpm_int_cpp <- function(lpMethod, n, x, treeBucketSize, treeMethod) {
-    .Call('_BalancedSampling_lpm_int_cpp', PACKAGE = 'BalancedSampling', lpMethod, n, x, treeBucketSize, treeMethod)
-}
-
-.rpm_cpp <- function(prob, eps) {
-    .Call('_BalancedSampling_rpm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
-}
-
-.spm_cpp <- function(prob, eps) {
-    .Call('_BalancedSampling_spm_cpp', PACKAGE = 'BalancedSampling', prob, eps)
-}
-
-.sb_localbalance_cpp <- function(prob, x, sample, treeBucketSize, treeMethod) {
-    .Call('_BalancedSampling_sb_localbalance_cpp', PACKAGE = 'BalancedSampling', prob, x, sample, treeBucketSize, treeMethod)
-}
-
-.sb_voronoi_cpp <- function(prob, x, sample, treeBucketSize, treeMethod) {
-    .Call('_BalancedSampling_sb_voronoi_cpp', PACKAGE = 'BalancedSampling', prob, x, sample, treeBucketSize, treeMethod)
-}
-
 .vsb0_cpp <- function(probs, ys, xs, treeBucketSize, treeMethod) {
     .Call('_BalancedSampling_vsb0_cpp', PACKAGE = 'BalancedSampling', probs, ys, xs, treeBucketSize, treeMethod)
 }

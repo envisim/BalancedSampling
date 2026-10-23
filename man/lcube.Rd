@@ -5,7 +5,7 @@
 \alias{lcubestratified}
 \title{The Local Cube method}
 \usage{
-lcube(prob, Xspread, Xbal, type = "kdtree2", bucketSize = 50, eps = 1e-12)
+lcube(prob, Xspread, Xbal, type = "kdtree2", bucketSize = 50L, eps = 1e-10)
 
 lcubestratified(
   prob,
@@ -13,8 +13,8 @@ lcubestratified(
   Xbal,
   integerStrata,
   type = "kdtree2",
-  bucketSize = 50,
-  eps = 1e-12
+  bucketSize = 50L,
+  eps = 1e-10
 )
 }
 \arguments{
@@ -24,9 +24,7 @@ lcubestratified(
 
 \item{Xbal}{An N by q matrix of balancing auxiliary variables.}
 
-\item{type}{The method used in finding nearest neighbours.
-Must be one of \code{"kdtree0"}, \code{"kdtree1"}, \code{"kdtree2"}, and
-\code{"notree"}.}
+\item{type}{Deprecated.}
 
 \item{bucketSize}{The maximum size of the terminal nodes in the k-d-trees.}
 
@@ -55,24 +53,10 @@ landing phases.
 }
 \section{Functions}{
 \itemize{
-\item \code{lcubestratified()}: 
+\item \code{lcubestratified()}: Stratified Local Cube method
 
 }}
-\section{k-d-trees}{
-
-The \code{type}s "kdtree" creates k-d-trees with terminal node bucket sizes
-according to \code{bucketSize}.
-
-\itemize{
-\item{"kdtree0"} creates a k-d-tree using a median split on alternating variables.
-\item{"kdtree1"} creates a k-d-tree using a median split on the largest range.
-\item{"kdtree2"} creates a k-d-tree using a sliding-midpoint split.
-\item{"notree"} does a naive search for the nearest neighbour.
-}
-}
-
 \examples{
-\dontrun{
 set.seed(12345);
 N = 1000;
 n = 100;
@@ -94,6 +78,7 @@ s = lcubestratified(prob, xspr, x, strata);
 plot(x[, 1], x[, 2]);
 points(x[s, 1], x[s, 2], pch = 19);
 
+\donttest{
 set.seed(12345);
 prob = c(0.2, 0.25, 0.35, 0.4, 0.5, 0.5, 0.55, 0.65, 0.7, 0.9);
 N = length(prob);
@@ -127,10 +112,10 @@ Doubly balanced spatial sampling with spreading and restitution of auxiliary tot
 Environmetrics, 24(2), 120-131
 }
 \seealso{
-Other sampling: 
-\code{\link{cube}()},
-\code{\link{hlpm2}()},
-\code{\link{lpm}()},
-\code{\link{scps}()}
+Other sampling:
+\code{\link[=cube]{cube()}},
+\code{\link[=hlpm2]{hlpm2()}},
+\code{\link[=lpm]{lpm()}},
+\code{\link[=scps]{scps()}}
 }
 \concept{sampling}

@@ -32,7 +32,6 @@
 #' Scandinavian Journal of Statistics, 41(2), 277-290.
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(12345);
 #' N = 1000;
 #' n = 100;
@@ -42,16 +41,14 @@
 #' s = lpm2(prob, x);
 #' vsb(prob[s], y[s], x[s, ]);
 #' vsb(prob[s], y[s], x[s, ], 0L);
-#' }
 #'
-
 vsb = function(
   probs,
   ys,
   xs,
   k = 3L,
   type = "kdtree2",
-  bucketSize = 40
+  bucketSize = 40L
 ) {
   if (!is.matrix(xs)) {
     xs = t(as.matrix(xs));
